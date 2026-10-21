@@ -1,0 +1,4 @@
+  启动方法(以后自己操作):
+  cd 3d-museum
+  npm install   # 首次或依赖有变化时
+  npm run dev

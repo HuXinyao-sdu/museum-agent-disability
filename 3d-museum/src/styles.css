@@ -1,0 +1,1191 @@
+:root {
+  color: #f7f4ec;
+  background: #111418;
+  font-family:
+    Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  min-width: 320px;
+}
+
+#museum-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #111418;
+}
+
+.museum-panel {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: min(360px, calc(100vw - 40px));
+  max-height: calc(100vh - 40px);
+  padding: 16px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 8px;
+  background: rgb(17 20 24 / 76%);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 28%);
+  backdrop-filter: blur(18px);
+  overflow: auto;
+}
+
+.brand {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.brand-mark {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 6px;
+  color: #f1c365;
+  background: #26313a;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 18px;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.brand p,
+.kicker {
+  margin-top: 4px;
+  color: #aeb8c4;
+  font-size: 12px;
+  letter-spacing: 0;
+}
+
+.load-status {
+  margin: 0 0 12px;
+  color: #d4bd83;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.exhibit-list {
+  display: grid;
+  gap: 8px;
+}
+
+.exhibit-button {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  gap: 10px;
+  width: 100%;
+  min-height: 56px;
+  padding: 10px 12px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 7px;
+  color: #f7f4ec;
+  background: rgb(255 255 255 / 7%);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.exhibit-button:hover,
+.exhibit-button.active {
+  border-color: rgb(241 195 101 / 70%);
+  background: rgb(241 195 101 / 15%);
+}
+
+.exhibit-button:active {
+  transform: translateY(1px);
+}
+
+.swatch {
+  width: 12px;
+  height: 36px;
+  border-radius: 5px;
+  background: var(--accent);
+}
+
+.exhibit-name {
+  display: block;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.exhibit-hall {
+  display: block;
+  margin-top: 4px;
+  color: #aeb8c4;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.toolbar {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+}
+
+.icon-button {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 7px;
+  color: #f7f4ec;
+  background: rgb(17 20 24 / 72%);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 24%);
+  backdrop-filter: blur(18px);
+  cursor: pointer;
+  font-size: 17px;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.icon-button:hover,
+.icon-button.active {
+  border-color: rgb(91 182 181 / 75%);
+  background: rgb(91 182 181 / 18%);
+}
+
+/* —— 展厅操作指南弹窗（右上角 ? 触发，居中显示） —— */
+.guide-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(8 10 14 / 52%);
+  backdrop-filter: blur(3px);
+}
+
+.guide-mask[hidden] {
+  display: none;
+}
+
+.guide-modal {
+  width: min(680px, 96vw);
+  max-height: 86vh;
+  overflow-y: auto;
+  padding: 22px 24px 20px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 14px;
+  background: rgb(17 20 24 / 92%);
+  box-shadow: 0 26px 70px rgb(0 0 0 / 44%);
+  color: #f7f4ec;
+}
+
+.guide-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgb(255 255 255 / 14%);
+}
+
+.guide-head h2 {
+  font-size: 19px;
+  letter-spacing: 2px;
+}
+
+.guide-close {
+  flex: none;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 50%;
+  color: #f7f4ec;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.guide-close:hover {
+  background: rgb(91 182 181 / 22%);
+  border-color: rgb(91 182 181 / 60%);
+}
+
+.guide-intro {
+  margin-top: 14px;
+  font-size: 13.5px;
+  color: #d4dae0;
+  line-height: 1.7;
+}
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.guide-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 14px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 5%);
+}
+
+.guide-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 9px;
+  color: #9db3ff;
+  background: rgb(91 182 181 / 12%);
+  font-size: 15px;
+}
+
+.guide-icon.keys {
+  display: flex;
+  gap: 4px;
+  background: transparent;
+  padding: 4px;
+}
+
+.guide-icon .key {
+  display: grid;
+  width: 17px;
+  height: 20px;
+  place-items: center;
+  border: 1px solid rgb(157 179 255 / 55%);
+  border-radius: 4px;
+  color: #9db3ff;
+  font-size: 10px;
+  font-weight: 600;
+  background: rgb(157 179 255 / 10%);
+}
+
+.guide-card b {
+  display: block;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: #f7f4ec;
+}
+
+.guide-card p {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.65;
+  color: #b9c2cc;
+}
+
+.guide-tip {
+  margin-top: 14px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #d8c9a8;
+  background: rgb(241 195 101 / 12%);
+  border: 1px solid rgb(241 195 101 / 26%);
+}
+
+@media (max-width: 560px) {
+  .guide-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.info-card {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  width: min(360px, calc(100vw - 40px));
+  padding: 16px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 8px;
+  background: rgb(17 20 24 / 78%);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 28%);
+  backdrop-filter: blur(18px);
+}
+
+.info-card h2 {
+  margin-top: 4px;
+  font-size: 21px;
+  line-height: 1.18;
+  letter-spacing: 0;
+}
+
+.info-card p:last-child {
+  margin-top: 8px;
+  color: #d4dae0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.info-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.info-card-head .kicker {
+  margin-top: 0;
+}
+
+.info-read {
+  flex: none;
+  padding: 6px 12px;
+  border: 1px solid rgb(241 195 101 / 55%);
+  border-radius: 7px;
+  color: #f7f4ec;
+  background: rgb(241 195 101 / 16%);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  transition: background 160ms ease;
+}
+
+.info-read:hover {
+  background: rgb(241 195 101 / 26%);
+}
+
+.info-read.reading {
+  border-color: rgb(255 143 143 / 70%);
+  color: #ff8f8f;
+  background: rgb(255 143 143 / 14%);
+}
+
+.load-status.loading {
+  color: #9db3ff;
+}
+
+.load-status.error {
+  color: #ff8f8f;
+}
+
+/* 右侧文物智能导览侧边栏（古人对话 + 儿童动画两个标签页）。
+   默认隐藏（整体移出屏幕），点击右侧「智能导览」唤起按钮后滑入，可再次收起。 */
+.agent-sidebar {
+  position: fixed;
+  top: 78px;
+  right: 20px;
+  bottom: 20px;
+  width: min(384px, calc(100vw - 40px));
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 14px;
+  background: rgb(17 20 24 / 84%);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 32%);
+  backdrop-filter: blur(18px);
+  overflow: hidden;
+  transform: translateX(calc(100% + 28px));
+  transition: transform 260ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.agent-sidebar.open {
+  transform: translateX(0);
+}
+
+/* 右侧「智能导览」唤起按钮（侧边栏收起时也始终可见） */
+.agent-toggle {
+  position: fixed;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 8px;
+  border: 1px solid rgb(241 195 101 / 55%);
+  border-radius: 8px;
+  color: #f1c365;
+  background: rgb(17 20 24 / 82%);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 30%);
+  backdrop-filter: blur(18px);
+  cursor: pointer;
+  z-index: 30;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.agent-toggle:hover {
+  border-color: rgb(241 195 101 / 90%);
+  background: rgb(30 34 38 / 88%);
+}
+
+.agent-toggle-arrow {
+  font-size: 15px;
+  line-height: 1;
+  transition: transform 240ms ease;
+}
+
+.agent-toggle-text {
+  writing-mode: vertical-rl;
+  letter-spacing: 4px;
+  font-size: 13px;
+}
+
+.agent-toggle.open .agent-toggle-arrow {
+  transform: rotate(180deg);
+}
+
+.agent-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.agent-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 6px;
+  color: #aeb8c4;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.agent-close:hover {
+  border-color: rgb(255 143 143 / 70%);
+  color: #ff8f8f;
+}
+
+.agent-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+}
+
+.agent-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.agent-brand-mark {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 8px;
+  color: #14100a;
+  background: linear-gradient(135deg, #f1c365, #d9a63c);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.agent-brand h2 {
+  font-size: 15px;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.agent-brand p {
+  margin-top: 3px;
+  color: #aeb8c4;
+  font-size: 11px;
+}
+
+.agent-full {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 6px;
+  color: #d4bd83;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.agent-full:hover {
+  border-color: rgb(241 195 101 / 70%);
+  color: #f1c365;
+}
+
+.agent-artifact {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  background: rgb(241 195 101 / 4%);
+}
+
+.agent-artifact-label {
+  flex: none;
+  color: #aeb8c4;
+  font-size: 11px;
+}
+
+.agent-artifact-name {
+  flex: 1;
+  min-width: 0;
+  color: #f1c365;
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-artifact-name::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: #f1c365;
+  vertical-align: middle;
+  box-shadow: 0 0 6px rgb(241 195 101 / 80%);
+}
+
+.agent-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 16px 0;
+}
+
+.agent-tab {
+  flex: 1;
+  padding: 9px 0;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 9px 9px 0 0;
+  color: #aeb8c4;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.agent-tab:hover {
+  color: #e6e9ec;
+}
+
+.agent-tab.active {
+  color: #f1c365;
+  font-weight: 600;
+  background: rgb(255 255 255 / 6%);
+  box-shadow: inset 0 -2px 0 rgb(241 195 101 / 70%);
+}
+
+.agent-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.agent-pane {
+  display: none;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  padding: 12px 16px;
+  overflow: auto;
+}
+
+.agent-pane.active {
+  display: flex;
+}
+
+.agent-hint {
+  color: #aeb8c4;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.agent-hint.error {
+  color: #ff8f8f;
+}
+
+.agent-roles {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.agent-role {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 10px;
+  color: #f7f4ec;
+  background: rgb(255 255 255 / 6%);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.agent-role:hover {
+  transform: translateY(-1px);
+}
+
+.agent-role:hover,
+.agent-role.active {
+  border-color: rgb(241 195 101 / 70%);
+  background: rgb(241 195 101 / 14%);
+}
+
+.agent-role.recommended {
+  border-color: rgb(241 195 101 / 55%);
+  background: linear-gradient(90deg, rgb(241 195 101 / 12%), rgb(255 255 255 / 5%));
+}
+
+.agent-role-avatar {
+  flex: none;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid rgb(241 195 101 / 35%);
+  border-radius: 50%;
+  color: #14100a;
+  background: linear-gradient(135deg, #e6c985, #a9873f);
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 30%);
+}
+
+.agent-role:not(.recommended) .agent-role-avatar {
+  border-color: rgb(174 184 196 / 40%);
+  background: linear-gradient(135deg, #4a5562, #2c3540);
+  color: #dbe3ea;
+}
+
+.agent-role-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.agent-role-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.agent-role-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.agent-role-badge {
+  flex: none;
+  padding: 1px 7px;
+  border: 1px solid rgb(241 195 101 / 60%);
+  border-radius: 999px;
+  color: #f1c365;
+  background: rgb(241 195 101 / 14%);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.agent-role-era {
+  color: #aeb8c4;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-chat {
+  flex: 1;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 12px;
+  background: rgb(0 0 0 / 22%);
+  overflow-y: auto;
+}
+
+/* 古人对话面板的两个分离视图：人物列表视图与对话视图 */
+.agent-roles-view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.agent-chat-view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* 古文 / 白话回答文体切换条 */
+.agent-stylebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 10px;
+  background: rgb(0 0 0 / 18%);
+}
+
+.agent-stylebar-label {
+  margin-right: 2px;
+  color: #aeb8c4;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.agent-style {
+  flex: none;
+  padding: 5px 14px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 7px;
+  color: #aeb8c4;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1.4;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.agent-style:hover {
+  color: #f7f4ec;
+  border-color: rgb(255 255 255 / 30%);
+}
+
+.agent-style.active {
+  color: #14100a;
+  background: linear-gradient(135deg, #e6c985, #a9873f);
+  border-color: rgb(241 195 101 / 60%);
+  font-weight: 600;
+}
+
+/* 连续聊天界面：当前对话对象横幅（点击古人后出现在聊天区上方） */
+.agent-chat-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  margin-bottom: 8px;
+  border: 1px solid rgb(241 195 101 / 45%);
+  border-radius: 10px;
+  background: linear-gradient(90deg, rgb(241 195 101 / 14%), rgb(255 255 255 / 4%));
+}
+
+.agent-chat-head-avatar {
+  flex: none;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid rgb(241 195 101 / 45%);
+  border-radius: 50%;
+  color: #14100a;
+  background: linear-gradient(135deg, #e6c985, #a9873f);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.agent-chat-head-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.agent-chat-head-name {
+  color: #f7f4ec;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.agent-chat-head-era {
+  color: #aeb8c4;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-chat-head-exit {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 6px;
+  color: #aeb8c4;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.agent-chat-head-exit:hover {
+  border-color: rgb(255 143 143 / 70%);
+  color: #ff8f8f;
+}
+
+/* 返回人物列表按钮 */
+.agent-chat-head-back {
+  flex: none;
+  padding: 5px 10px;
+  border: 1px solid rgb(241 195 101 / 50%);
+  border-radius: 7px;
+  color: #f1c365;
+  background: rgb(241 195 101 / 12%);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1.4;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.agent-chat-head-back:hover {
+  background: rgb(241 195 101 / 24%);
+  border-color: rgb(241 195 101 / 75%);
+}
+
+.agent-sys {
+  color: #8f9aa6;
+  font-size: 11px;
+  text-align: center;
+}
+
+.agent-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.agent-msg.user {
+  flex-direction: row-reverse;
+}
+
+.agent-avatar {
+  flex: none;
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: 1px solid rgb(241 195 101 / 30%);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #33404b, #232c34);
+  color: #f1c365;
+  font-size: 11px;
+}
+
+.agent-msg.user .agent-avatar {
+  border-color: rgb(217 166 60 / 50%);
+  background: linear-gradient(135deg, #e0b254, #c08f2e);
+  color: #14100a;
+}
+
+.agent-bubble {
+  max-width: 78%;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border-top-left-radius: 4px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 14%), rgb(255 255 255 / 8%));
+  color: #eef1f4;
+  font-size: 12.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.agent-msg.user .agent-bubble {
+  border-radius: 12px;
+  border-top-right-radius: 4px;
+  background: rgb(241 195 101 / 22%);
+}
+
+/* 古人回复"正在输入"三圆点动画 */
+.typing-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 22px;
+}
+
+.typing-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f1c365;
+  animation: typing-blink 1.1s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: 0.18s;
+}
+
+.typing-dots span:nth-child(3) {
+  animation-delay: 0.36s;
+}
+
+@keyframes typing-blink {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+.agent-input {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.agent-input input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 10px;
+  color: #f7f4ec;
+  background: rgb(255 255 255 / 6%);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.agent-input input:focus {
+  border-color: rgb(241 195 101 / 70%);
+  background: rgb(255 255 255 / 9%);
+}
+
+.agent-input button {
+  flex: none;
+  padding: 0 18px;
+  border: 1px solid rgb(241 195 101 / 60%);
+  border-radius: 10px;
+  color: #f7f4ec;
+  background: rgb(241 195 101 / 20%);
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 160ms ease;
+}
+
+.agent-input button:hover {
+  background: rgb(241 195 101 / 32%);
+}
+
+.agent-gen {
+  width: 100%;
+  margin-top: 10px;
+  padding: 11px 0;
+  border: 1px solid rgb(241 195 101 / 60%);
+  border-radius: 7px;
+  color: #f7f4ec;
+  background: rgb(241 195 101 / 18%);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.agent-gen:hover {
+  background: rgb(241 195 101 / 26%);
+}
+
+.agent-select {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #aeb8c4;
+  font-size: 11px;
+}
+
+.agent-select select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 7px;
+  color: #f7f4ec;
+  background: #1a2026;
+  font-size: 13px;
+  outline: none;
+}
+
+.agent-kids-output {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.agent-script {
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 8px;
+  background: rgb(0 0 0 / 18%);
+  overflow: hidden;
+}
+
+.agent-script-head {
+  padding: 9px 12px;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  color: #f1c365;
+  font-size: 12px;
+}
+
+.agent-script-body {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+}
+
+.agent-line {
+  color: #eef1f4;
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.agent-line b {
+  color: #f1c365;
+}
+
+.agent-line.narration {
+  color: #8f9aa6;
+  font-style: italic;
+}
+
+.agent-video {
+  display: grid;
+  gap: 8px;
+}
+
+@media (max-width: 560px) {
+  .museum-panel {
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-height: 38vh;
+    padding: 12px;
+  }
+
+  .brand {
+    margin-bottom: 10px;
+  }
+
+  .exhibit-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .exhibit-button {
+    min-height: 48px;
+    padding: 9px;
+  }
+
+  .exhibit-hall {
+    display: none;
+  }
+
+  .toolbar {
+    top: auto;
+    right: 12px;
+    bottom: 66px;
+  }
+
+  .info-card {
+    left: 12px;
+    right: auto;
+    bottom: 120px;
+    width: calc(100vw - 24px);
+    padding: 12px;
+  }
+
+  .info-card h2 {
+    font-size: 17px;
+  }
+
+  .info-card p:last-child {
+    display: none;
+  }
+
+  .agent-sidebar {
+    top: auto;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    width: auto;
+    max-height: 46vh;
+    transform: translateY(120%);
+  }
+
+  .agent-sidebar.open {
+    transform: translateY(0);
+  }
+
+  .agent-toggle {
+    top: auto;
+    bottom: 72px;
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "format_version": 2,
+  "tools": [],
+  "wake": {
+    "events": [],
+    "triggers": []
+  },
+  "lifecycle": {
+    "restore": "none"
+  },
+  "concurrency": {
+    "maxConcurrentRuns": 1
+  },
+  "outputContract": [],
+  "recoveryBehavior": {
+    "maxRetries": 0,
+    "timeoutBehavior": "fail",
+    "oomFallback": "fail"
+  }
+}

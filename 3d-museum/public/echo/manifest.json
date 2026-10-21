@@ -1,0 +1,401 @@
+{
+  "schema_version": 2,
+  "id": "app.local.app-mpbz86he-80163d7886",
+  "version": "0.1.2",
+  "name": "3D 世界文物馆",
+  "description": "可交互浏览世界文物、自然标本与中国器物的 3D 展馆。",
+  "entry": "index.html",
+  "icon": {
+    "svg": "icons/icon.svg"
+  },
+  "capabilities": [
+    "local.storage",
+    "host.network",
+    "audio"
+  ],
+  "shared_libs": [],
+  "network_allow": [
+    "https://api.openai.com"
+  ],
+  "entries": [
+    {
+      "path": "assets/index-DxvM4S5S.css",
+      "sha256": "ef4997aaa28d3128d89ba32e96d0780e397f9b86ca4a343b668ac088b3e961c6",
+      "size": 9115
+    },
+    {
+      "path": "assets/index-w7HcY4BT.js",
+      "sha256": "2e045e25434df23916e78ae8399ca3dfde1dc4d3e3ac78c4cd53787257a2cefa",
+      "size": 1486836
+    },
+    {
+      "path": "assets/models/ABeautifulGame.bin",
+      "sha256": "bd7133b4b322aae97c589b8839dae8155ad2546acb35ae32a127e722a959d007",
+      "size": 42977928
+    },
+    {
+      "path": "assets/models/AntiqueCamera.bin",
+      "sha256": "ae89695479ad997f09ebea8060a5ad01312ad8fe7ffb92f73b4e895109feecd2",
+      "size": 17540348
+    },
+    {
+      "path": "assets/models/BoomBox.bin",
+      "sha256": "f8b918445ebdd006768232205a62f5182d2208ca57f84c6ccc084943c0bc8f15",
+      "size": 10614184
+    },
+    {
+      "path": "assets/models/Corset.bin",
+      "sha256": "9582c0dc0dee813be77f60e6ddf7213987c7e11497bf3cc66fd7b18957ae0d26",
+      "size": 13491364
+    },
+    {
+      "path": "assets/models/DamagedHelmet.bin",
+      "sha256": "a1e3b04de97b11de564ce6e53b95f02954a297f0008183ac63a4f5974f6b32d8",
+      "size": 3773916
+    },
+    {
+      "path": "assets/models/Lantern.bin",
+      "sha256": "a79458c4b02d695187a952f23a63b8bf278e7bc3d316a3c2a314f2d6974181f1",
+      "size": 9564264
+    },
+    {
+      "path": "assets/models/ToyCar.bin",
+      "sha256": "01a60862de55cd4b9f3acfab0b0def86451800f9c42467fcd61052c16cb9838c",
+      "size": 5422412
+    },
+    {
+      "path": "assets/models/blue-orchid.bin",
+      "sha256": "1f875f897d08e3fde604e76cf6d8d73c8f2eb2ea06f50e607ba2db1478b69d38",
+      "size": 7937588
+    },
+    {
+      "path": "assets/models/butterfly-orchid.bin",
+      "sha256": "70bfd131b0af2f8c8cf3fa3e1165a10789ab2a5e868dee9eb08f8626115e800e",
+      "size": 9303704
+    },
+    {
+      "path": "assets/models/cassiopeia-a.bin",
+      "sha256": "a4bc375449fa9179a15bd6a2c04a93078db74a180c5ae4f1b83b9e9ff14e60b1",
+      "size": 9050008
+    },
+    {
+      "path": "assets/models/cn-amoghasiddhi-buddha.bin",
+      "sha256": "b03b3abd1291b98065d24a8f50270bf9836035b887d4a0d26f391d602d8626c4",
+      "size": 5307684
+    },
+    {
+      "path": "assets/models/cn-bronze-fangyi-vessel.bin",
+      "sha256": "a7afbaa21daed7356a756d99be804052e32c3269a80c79c393931b230d4af3e1",
+      "size": 12892360
+    },
+    {
+      "path": "assets/models/cn-bronze-gu.bin",
+      "sha256": "e8e809c2c44a91bd279ea5f880cdd89e68840babb103db1b231d55fb03a13e6b",
+      "size": 5799260
+    },
+    {
+      "path": "assets/models/cn-bronze-incense-burner.bin",
+      "sha256": "ae5693c04b348b71ae3b5f74a6feadfaba49987b741c1b91f924cf3396533389",
+      "size": 7395972
+    },
+    {
+      "path": "assets/models/cn-bronze-wine-ewer-gong.bin",
+      "sha256": "d3940ba233fee1f0247401f827f9b6b069c0d5776255d3d30265bbfb83fe942e",
+      "size": 25401140
+    },
+    {
+      "path": "assets/models/cn-buddhist-stele-gathering.bin",
+      "sha256": "1d0bb3cdebaf8ccdf1a6ac8d73fdd0e63f9518c31086a45c86a87b9ca6e4a4e0",
+      "size": 11837360
+    },
+    {
+      "path": "assets/models/cn-buddhist-stele-paradise.bin",
+      "sha256": "ff4778a496481e7250484b110dcd349d69dd841d26116565b2c3e9f9caf865d0",
+      "size": 11003480
+    },
+    {
+      "path": "assets/models/cn-cosmic-buddha.bin",
+      "sha256": "48c129ae3ce5abc5e80a00843bdb5b83e901fde1175248953c851f6b0fd76f2d",
+      "size": 10708144
+    },
+    {
+      "path": "assets/models/cn-ding-censer.bin",
+      "sha256": "4cdf363f7d84fd44406fc6e5237c5baa5166506a7a58241f22d93e9d8bcdb630",
+      "size": 8170292
+    },
+    {
+      "path": "assets/models/cn-dragon-dish.bin",
+      "sha256": "0268981a4df865e7896c4d6adc88c476e711b563d85b165dae8ef46683410633",
+      "size": 5227248
+    },
+    {
+      "path": "assets/models/cn-dragon-vase.bin",
+      "sha256": "0f332f9d83c00dafe686a0c36bde975845972f2a0f7625941396ffd1371b798a",
+      "size": 5898756
+    },
+    {
+      "path": "assets/models/cn-kneeling-winged-monster.bin",
+      "sha256": "220d38e1ea848f31dd6fd8ba11552b19da127c4f9c46494f145602c4a69a2864",
+      "size": 10873824
+    },
+    {
+      "path": "assets/models/cn-lion-finial-jar.bin",
+      "sha256": "ae7a510b6259a4978b1674034a4a6035ea104d07c008608efc816a8cbe741cdb",
+      "size": 4477732
+    },
+    {
+      "path": "assets/models/cn-owl-zun.bin",
+      "sha256": "407fbc1083ecbbc9c11143c647c8bcbc5494d80fb79acc4f07bf366dd26520d0",
+      "size": 11336992
+    },
+    {
+      "path": "assets/models/cn-porcelain-baluster-vase-2.bin",
+      "sha256": "56957cee2959a52061a9515f1947269e774220262335199224f0afe6c1e6d0d2",
+      "size": 10176052
+    },
+    {
+      "path": "assets/models/cn-porcelain-baluster-vase.bin",
+      "sha256": "93b42daf6b24f93a6811c2b8ac72e168f8f959f57ac4bd739ad80f2055540322",
+      "size": 5897548
+    },
+    {
+      "path": "assets/models/cn-porcelain-beaker-vase-2.bin",
+      "sha256": "2d220ab03b41d14341dd7b6324e649db8e2cfdf9d1444354209c3a2cf01a7cba",
+      "size": 5666060
+    },
+    {
+      "path": "assets/models/cn-porcelain-beaker-vase.bin",
+      "sha256": "eaf52f379e9721dd551b62db62320e7226c652633e8933a7dc7ef00ad0c27e3d",
+      "size": 5712304
+    },
+    {
+      "path": "assets/models/cn-porcelain-incense-burner.bin",
+      "sha256": "2f7b4bbcaa67d0e444b9c7c3a9c5756a643f3f9e548e0f74bb90e90ec25a1494",
+      "size": 5502368
+    },
+    {
+      "path": "assets/models/cn-sanxingdui-mask.bin",
+      "sha256": "5a1e002c8d470670dc15cc6a9f6c4ef39f19e41380bf3ca22adcb5a6df9ef622",
+      "size": 35337692
+    },
+    {
+      "path": "assets/models/cn-songbird-vase.bin",
+      "sha256": "20f119ef418c62110877d3dbe68ce7488e357bb079ef208229439b1187831ccf",
+      "size": 6564224
+    },
+    {
+      "path": "assets/models/cn-water-moon-guanyin.bin",
+      "sha256": "e044dd79d10cf9f52720f43ab6af9e363d76069c9896dd566acdbf46cba47b32",
+      "size": 7434520
+    },
+    {
+      "path": "assets/models/cn-winged-dragon.bin",
+      "sha256": "b1c66221701d91e214e95f9c1dd80bb7c93064ab6974b771e0ed9d9ce0875112",
+      "size": 4387228
+    },
+    {
+      "path": "assets/models/cn2-bronze-elephant-ewer.bin",
+      "sha256": "64b6a27849b8c9b541735c9ea39caf249a137793ff7c0d00345c4a131dcafe9c",
+      "size": 6066972
+    },
+    {
+      "path": "assets/models/cn2-bronze-mountain-censer.bin",
+      "sha256": "89c4c2c00eab06b710460bbfbf0af1bbeda5ede2d02bf1d426e9f5039d2e2e42",
+      "size": 7451508
+    },
+    {
+      "path": "assets/models/crab-nebula.bin",
+      "sha256": "d4bc427d2588eeb4fcb24984b57f8a061caecc422c3e30daa7a5b490317294ba",
+      "size": 6993644
+    },
+    {
+      "path": "assets/models/cuneiform-tablet.bin",
+      "sha256": "0c5e842181f5b8cdec8c385eb849ccd0fd5ad1863d49a3ad36c5ce1a6f388b12",
+      "size": 3165824
+    },
+    {
+      "path": "assets/models/devonian-trilobite.bin",
+      "sha256": "23287f4098d9a79a8741ee3341d43425ee41875817040797ea48c07a9b83a999",
+      "size": 7131028
+    },
+    {
+      "path": "assets/models/dragon-sculpture.bin",
+      "sha256": "ec97df715d4207c0e39b60c329db43032872794df60e1279b7652314cf0a999e",
+      "size": 6401616
+    },
+    {
+      "path": "assets/models/elephant-vessel.bin",
+      "sha256": "e3cba71d841fc4f8858f65254de3dc38fde8b78e352195a6a70fcab0a0ef09cc",
+      "size": 8635496
+    },
+    {
+      "path": "assets/models/fossil-whale-skeleton.bin",
+      "sha256": "133e10ae44909dd3fa98e61d992c7d337cd2738eaad1d910a48b730f98739849",
+      "size": 13283844
+    },
+    {
+      "path": "assets/models/greek-slave.bin",
+      "sha256": "b6a598b36ce3482fe71a5e506826ff16a2dee6163a2880e2074c44e8578af78c",
+      "size": 9080804
+    },
+    {
+      "path": "assets/models/ivory-mammoth-figurine.bin",
+      "sha256": "f82871d59494452c9bfdcab57d19c43005db6ead5c9513f8ae31cf92b7954fa5",
+      "size": 2813396
+    },
+    {
+      "path": "assets/models/junkanoo-headdress.bin",
+      "sha256": "27a3a0cff632999973697eba6af7d3b322bf3fd6b890041d83e7b1b61e7bee38",
+      "size": 13639368
+    },
+    {
+      "path": "assets/models/junonia-shell.bin",
+      "sha256": "c60fb74a91d4d7c82b6d0ec814533b5198d8c36dcb79e134d6c4d1bf337edea3",
+      "size": 5666812
+    },
+    {
+      "path": "assets/models/key-marco-cat.bin",
+      "sha256": "433c70f35198436fe419f0703b953c8740d78f0d19df4aaa9b9fee48cf001ba3",
+      "size": 9595724
+    },
+    {
+      "path": "assets/models/marine-chronometer.bin",
+      "sha256": "7f28da9bd9ae99036e309b329afee8054a0c1d05ec8ae45d7edc11f86fa2f083",
+      "size": 17569492
+    },
+    {
+      "path": "assets/models/michelangelo-david-head.bin",
+      "sha256": "0ca01e3af876e121a0e20979b33098d40779f527753b71ff52b32c4f3950147a",
+      "size": 195748
+    },
+    {
+      "path": "assets/models/moon-orchid.bin",
+      "sha256": "13022280b2d6107a1e47740ccc0ce94cc5b1c32d3ac9982b8912e8177f266207",
+      "size": 7100788
+    },
+    {
+      "path": "assets/models/mosquito-in-amber.bin",
+      "sha256": "1c0b49000650e8a8c00d69bc8d64e46d33527871a47d74e4f2278887325cc35f",
+      "size": 24229904
+    },
+    {
+      "path": "assets/models/naval-river-mine.bin",
+      "sha256": "c869cc63c33de1e1024991b7a5d50143b1e48299ca60c021e2b552a924947353",
+      "size": 7227380
+    },
+    {
+      "path": "assets/models/nefertiti-bust.bin",
+      "sha256": "d8c00c742b59137695245eefeef0e217d6e33c64eeaeb1904ff39f6b31542639",
+      "size": 1233240
+    },
+    {
+      "path": "assets/models/neil-armstrong-spacesuit.bin",
+      "sha256": "3acbcab4fc849afb342ac6b64ac44fe6203ef9324a531d22eda045068a7e9359",
+      "size": 8947140
+    },
+    {
+      "path": "assets/models/spiny-oyster.bin",
+      "sha256": "ce1583cc90db0b944337ece32b15e92618f8d3664b9d0fc78d4e1158cbe2565a",
+      "size": 8299408
+    },
+    {
+      "path": "assets/models/staghorn-coral.bin",
+      "sha256": "82c49db1d1be83d9afd1ebf70205d5066c5cc12d10f792a71ea7342e18afecce",
+      "size": 11659220
+    },
+    {
+      "path": "assets/models/tree-of-life.bin",
+      "sha256": "deb7b273252adffd93b5c4c5f0b80c38fbc3e3d9ebcc18b747ad1d7868784ab5",
+      "size": 14719800
+    },
+    {
+      "path": "assets/models/triceratops-skeleton.bin",
+      "sha256": "97a3f46c59864bf3dd075d9811079bf23d55647fa6c245c601cfbcd839571544",
+      "size": 13257892
+    },
+    {
+      "path": "assets/models/venetian-carnival-mask.bin",
+      "sha256": "894a2634257d0d8fcc4d206a74b8e8c19b63f688efdb41a555f9915edde21eb2",
+      "size": 37455444
+    },
+    {
+      "path": "assets/models/woolly-mammoth.bin",
+      "sha256": "6854b058fd28de5ca8099f3b4aa577d1e09a293ae342c07b25ee0abfb1749802",
+      "size": 4452520
+    },
+    {
+      "path": "code/app.css",
+      "sha256": "9a0029ae1e1f07df99beca6dd1ff480a7c57e079e0746625a86e15efc5efedbd",
+      "size": 31
+    },
+    {
+      "path": "code/app.js",
+      "sha256": "cdfa6d1271b4a270424770ba36a98fa88bc6a10685eb71be606bc0e63ccd8551",
+      "size": 27
+    },
+    {
+      "path": "draco/draco_decoder.js",
+      "sha256": "8625489da79a805f4f2a7d511c3e52d8b4085608a9d2a4d5f4f9de5db0aea04f",
+      "size": 512465
+    },
+    {
+      "path": "draco/draco_decoder.wasm",
+      "sha256": "a680d927bed9cb864ddbd63521868891af2bfbe755092761b4837487618df8ac",
+      "size": 192420
+    },
+    {
+      "path": "draco/draco_wasm_wrapper.js",
+      "sha256": "8bb2952d2ba7d67e1414f8df819410cb0434a666be53f671fff75f68843d76f6",
+      "size": 58456
+    },
+    {
+      "path": "handlers.json",
+      "sha256": "0647835c8e53f0938b513c0ee9d5cbc54fd6f82baeeda65790ce88136cffbc4f",
+      "size": 321
+    },
+    {
+      "path": "icons/icon.svg",
+      "sha256": "7cbdc39c4057f8f9e593d7920ef95580fd926fd5fddb6e993e5f62019c8c6aa6",
+      "size": 331
+    },
+    {
+      "path": "index.html",
+      "sha256": "ef8c7a5b90d9d10d98ae11bf0a32ee58d2356b0874a21ed5a1ebe099a51c8f57",
+      "size": 409
+    },
+    {
+      "path": "spec/app-spec.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "size": 3
+    },
+    {
+      "path": "spec/binding-map.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "size": 3
+    },
+    {
+      "path": "spec/capability-plan.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "size": 3
+    },
+    {
+      "path": "spec/design-manifest.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "size": 3
+    },
+    {
+      "path": "spec/interaction-contract.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "size": 3
+    },
+    {
+      "path": "spec/runtime-contract.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "size": 3
+    }
+  ],
+  "meta": {
+    "dna_id": "86745dc3-8b3a-48a5-b453-9f44a1097943",
+    "variant_id": "9a7ca9ad-5f03-4588-af5f-fc02b5e25160"
+  }
+}

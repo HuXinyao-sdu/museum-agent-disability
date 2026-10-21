@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="华夏珍宝数字博物馆 · 3D 展厅——青铜器、瓷器、佛教造像、海洋生物等六十余件文物分区陈列，可与古人对话、听讲解、生成儿童动画。" />
+    <link rel="icon" href="/echo/icons/icon.svg" type="image/svg+xml" />
+    <title>华夏珍宝数字博物馆 · 3D 展厅</title>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="museum-canvas" aria-label="华夏珍宝数字博物馆 3D 展厅场景"></canvas>
+      <aside class="museum-panel" aria-label="藏品导航">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">◆</span>
+          <div>
+            <h1>华夏珍宝数字博物馆</h1>
+            <p id="current-hall">正在载入展品清单…</p>
+          </div>
+        </div>
+        <p class="load-status" id="load-status">正在整理展厅模型...</p>
+        <div class="exhibit-list" id="exhibit-list"></div>
+      </aside>
+      <div class="toolbar" aria-label="场景工具">
+        <a class="icon-button" href="/" title="返回首页">首</a>
+        <button id="tour-toggle" class="icon-button" type="button" title="自动巡展">▶</button>
+        <button id="light-toggle" class="icon-button" type="button" title="切换灯光">◐</button>
+        <button id="reset-view" class="icon-button" type="button" title="总览展厅">⌂</button>
+        <button id="guide-toggle" class="icon-button" type="button" title="展厅操作指南" aria-expanded="false">?</button>
+      </div>
+      <button class="agent-toggle" id="agent-toggle" type="button" title="唤起 / 收起智能导览" aria-controls="agent-sidebar">
+        <span class="agent-toggle-arrow" aria-hidden="true">◀</span>
+        <span class="agent-toggle-text">智能导览</span>
+      </button>
+      <aside class="agent-sidebar" id="agent-sidebar" aria-label="文物智能导览">
+        <div class="agent-head">
+          <div class="agent-brand">
+            <span class="agent-brand-mark" aria-hidden="true">AI</span>
+            <div>
+              <h2>文物智能导览</h2>
+              <p id="agent-status">正在连接 Agent 服务…</p>
+            </div>
+          </div>
+          <div class="agent-head-actions">
+            <a class="agent-full" id="agent-full-link" href="http://localhost:8300" target="_blank" title="在新窗口打开完整 Agent">↗</a>
+            <button class="agent-close" id="agent-close" type="button" title="收起">✕</button>
+          </div>
+        </div>
+        <div class="agent-artifact">
+          <span class="agent-artifact-label">当前展品</span>
+          <span class="agent-artifact-name" id="agent-artifact-name">未选中</span>
+        </div>
+        <div class="agent-tabs" role="tablist" aria-label="Agent 功能">
+          <button class="agent-tab active" data-tab="chat" type="button" role="tab">古人对话</button>
+          <button class="agent-tab" data-tab="kids" type="button" role="tab">儿童动画</button>
+        </div>
+        <div class="agent-body">
+          <section class="agent-pane active" data-pane="chat" role="tabpanel">
+            <div class="agent-roles-view" id="agent-roles-view">
+              <p class="agent-hint" id="agent-chat-hint">选中一件文物，自动推荐相关历史人物。</p>
+              <div class="agent-roles" id="agent-roles"></div>
+            </div>
+            <div class="agent-chat-view" id="agent-chat-view" hidden>
+              <div class="agent-stylebar" id="agent-stylebar">
+                <span class="agent-stylebar-label">回答文体</span>
+                <button type="button" class="agent-style active" data-style="classic">古文</button>
+                <button type="button" class="agent-style" data-style="vernacular">白话</button>
+              </div>
+              <div class="agent-chat" id="agent-chat"></div>
+              <form class="agent-input" id="agent-chat-form">
+                <input id="agent-question" type="text" placeholder="向古人提问…" autocomplete="off" />
+                <button id="agent-send" type="submit">发送</button>
+              </form>
+            </div>
+          </section>
+          <section class="agent-pane" data-pane="kids" role="tabpanel">
+            <p class="agent-hint">儿童模式：针对当前文物生成白话讲解动画剧本。</p>
+            <div class="agent-roles" id="agent-roles-kids"></div>
+            <button class="agent-gen" id="agent-gen-theater" type="button">✨ 生成讲解动画</button>
+            <div class="agent-kids-output" id="agent-kids-output"></div>
+          </section>
+        </div>
+      </aside>
+      <section class="info-card" id="info-card" aria-live="polite">
+        <div class="info-card-head">
+          <p class="kicker">华夏珍宝 · 馆内陈列</p>
+          <button class="info-read" id="info-read" type="button" title="朗读文物介绍">🔊 朗读</button>
+        </div>
+        <h2 id="info-title">请选择展品</h2>
+        <p id="info-copy">点击展厅中的文物模型或左侧列表，查看文物名称与简介。</p>
+      </section>
+    </div>
+
+    <!-- 展厅操作指南：点击右上角 ? 后居中弹出 -->
+    <div class="guide-mask" id="guide-mask" hidden>
+      <section class="guide-modal" role="dialog" aria-label="展厅操作指南">
+        <header class="guide-head">
+          <h2>展厅操作指南</h2>
+          <button class="guide-close" id="guide-close" type="button" title="关闭操作指南">✕</button>
+        </header>
+        <p class="guide-intro">在 3D 展厅中自由漫游，走近每一件文物：</p>
+        <div class="guide-grid">
+          <div class="guide-card">
+            <span class="guide-icon mouse-drag" aria-hidden="true">
+              <svg viewBox="0 0 48 48" width="40" height="40"><ellipse cx="24" cy="26" rx="13" ry="17" fill="none" stroke="currentColor" stroke-width="3"/><rect x="21" y="8" width="6" height="14" rx="3" fill="currentColor" opacity="0.85"/></svg>
+            </span>
+            <div><b>拖动旋转</b><p>按住鼠标左键拖动，旋转视角，环视整个展厅。</p></div>
+          </div>
+          <div class="guide-card">
+            <span class="guide-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" width="40" height="40"><ellipse cx="24" cy="26" rx="13" ry="17" fill="none" stroke="currentColor" stroke-width="3"/><path d="M16 22c5-2 11-2 16 0M16 30c5 2 11 2 16 0" stroke="currentColor" stroke-width="2.5" fill="none"/></svg>
+            </span>
+            <div><b>滚动缩放</b><p>滚动鼠标滚轮，拉近拉远视野，看清纹饰细节。</p></div>
+          </div>
+          <div class="guide-card">
+            <span class="guide-icon keys" aria-hidden="true">
+              <span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span>
+            </span>
+            <div><b>键盘平移</b><p>按 W A S D 或方向键，前后左右平移视角。</p></div>
+          </div>
+          <div class="guide-card">
+            <span class="guide-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" width="40" height="40"><path d="M14 40V22c0-6 4-10 10-10s10 4 10 10v18" fill="none" stroke="currentColor" stroke-width="3"/><path d="M14 40h20M9 40h30" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+            </span>
+            <div><b>点击文物</b><p>单击展厅中的文物模型，弹出导览卡查看简介，即切换至该文物。</p></div>
+          </div>
+          <div class="guide-card">
+            <span class="guide-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" width="40" height="40"><rect x="8" y="12" width="32" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="3"/><path d="M8 20h32M14 28h10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+            </span>
+            <div><b>展品列表</b><p>点击左侧藏品列表条目，镜头自动飞向对应文物。</p></div>
+          </div>
+          <div class="guide-card">
+            <span class="guide-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" width="40" height="40"><rect x="8" y="18" width="32" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="3"/><path d="M14 18v-3a4 4 0 0 1 4-4h12a4 4 0 0 1 4 4v3" stroke="currentColor" stroke-width="3" fill="none"/><circle cx="20" cy="24" r="1.6" fill="currentColor"/><circle cx="24" cy="24" r="1.6" fill="currentColor"/><circle cx="28" cy="24" r="1.6" fill="currentColor"/></svg>
+            </span>
+            <div><b>工具按钮</b><p>右上角按钮：返回首页、自动巡展、切换灯光、总览全馆。</p></div>
+          </div>
+        </div>
+        <p class="guide-tip">提示：点击右下角「智能导览」，可唤起古人对话，与历史人物问答互动。</p>
+      </section>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

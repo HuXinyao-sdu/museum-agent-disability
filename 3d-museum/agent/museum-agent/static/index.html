@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>泉城数字博物馆 · 智能问答</title>
+<style>
+:root {
+  --bg: #f7f4ed;
+  --card: #ffffff;
+  --ink: #2b2620;
+  --ink-2: #6b6154;
+  --gold: #a8842c;
+  --gold-2: #c9a554;
+  --bronze: #7a5c2e;
+  --line: #e8e0cf;
+  --green: #3d7a4f;
+  --red: #b0432f;
+  --radius: 18px;
+  --shadow: 0 10px 40px rgba(80, 60, 25, .10);
+  --shadow-soft: 0 4px 16px rgba(80, 60, 25, .06);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+  background: var(--bg); color: var(--ink);
+  background-image: radial-gradient(circle at 15% -5%, #efe6d2 0, transparent 45%),
+                    radial-gradient(circle at 95% 0%, #ece4d0 0, transparent 35%);
+  min-height: 100vh;
+}
+header {
+  background: linear-gradient(135deg, #342b22 0%, #5a4528 60%, #6f562f 100%);
+  color: #f3e9d2; padding: 24px 36px; display: flex; align-items: center; gap: 18px;
+  flex-wrap: wrap; box-shadow: var(--shadow-soft);
+  position: sticky; top: 0; z-index: 20;
+}
+.logo {
+  width: 50px; height: 50px; border-radius: 50%; flex: none;
+  background: radial-gradient(circle at 35% 30%, var(--gold-2), var(--bronze));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; border: 2px solid rgba(243,233,210,.5);
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+}
+header h1 { font-size: 22px; letter-spacing: 3px; font-family: "STZhongsong", "SimSun", serif; }
+header p { font-size: 13px; opacity: .78; margin-top: 4px; letter-spacing: .5px; }
+.tabs { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.tabs button, .tabs .btn-icon {
+  padding: 10px 22px; border: 1px solid rgba(243,233,210,.35); background: transparent;
+  color: #f3e9d2; border-radius: 999px; cursor: pointer; font-size: 14px; transition: .2s;
+}
+.tabs button.active, .tabs button:hover { background: rgba(243,233,210,.92); color: #4a3a1e; border-color: transparent; }
+.tabs .btn-icon { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; }
+.tabs .btn-icon:hover { background: rgba(243,233,210,.92); color: #4a3a1e; }
+.mode-badge {
+  font-size: 12px; padding: 7px 14px; border-radius: 999px; cursor: pointer;
+  background: rgba(243,233,210,.14); border: 1px dashed rgba(243,233,210,.45); color: #f3e9d2;
+  transition: .2s; white-space: nowrap;
+}
+.mode-badge:hover { background: rgba(243,233,210,.28); }
+.mode-badge.llm { background: #2e5d3f; border: 1px solid #4e8f66; }
+#voice-toggle { font-size: 18px; padding: 9px 12px; }
+#voice-toggle.off { opacity: .55; filter: grayscale(1); }
+.role-select {
+  padding: 9px 14px; border: 1px solid rgba(243,233,210,.35); background: transparent;
+  color: #f3e9d2; border-radius: 999px; cursor: pointer; font-size: 14px; transition: .2s;
+  appearance: none; -webkit-appearance: none; padding-right: 30px;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23f3e9d2' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+}
+.role-select option { background: #342b22; color: #f3e9d2; }
+.role-select:hover, .role-select:focus { background-color: rgba(243,233,210,.14); outline: none; }
+.voice-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 50%; border: none; background: transparent;
+  cursor: pointer; font-size: 14px; color: var(--bronze); transition: .15s;
+}
+.voice-btn:hover { background: #f3efe4; transform: scale(1.1); }
+.voice-btn.speaking { background: #e4efe6; color: var(--green); animation: pulse 1.2s infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(61,122,79,.2); } 50% { box-shadow: 0 0 0 6px rgba(61,122,79,0); } }
+/* 小剧场台词：朗读时高亮当前句 */
+.tl-line { transition: background-color .25s, box-shadow .25s; border-radius: 10px; }
+.tl-line.speaking-line { background: #f6efdb; box-shadow: inset 3px 0 0 var(--gold); }
+
+/* ============ 历史小剧场：视频主区 / 时代背景 / 文字对话 ============ */
+#theater-stage { display:none; }
+
+/* ① 视频主区（页面主体，占比最大） */
+.tv-stage { background:#fffdf8; border:1px solid var(--line); border-radius:18px; padding:22px; }
+.tv-stage-head { display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+.tv-stage-head .tv-ico { font-size:19px; }
+#theater-video-status { font-size:14px; color:var(--ink-2); }
+#theater-video-progress { font-size:13px; color:var(--ink-2); margin-bottom:12px; }
+#theater-video-container { display:flex; flex-direction:column; align-items:center; }
+#theater-video-container video {
+  width:auto; max-width:100%; max-height:68vh;
+  border-radius:14px; background:#000; display:block;
+  box-shadow:0 12px 32px rgba(43,38,32,.18);
+}
+.tv-placeholder {
+  width:min(320px,100%); height:min(440px,54vh);
+  border:2px dashed var(--line); border-radius:14px; background:#fdfaf3;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:10px; color:var(--ink-2); text-align:center; padding:20px;
+}
+.tv-placeholder .tv-ph-ico { font-size:40px; opacity:.6; }
+.tv-placeholder .tv-ph-tip { font-size:13px; line-height:1.8; }
+.tv-actions { margin-top:16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:center; }
+.tv-meta-row { margin-top:12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:center; }
+#theater-video-wrap .tv-spinner {
+  display:inline-block;width:14px;height:14px;border:2px solid var(--gold);
+  border-top-color:transparent;border-radius:50%;
+  animation: tv-spin 0.8s linear infinite;vertical-align:-2px;margin-right:6px;
+}
+@keyframes tv-spin { to { transform: rotate(360deg); } }
+.tv-fail { color: var(--red); }
+
+/* ②/③ 下方信息面板 */
+.tv-panel { margin-top:18px; background:#fffdf8; border:1px solid var(--line); border-radius:16px; padding:20px 22px; }
+.tv-panel-title {
+  font-size:13px; letter-spacing:2px; color:var(--bronze);
+  margin-bottom:14px; display:flex; align-items:center; gap:8px;
+}
+.tv-era-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media (max-width:640px) { .tv-era-grid { grid-template-columns:1fr; } }
+.tv-era-card { background:#fdfaf3; border:1px solid var(--line); border-radius:12px; padding:15px 17px; }
+.tv-era-name { font-weight:700; color:var(--bronze); font-size:15px; }
+.tv-era-sub { font-size:12px; color:var(--ink-2); margin-top:3px; }
+.tv-era-persona { font-size:13px; color:var(--ink); line-height:1.8; margin-top:9px; }
+.tv-era-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:11px; }
+.tv-era-tag {
+  font-size:11px; padding:2px 9px; border-radius:999px;
+  background:#f3efe4; color:var(--ink-2); border:1px solid var(--line);
+}
+.tv-script-box { line-height:1.9; }
+
+/* 设置弹窗 */
+.modal-mask {
+  position: fixed; inset: 0; background: rgba(43,38,32,.48); z-index: 50;
+  display: none; align-items: center; justify-content: center; padding: 16px;
+  backdrop-filter: blur(2px);
+}
+.modal-mask.open { display: flex; }
+.modal {
+  background: #fffdf8; border-radius: 20px; box-shadow: var(--shadow);
+  width: 580px; max-width: 100%; max-height: 92vh; overflow-y: auto; padding: 30px 34px;
+  animation: fade .2s;
+}
+.modal h3 { color: var(--bronze); letter-spacing: 1px; margin-bottom: 12px; font-size: 18px; }
+.modal-tip { font-size: 13px; color: var(--ink-2); line-height: 1.8; margin-bottom: 18px; }
+.modal-tip a { color: var(--bronze); }
+.modal .field { margin-bottom: 14px; }
+.modal .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 560px) { .modal .grid2 { grid-template-columns: 1fr; } }
+
+main { max-width: 1040px; margin: 28px auto 70px; padding: 0 18px; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* ---------- 问答页 ---------- */
+.chat-card {
+  background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+  display: flex; flex-direction: column;
+  height: calc(100vh - 220px); min-height: 520px; overflow: hidden;
+  border: 1px solid rgba(230, 221, 203, .6);
+}
+.msgs-header {
+  padding: 14px 24px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(90deg, #fdfbf7, #f9f6ef);
+}
+.msgs-header span { font-size: 13px; color: var(--ink-2); }
+.msgs-header button {
+  font-size: 13px; color: var(--bronze); background: #fff; border: 1px solid var(--line);
+  border-radius: 999px; padding: 7px 16px; cursor: pointer; transition: .15s;
+}
+.msgs-header button:hover { background: var(--gold-2); color: #fff; border-color: var(--gold-2); }
+.msgs { flex: 1; overflow-y: auto; padding: 28px; scroll-behavior: smooth; }
+.msg { display: flex; gap: 14px; margin-bottom: 22px; animation: fade .28s ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
+.avatar {
+  width: 40px; height: 40px; border-radius: 50%; flex: none; font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.avatar.bot { background: linear-gradient(135deg, var(--gold-2), var(--bronze)); color: #fff; }
+.avatar.user { background: linear-gradient(135deg, #5a6a8e, #46506b); color: #fff; }
+.bubble {
+  max-width: 76%; padding: 14px 18px; border-radius: 16px; line-height: 1.85;
+  font-size: 15px; white-space: pre-wrap; word-break: break-word;
+  box-shadow: 0 2px 10px rgba(0,0,0,.04);
+}
+.msg.user { flex-direction: row-reverse; }
+.msg.user .bubble {
+  background: linear-gradient(135deg, #5e6e92, #46506b); color: #f4f5f8;
+  border-top-right-radius: 4px; max-width: 96%;
+}
+.msg.bot .bubble { background: #faf7ef; border: 1px solid var(--line); border-top-left-radius: 4px; }
+.meta { margin-top: 10px; font-size: 12.5px; color: var(--ink-2); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tag {
+  background: #f3efe4; border: 1px solid var(--line);
+  padding: 3px 10px; border-radius: 999px; cursor: default;
+}
+.tag.clickable { cursor: pointer; transition: .15s; }
+.tag.clickable:hover { background: var(--gold-2); color: #fff; border-color: var(--gold-2); }
+.tag-mode-llm { background: #e4efe6; color: #2e5d3f; }
+.tag-mode-local { background: #eeeae0; color: #6b6154; }
+.conf { width: 64px; height: 5px; background: #e8e0cd; border-radius: 3px; overflow: hidden; }
+.conf i { display: block; height: 100%; background: linear-gradient(90deg, var(--gold-2), var(--green)); }
+.typing { display: inline-flex; gap: 4px; padding: 4px 2px; }
+.typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: blink 1s infinite; }
+.typing span:nth-child(2) { animation-delay: .2s; } .typing span:nth-child(3) { animation-delay: .4s; }
+@keyframes blink { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
+.chips { padding: 12px 24px 4px; display: flex; gap: 10px; flex-wrap: wrap; }
+.chips span {
+  font-size: 13px; color: var(--bronze); background: #f8f3e6; border: 1px solid var(--line);
+  padding: 7px 15px; border-radius: 999px; cursor: pointer; transition: .15s;
+}
+.chips span:hover { background: var(--gold-2); color: #fff; border-color: var(--gold-2); }
+.input-bar {
+  display: flex; gap: 12px; padding: 18px 24px 22px;
+  border-top: 1px solid var(--line); background: #fffdf8;
+}
+.input-bar input {
+  flex: 1; padding: 15px 22px; border: 1.5px solid var(--line); border-radius: 999px;
+  font-size: 15px; outline: none; background: #fff; transition: .2s;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.03);
+}
+.input-bar input:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(200,165,84,.15), inset 0 1px 3px rgba(0,0,0,.03); }
+.input-bar button {
+  padding: 0 34px; border: none; border-radius: 999px; cursor: pointer; font-size: 15px;
+  background: linear-gradient(135deg, var(--gold), var(--bronze)); color: #fff; letter-spacing: 2px;
+  box-shadow: 0 4px 12px rgba(168,132,44,.35);
+}
+.input-bar button:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.input-bar button:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* ---------- 知识库管理页 ---------- */
+.toolbar { display: flex; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; align-items: center; }
+.toolbar input[type=text] {
+  flex: 1; min-width: 200px; padding: 12px 18px; border: 1.5px solid var(--line);
+  border-radius: 12px; font-size: 14px; outline: none; background: #fff;
+}
+.toolbar input[type=text]:focus { border-color: var(--gold); }
+.btn {
+  padding: 12px 22px; border: none; border-radius: 12px; cursor: pointer; font-size: 14px;
+  background: linear-gradient(135deg, var(--gold), var(--bronze)); color: #fff; transition: .15s;
+  box-shadow: 0 3px 10px rgba(168,132,44,.28);
+}
+.btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.btn.ghost { background: #fff; color: var(--bronze); border: 1.5px solid var(--line); box-shadow: none; }
+.btn.ghost:hover { border-color: var(--gold); filter: none; }
+.stat { font-size: 13px; color: var(--ink-2); margin-bottom: 14px; }
+.stat b { color: var(--bronze); }
+
+.editor {
+  background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 26px 30px; margin-bottom: 22px; display: none; border: 1px solid rgba(230, 221, 203, .6);
+}
+.editor.open { display: block; animation: fade .25s; }
+.editor h3 { font-size: 17px; margin-bottom: 18px; color: var(--bronze); letter-spacing: 1px; }
+.grid { display: grid; grid-template-columns: 1fr 200px 200px; gap: 16px; }
+@media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+.field { display: flex; flex-direction: column; gap: 7px; }
+.field.full { grid-column: 1 / -1; }
+.field label { font-size: 13px; color: var(--ink-2); }
+.field label b { color: var(--red); }
+.field input, .field textarea, .field select {
+  padding: 11px 15px; border: 1.5px solid var(--line); border-radius: 11px; font-size: 14px;
+  outline: none; font-family: inherit; background: #fff; transition: .2s;
+}
+.field textarea { min-height: 140px; resize: vertical; line-height: 1.7; }
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--gold); }
+.field small { font-size: 12px; color: #a2988a; }
+.editor-actions { margin-top: 18px; display: flex; gap: 12px; }
+
+.table-wrap { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; border: 1px solid rgba(230, 221, 203, .6); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th {
+  text-align: left; padding: 14px 20px; background: #f4edde; color: var(--ink-2);
+  font-weight: 600; font-size: 13px; letter-spacing: 1px;
+}
+td { padding: 16px 20px; border-top: 1px solid var(--line); vertical-align: top; }
+tr:hover td { background: #fdfaf3; }
+td .t { font-weight: 600; margin-bottom: 4px; }
+td .c-preview { color: var(--ink-2); font-size: 13px; max-width: 380px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cat {
+  display: inline-block; padding: 3px 11px; border-radius: 999px; font-size: 12px; white-space: nowrap;
+}
+.cat-博物馆信息 { background: #eaf1e7; color: var(--green); }
+.cat-文物藏品 { background: #f6ecdd; color: var(--bronze); }
+.cat-展厅场馆 { background: #f0e8f6; color: #6b4a85; }
+.cat-历史人物 { background: #f6e8e0; color: #8b4a2c; }
+.cat-展览活动 { background: #e8edf6; color: #46506b; }
+.cat-其他 { background: #f0efec; color: var(--ink-2); }
+.kw { display: inline-block; font-size: 12px; color: var(--ink-2); background: #f6f3ea; border: 1px solid var(--line); border-radius: 5px; padding: 1px 7px; margin: 2px 3px 0 0; }
+.row-actions { white-space: nowrap; }
+.row-actions button {
+  border: none; background: transparent; cursor: pointer; font-size: 13px; padding: 5px 9px;
+  border-radius: 6px; color: var(--bronze);
+}
+.row-actions button:hover { background: #f4edde; }
+.row-actions .del { color: var(--red); }
+.empty { padding: 70px; text-align: center; color: var(--ink-2); }
+.toast {
+  position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-90px);
+  background: #3a3128; color: #f3e9d2; padding: 13px 28px; border-radius: 999px; font-size: 14px;
+  box-shadow: var(--shadow); transition: .3s; z-index: 99;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+footer { text-align: center; font-size: 12px; color: #b3a992; padding: 20px 0 30px; }
+@media (max-width: 640px) {
+  .grid { grid-template-columns: 1fr; }
+  .chat-card { height: calc(100vh - 270px); }
+  .bubble { max-width: 88%; }
+  header { padding: 18px 20px; }
+  header h1 { font-size: 18px; letter-spacing: 1px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🏛️</div>
+  <div>
+    <h1>泉城数字博物馆 · 智能问答</h1>
+    <p>馆务咨询 · 文物讲解 · 展厅导览</p>
+  </div>
+  <nav class="tabs">
+    <span id="mode-badge" class="mode-badge" onclick="openSettings()" title="点击配置大模型">⚙️ 本地检索模式</span>
+    <button id="voice-toggle" class="btn-icon" onclick="toggleVoice()" title="点击开关语音朗读">🔊</button>
+    <button class="btn-icon" onclick="openVoicePanel()" title="音色诊断与试听">🎚️</button>
+    <button id="style-toggle" class="btn-icon" onclick="toggleStyle()" title="切换历史人物讲解风格" style="display:none;">📜 文言</button>
+    <select id="role-select" class="role-select" onchange="selectRole(this.value)" title="选择历史人物开启时空对话">
+      <option value="">🏛️ 智能讲解员</option>
+    </select>
+    <button id="tab-chat" class="active" onclick="switchTab('chat')">智能问答</button>
+    <button id="tab-theater" onclick="switchTab('theater')">历史小剧场</button>
+    <button id="tab-kb" onclick="switchTab('kb')">知识库管理</button>
+  </nav>
+</header>
+
+<!-- 模型设置弹窗 -->
+<div class="modal-mask" id="settings-modal">
+  <div class="modal">
+    <h3>⚙️ 大模型配置</h3>
+    <p class="modal-tip">本应用支持通义千问（阿里百炼）、DeepSeek、Kimi、智谱、Ollama 等任意 OpenAI 兼容接口。Key 保存在本地 <code>data/config.json</code>，不会上传到别处。<br>免费领取 Key：<a href="https://bailian.console.aliyun.com/" target="_blank">阿里云百炼控制台</a></p>
+    <div class="field"><label>API Key</label><input id="s-key" type="password" placeholder="sk-..."><small id="s-key-hint"></small></div>
+    <div class="grid2">
+      <div class="field"><label>接口地址（Base URL）</label><input id="s-url" placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1"></div>
+      <div class="field"><label>模型名称</label><input id="s-model" placeholder="qwen-plus"></div>
+      <div class="field"><label>回答模式</label>
+        <select id="s-mode"><option value="llm">大模型 RAG（推荐）</option><option value="local">本地检索</option></select>
+      </div>
+      <div class="field"><label>生成温度（0-1）</label><input id="s-temp" type="number" step="0.1" min="0" max="1" value="0.3"></div>
+    </div>
+    <div class="editor-actions">
+      <button class="btn" onclick="saveSettings()">保存</button>
+      <button class="btn ghost" onclick="closeSettings()">取消</button>
+      <button class="btn ghost" onclick="clearKey()">清除 Key</button>
+    </div>
+  </div>
+</div>
+
+<!-- 音色诊断面板 -->
+<div class="modal-mask" id="voice-modal" onclick="if(event.target===this)closeVoicePanel()">
+  <div class="modal" style="max-width:560px;">
+    <h3>🎚️ 语音音色诊断</h3>
+    <p class="modal-tip" id="vp-voices" style="max-height:90px;overflow:auto;"></p>
+    <div id="vp-list" style="max-height:320px;overflow:auto;"></div>
+    <div class="editor-actions">
+      <button class="btn ghost" onclick="closeVoicePanel()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <!-- 问答页 -->
+  <section id="page-chat" class="page active">
+    <div class="chat-card">
+      <div class="msgs-header">
+        <span>💬 当前对话</span>
+        <button onclick="newChat()" title="清空当前对话，重新开始">🔄 开启新对话</button>
+      </div>
+      <div id="msgs" class="msgs"></div>
+      <div id="chips" class="chips"></div>
+      <div class="input-bar">
+        <input id="q-input" type="text" placeholder="请输入您的问题，例如：博物馆几点开门？ / 介绍一下某件文物 / 我想看青铜器去哪个馆？" autocomplete="off">
+        <button id="send-btn" onclick="send()">发送</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 历史小剧场页 -->
+  <section id="page-theater" class="page">
+    <div class="chat-card" style="height:auto;min-height:520px;">
+      <div class="msgs-header">
+        <span>🎭 历史小剧场 · 任选两位古人跨越时空对话</span>
+        <span id="theater-badge" class="tag" style="font-size:12px;">选择人物与主题，开启对话</span>
+      </div>
+      <div style="padding:22px 28px;">
+        <div class="theater-form" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;">
+          <div class="field">
+            <label>人物 A</label>
+            <select id="theater-a" class="role-select" style="width:100%;color:var(--ink);border-color:var(--line);"></select>
+          </div>
+          <div class="field">
+            <label>人物 B</label>
+            <select id="theater-b" class="role-select" style="width:100%;color:var(--ink);border-color:var(--line);"></select>
+          </div>
+          <div class="field" style="grid-column:1/-1;">
+            <label>对话主题（可选，也可自定义）</label>
+            <input id="theater-topic" type="text" placeholder="例如：权力的孤独 / 理想与现实 / 穿越时空的相遇" style="width:100%;">
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:18px;flex-wrap:wrap;">
+          <button class="btn" onclick="generateTheater()">✨ 生成对话</button>
+          <button class="btn ghost" onclick="randomTheater()">🎲 随机组合</button>
+          <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink-2);cursor:pointer;">
+            <input type="checkbox" id="theater-kids" style="width:16px;height:16px;"> 儿童白话版
+          </label>
+        </div>
+        <div id="theater-stage" style="display:none;line-height:1.9;">
+          <!-- ① 视频主区：页面主体，占比最大 -->
+          <div id="theater-video-wrap" class="tv-stage">
+            <div class="tv-stage-head">
+              <span class="tv-ico">🎬</span>
+              <span id="theater-video-status">影片尚未生成</span>
+            </div>
+            <div id="theater-video-progress"></div>
+            <div id="theater-video-container"></div>
+            <div class="tv-actions">
+              <button class="btn" id="theater-video-btn" onclick="generateTheaterVideo()" style="font-size:13px;padding:7px 18px;">🎬 生成视频</button>
+              <button class="voice-btn" title="朗读剧本（自动切换人物音色）" onclick="speakTheater(this)" style="width:auto;padding:6px 14px;border-radius:999px;border:1px solid var(--line);font-size:13px;">🔊 朗读剧本</button>
+              <span id="theater-meta" style="font-size:12px;color:var(--ink-2);"></span>
+            </div>
+          </div>
+
+          <!-- ② 时代背景 -->
+          <div class="tv-panel">
+            <div class="tv-panel-title">🏛 时代背景</div>
+            <div class="tv-era-grid" id="theater-era-grid"></div>
+          </div>
+
+          <!-- ③ 文字版对话 -->
+          <div class="tv-panel">
+            <div class="tv-panel-title">📜 文字版对话</div>
+            <div id="theater-script" class="tv-script-box"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 知识库管理页 -->
+  <section id="page-kb" class="page">
+    <div class="editor" id="editor">
+      <h3 id="editor-title">新增知识条目</h3>
+      <div class="grid">
+        <div class="field"><label>标题 <b>*</b></label><input id="f-title" placeholder="如：青花缠枝莲纹瓶 / 青铜器馆"></div>
+        <div class="field"><label>分类 <b>*</b></label>
+          <select id="f-category">
+            <option value="文物藏品">文物藏品</option>
+            <option value="馆务信息">馆务信息</option>
+            <option value="展厅场馆">展厅场馆</option>
+            <option value="历史人物">历史人物</option>
+            <option value="展览活动">展览活动</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="field"><label>所属场馆 / 展厅</label><input id="f-hall" placeholder="如：青铜器馆 / 瓷器馆 / 古生物馆"></div>
+        <div class="field full"><label>关键词 <b>*</b>（用逗号、顿号或换行分隔）</label><input id="f-keywords" placeholder="青花瓷, 明代, 瓷器, 镇馆之宝"></div>
+        <div class="field full"><label>内容 <b>*</b>（讲解词 / 场馆介绍 / 参观须知 / 人物生平）</label><textarea id="f-content" placeholder="填写详细讲解内容。文物类建议包含：年代、材质、造型、纹饰、历史价值；场馆类建议包含：展厅主题、主要展品、参观动线；历史人物类建议包含：生平、时代背景、与文物的关联。"></textarea></div>
+        <div id="char-fields" class="char-fields" style="display:none;grid-column:1/-1;">
+          <div class="grid" style="margin-top:8px;">
+            <div class="field"><label>所处时代</label><input id="f-era" placeholder="如：秦朝 / 唐朝"></div>
+            <div class="field"><label>身份</label><input id="f-identity" placeholder="如：首位皇帝 / 诗人"></div>
+            <div class="field"><label>性格 / 语气</label><input id="f-persona" placeholder="如：威严霸气，自称朕"></div>
+            <div class="field"><label>名言（用中文分号；分隔）</label><input id="f-quotes" placeholder="天下英雄入吾彀中矣；是非功过，留与后人评说"></div>
+            <div class="field full"><label>关联文物（用逗号分隔）</label><input id="f-related" placeholder="兵马俑, 青铜剑, 秦简"></div>
+          </div>
+        </div>
+      </div>
+      <div class="editor-actions">
+        <button class="btn" onclick="saveEntry()">保存</button>
+        <button class="btn ghost" onclick="closeEditor()">取消</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <button class="btn" onclick="openEditor()">＋ 新增条目</button>
+      <button class="btn ghost" onclick="exportKB()">⬇ 导出</button>
+      <label class="btn ghost" style="display:inline-block;cursor:pointer;">⬆ 导入<input type="file" accept=".json" onchange="importKB(this)" style="display:none;"></label>
+      <input type="text" id="search" placeholder="搜索标题 / 关键词 / 内容" oninput="renderTable()">
+    </div>
+    <div class="stat" id="stat"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>标题 / 内容预览</th><th>分类</th><th>场馆</th><th>关键词</th><th>操作</th></tr></thead>
+        <tbody id="kb-tbody"></tbody>
+      </table>
+      <div class="empty" id="kb-empty" style="display:none;">暂无知识条目，点击「新增条目」开始维护。</div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+<footer>泉城数字博物馆 · 智能问答 Agent · 本地部署</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+let KB = [];
+let sending = false;
+let editingId = null;
+let HISTORY = [];
+let VOICE_ENABLED = localStorage.getItem('museum_voice_enabled') !== 'false'; // 默认开启
+let CURRENT_SPEAK_BTN = null;
+let CURRENT_ROLE = localStorage.getItem('museum_current_role') || ''; // 当前历史人物 id
+let ROLE_STYLE = localStorage.getItem('museum_role_style') || 'classic'; // classic=文言, kids=儿童白话
+let THEATER_LINES = [];   // 小剧场台词 [{speaker, text}]
+let THEATER_META = null;  // 小剧场双角色 {a, b}
+
+function initVoice() {
+  updateVoiceIcon();
+  // 预加载语音列表（Chrome 的 voices 异步加载完成会触发 onvoiceschanged）
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => {
+      VOICE_POOL = null; // 声音列表就绪/变化后重建性别声音池
+      window.speechSynthesis.getVoices();
+    };
+  }
+}
+function updateStyleUI() {
+  const btn = $('style-toggle');
+  if (!btn) return;
+  const isRole = !!CURRENT_ROLE;
+  btn.style.display = isRole ? 'inline-flex' : 'none';
+  if (ROLE_STYLE === 'kids') {
+    btn.textContent = '👶 儿童';
+    btn.title = '当前为儿童白话模式，点击切换为文言模式';
+  } else {
+    btn.textContent = '📜 文言';
+    btn.title = '当前为文言古风模式，点击切换为儿童模式';
+  }
+}
+function toggleStyle() {
+  ROLE_STYLE = (ROLE_STYLE === 'kids') ? 'classic' : 'kids';
+  localStorage.setItem('museum_role_style', ROLE_STYLE);
+  updateStyleUI();
+  const label = ROLE_STYLE === 'kids' ? '已切换为儿童白话模式' : '已切换为文言古风模式';
+  toast(label);
+  // 切换风格后，如果当前在角色模式，重新发送问候语以展示新风格
+  if (CURRENT_ROLE) {
+    newChat();
+  }
+}
+async function loadRoles() {
+  try {
+    KB = await api('/api/knowledge');
+    const roles = KB.filter(e => e.category === '历史人物');
+    const sel = $('role-select');
+    sel.innerHTML = '<option value="">🏛️ 智能讲解员</option>' +
+      roles.map(r => `<option value="${esc(r.id)}">${esc(r.title)} · ${esc(r.era)}</option>`).join('');
+    if (CURRENT_ROLE && roles.find(r => r.id === CURRENT_ROLE)) {
+      sel.value = CURRENT_ROLE;
+    }
+  } catch (e) { /* ignore */ }
+}
+function selectRole(roleId) {
+  CURRENT_ROLE = roleId || '';
+  localStorage.setItem('museum_current_role', CURRENT_ROLE);
+  updateStyleUI();
+  // 切换角色后重新打招呼
+  newChat();
+}
+function getRoleTitle() {
+  if (!CURRENT_ROLE) return '';
+  const r = KB.find(e => e.id === CURRENT_ROLE);
+  return r ? r.title : '';
+}
+function getRoleEra() {
+  if (!CURRENT_ROLE) return '';
+  const r = KB.find(e => e.id === CURRENT_ROLE);
+  return r ? r.era : '';
+}
+/* ---------- 语音引擎：分句断句 + 人物音色 ---------- */
+const SPEAK_SENT_PAUSE = 380;   // 句末（。！？…）停顿
+const SPEAK_CLAUSE_PAUSE = 130; // 分句（，、）停顿：收紧避免拖沓（浏览器本身有句间空隙）
+let SPEAK_QUEUE = [];
+let SPEAK_SESSION = 0;
+let SPEAK_LINE_EL = null;
+let CURRENT_UTTERANCE = null;
+
+// 人物音色档案：gender 决定从哪个性别声音池选系统声音；
+// pref 是该人物偏好的系统声音关键词（贴合人物形象）；
+// pitch/rate 再做个性化微调，保证同性别人物之间也有区分度
+const CHAR_VOICE_PROFILES = {
+  '秦始皇': { gender: 'male',   pref: ['yunjian', 'kangkang', 'yunyang'],            pitch: 0.70, rate: 0.90, desc: '沉稳威严' }, // 帝王：最低沉、最慢
+  '李白':   { gender: 'male',   pref: [ 'yunxi','kangkang', 'yunyang'],              pitch: 0.84, rate: 1.10, desc: '豪放洒脱',
+              simPitch: 0.32, simRate: 0.95 }, // 清朗男声：语速轻快但音调必须低于所有女声，避免偏女
+  '苏轼':   { gender: 'male',   pref: ['yunyang', 'yunxi', 'kangkang'],              pitch: 0.88, rate: 0.96, desc: '温厚豁达' }, // 东坡：居中醇厚
+  '武则天': { gender: 'female', pref: ['yaoyao', 'yunxia', 'xiaoxiao'],              pitch: 0.92, rate: 1.00, desc: '端庄大气' }, // 女皇：沉稳大气
+  '李清照': { gender: 'female', pref: ['huihui', 'yaoyao', 'yunxia', 'xiaoxiao'],    pitch: 1.02, rate: 0.96, desc: '温婉知性' }, // 词后：成熟才女，从容清雅
+  '妇好':   { gender: 'female', pref: ['yaoyao', 'yunxia', 'huihui', 'xiaoxiao'],    pitch: 0.90, rate: 1.02, desc: '英气端庄' }, // 女将军：果决爽利
+  '屈原':   { gender: 'male',   pref: ['yunxi', 'kangkang', 'yunyang'],              pitch: 0.90, rate: 0.90, desc: '忧愤孤高' }, // 楚骚：低沉凝思
+  '霍去病': { gender: 'male',   pref: ['kangkang', 'yunjian', 'yunyang'],            pitch: 0.80, rate: 1.12, desc: '少年英豪' }, // 锐气：偏快偏亮
+  '乾隆':   { gender: 'male',   pref: ['yunjian', 'kangkang', 'yunyang'],            pitch: 0.78, rate: 0.95, desc: '博雅从容' }, // 帝王：沉稳稍快
+  '辛弃疾': { gender: 'male',   pref: ['yunyang', 'yunxi', 'kangkang'],              pitch: 0.86, rate: 1.00, desc: '慷慨沉郁' }, // 豪放词人：居中带劲
+  '秦琼':   { gender: 'male',   pref: ['kangkang', 'yunjian', 'yunyang'],            pitch: 0.82, rate: 1.05, desc: '忠勇豪爽' }, // 山东好汉：厚实爽快
+  '张骞':   { gender: 'male',   pref: ['yunxi', 'yunyang', 'kangkang'],              pitch: 0.90, rate: 1.00, desc: '坚毅从容' }, // 行者：清朗持重
+  '玄奘':   { gender: 'male',   pref: ['yunyang', 'yunjian', 'kangkang'],            pitch: 0.90, rate: 0.92, desc: '温厚沉静' }, // 高僧：醇和徐缓
+};
+// 系统声音池缓存（voices 异步加载完成后失效重建）
+let VOICE_POOL = null;
+function getVoicesList() {
+  return ('speechSynthesis' in window) ? window.speechSynthesis.getVoices() : [];
+}
+// 把中文声音按性别分类（依据常见命名规律）
+function classifyVoices() {
+  const list = getVoicesList();
+  // 声音列表数量变化（含从空到就绪）时自动重建，避免缓存住"未加载完"的空池
+  if (VOICE_POOL && VOICE_POOL.count === list.length) return VOICE_POOL;
+  const zh = list.filter(v => (v.lang || '').toLowerCase().startsWith('zh'));
+  const maleKeys = ['kangkang', 'yunyang', 'yunxi', 'yunjian', 'yunye', 'lang',
+                    'male', 'danny', 'liang'];
+  const femaleKeys = ['xiaoxiao', 'yaoyao', 'huihui', 'xiaoyi', 'yunxia', 'tingting',
+                      'xiaohan', 'female', 'mei-ling', 'meijia', 'sinji', 'ting', 'li-na'];
+  const males = [], females = [];
+  for (const v of zh) {
+    const n = (v.name || '').toLowerCase();
+    if (maleKeys.some(k => n.includes(k))) males.push(v);
+    else if (femaleKeys.some(k => n.includes(k))) females.push(v);
+  }
+  // 无法识别性别的中文声音：不进池（避免误配），仅作兜底
+  VOICE_POOL = { males, females, fallback: zh[0] || list[0] || null, count: list.length };
+  return VOICE_POOL;
+}
+function pickVoiceFor(p, usedNames) {
+  const pool = classifyVoices();
+  const genderPool = p.gender === 'male' ? pool.males : pool.females;
+  // 1) 优先匹配人物档案里偏好的系统声音（贴合形象，如秦始皇偏云健的浑厚）
+  for (const k of (p.pref || [])) {
+    const v = genderPool.find(v => v.name.toLowerCase().includes(k));
+    if (v && (!usedNames || !usedNames.has(v.name))) return v;
+  }
+  // 2) 偏好声音都被占用时：从同性别池里挑一个尚未被其他人物占用的声音
+  const free = genderPool.filter(v => !usedNames || !usedNames.has(v.name));
+  if (free.length) return free[0];
+  // 3) 同性别声音不够用：退回该性别任意声音（靠 pitch/rate 区分）
+  if (genderPool.length) return genderPool[0];
+  // 4) 系统没有对应性别声音：用兜底声音 + pitch 拉开差距（男 0.7 档 / 女 1.1 档）
+  return pool.fallback;
+}
+function voiceProfileFor(name, usedNames) {
+  let p = CHAR_VOICE_PROFILES[name];
+  if (!p) {
+    // 未建档人物（用户自建历史人物）：按名字哈希生成稳定档案，同一人物每次音色一致
+    let h = 0;
+    for (const ch of String(name || '')) h = (h * 31 + ch.codePointAt(0)) >>> 0;
+    const female = h % 2 === 0;
+    p = { gender: female ? 'female' : 'male',
+          pitch: female ? 1.06 + (h % 5) * 0.045 : 0.76 + (h % 5) * 0.035,
+          rate: 0.94 + (h % 4) * 0.03 };
+  }
+  const voiceObj = pickVoiceFor(p, usedNames);
+  let pitch = p.pitch;
+  // 系统完全没有该性别的中文声音、只能用兜底声音时：
+  // 用 pitch 强行拉出性别感（男压到 0.7 以下 / 女抬到 1.1 以上）
+  const pool = classifyVoices();
+  const genderPool = p.gender === 'male' ? pool.males : pool.females;
+  if (!genderPool.length && voiceObj) {
+    if (p.gender === 'male') {
+      // 系统没有中文男声（部分浏览器只带惠惠女声）：
+      // 用女声极限压低音调模拟男声；档案带 simPitch 的用专属低档（如李白）
+      // 秦始皇0.40 / 苏轼0.46 / 李白0.32（专属最低档）
+      if (p.simPitch != null) {
+        return { ...p, pitch: p.simPitch, rate: p.simRate || Math.min(p.rate, 1.0),
+                 voiceObj, sim: true };
+      }
+      pitch = Math.max(0.3, 0.40 + (p.pitch - 0.70) * 0.35);
+      return { ...p, pitch, rate: Math.min(p.rate, 1.02), voiceObj, sim: true };
+    }
+    pitch = Math.max(p.pitch, 1.1);
+  }
+  return { ...p, pitch, voiceObj };
+}
+function narratorProfile(usedNames) {
+  // 旁白/讲解员：知性女声，优先避开角色已占用的声音
+  const p = { gender: 'female', pref: ['xiaoxiao', 'yunxia', 'yaoyao'], pitch: 1.05, rate: 1.0 };
+  return { ...p, voiceObj: pickVoiceFor(p, usedNames) };
+}
+/* ---------- 音色诊断面板 ---------- */
+function openVoicePanel() {
+  $('voice-modal').classList.add('open');
+  renderVoicePanel();
+}
+function closeVoicePanel() {
+  $('voice-modal').classList.remove('open');
+  stopSpeaking();
+}
+function renderVoicePanel() {
+  const pool = classifyVoices();
+  const allZh = getVoicesList().filter(v => (v.lang || '').toLowerCase().startsWith('zh'));
+  // 声音池概览
+  const zhNames = allZh.map(v => {
+    const inMale = pool.males.includes(v);
+    const inFemale = pool.females.includes(v);
+    const tag = inMale ? '♂男' : (inFemale ? '♀女' : '？未识别');
+    return `${esc(v.name)}（${tag}）`;
+  }).join('、') || '未检测到中文声音';
+  $('vp-voices').innerHTML =
+    `浏览器提供 ${getVoicesList().length} 个声音，其中中文 ${allZh.length} 个：${zhNames}。<br>` +
+    (pool.males.length === 0 ? '⚠️ 未检测到中文男声，男性人物将用女声压低音调模拟。' : `男声池：${pool.males.map(v => esc(v.name)).join('、')}。`);
+  // 人物分配表 + 试听
+  const rows = [];
+  const narrator = narratorProfile();
+  rows.push(vpRow('🏛️ 讲解员/旁白', narrator));
+  const used = new Set();
+  for (const [name, p] of Object.entries(CHAR_VOICE_PROFILES)) {
+    const prof = voiceProfileFor(name, used);
+    if (prof.voiceObj) used.add(prof.voiceObj.name);
+    rows.push(vpRow(name, prof));
+  }
+  $('vp-list').innerHTML = rows.join('');
+}
+function vpRow(label, prof) {
+  const vname = prof.voiceObj ? prof.voiceObj.name : '（系统默认）';
+  const simTag = prof.sim ? ' · 模拟男声' : '';
+  return `<div style="display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--line);">
+    <div style="flex:1;min-width:0;">
+      <div style="font-weight:600;">${esc(label)}</div>
+      <div style="font-size:12px;color:var(--ink-2);">声音：${esc(vname)} · 音调 ${prof.pitch} · 语速 ${prof.rate}${simTag}</div>
+    </div>
+    <button class="btn ghost" style="padding:4px 10px;font-size:12px;" onclick="vpPreview(this,'${esc(label).replace(/'/g, '')}')">试听</button>
+  </div>`;
+}
+function vpPreview(btn, label) {
+  const name = label.replace('🏛️ ', '').replace(' · 模拟男声', '');
+  const prof = (name === '讲解员/旁白') ? narratorProfile() : voiceProfileFor(name);
+  const text = name === '讲解员/旁白'
+    ? '您好，我是本馆的智能讲解员，欢迎来到泉城数字博物馆。'
+    : `你好，我是${name}，很高兴与你相见。`;
+  speak(text, btn, prof);
+}
+// 分句引擎：先按句末标点切，长句再按逗号顿号细分，保证断句自然
+function splitIntoUnits(text) {
+  const clean = String(text)
+    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\uFE0F\u200D]/gu, ' ') // 去掉表情符号
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!clean) return [];
+  const units = [];
+  const rough = clean.split(/(?<=[。！？!?…；;])/).map(s => s.trim()).filter(Boolean);
+  for (const seg of rough) {
+    const endPause = /[。！？!?…]/.test(seg.slice(-1)) ? SPEAK_SENT_PAUSE : 200;
+    if (seg.length <= 42) { units.push({ text: seg, pause: endPause }); continue; }
+    // 超长句：按逗号顿号切成 ≤22 字左右的小分句
+    const pieces = seg.split(/(?<=[，、,])/).map(s => s.trim()).filter(Boolean);
+    let buf = '';
+    for (const pc of pieces) {
+      buf += pc;
+      const ends = /[。！？!?…；;]/.test(pc.slice(-1));
+      if (ends || buf.length >= 22) {
+        units.push({ text: buf, pause: ends ? SPEAK_SENT_PAUSE : SPEAK_CLAUSE_PAUSE });
+        buf = '';
+      }
+    }
+    if (buf.trim()) units.push({ text: buf.trim(), pause: endPause });
+  }
+  return units;
+}
+function clearSpeakLine() {
+  if (SPEAK_LINE_EL) { SPEAK_LINE_EL.classList.remove('speaking-line'); SPEAK_LINE_EL = null; }
+}
+function stopSpeaking() {
+  SPEAK_SESSION++;
+  SPEAK_QUEUE = [];
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  CURRENT_UTTERANCE = null;
+  if (CURRENT_SPEAK_BTN) { CURRENT_SPEAK_BTN.classList.remove('speaking'); CURRENT_SPEAK_BTN = null; }
+  clearSpeakLine();
+}
+function speak(text, btn, profile) {
+  if (!('speechSynthesis' in window)) return;
+  stopSpeaking();
+  if (!VOICE_ENABLED || !text) return;
+  // 历史人物模式下自动套用该人物的音色
+  if (!profile && CURRENT_ROLE) {
+    const r = KB.find(e => e.id === CURRENT_ROLE);
+    if (r) {
+      profile = voiceProfileFor(r.title);
+      // 若角色与讲解员被分到同一系统声音（单声音系统），
+      // 拉大音调/语速差距，让角色感明显（与小剧场同声音补偿一致）
+      const np = narratorProfile();
+      if (profile.voiceObj && np.voiceObj && profile.voiceObj.name === np.voiceObj.name) {
+        if (profile.gender === 'male' && !profile.sim) {
+          // 真男声与讲解员共用声音时压低区分；模拟男声（sim）已在男声区，跳过
+          profile.pitch = Math.max(0.4, Math.min(profile.pitch, np.pitch - 0.28));
+          profile.rate = Math.max(0.6, profile.rate - 0.04);
+        } else if (profile.gender === 'female') {
+          const dir = profile.pitch >= np.pitch ? 1 : -1;
+          profile.pitch = Math.max(0.5, Math.min(1.9, profile.pitch + dir * 0.2));
+          profile.rate = Math.max(0.6, Math.min(1.7, profile.rate + dir * 0.03));
+        }
+      }
+    }
+  }
+  const units = splitIntoUnits(text);
+  if (!units.length) return;
+  SPEAK_QUEUE = units.map(u => ({ ...u, profile: profile || null }));
+  if (btn) { CURRENT_SPEAK_BTN = btn; btn.classList.add('speaking'); }
+  playNextUnit(SPEAK_SESSION);
+}
+function playNextUnit(session) {
+  if (session !== SPEAK_SESSION) return; // 已被新的朗读/停止打断
+  const item = SPEAK_QUEUE.shift();
+  if (!item || !VOICE_ENABLED) {
+    if (CURRENT_SPEAK_BTN) { CURRENT_SPEAK_BTN.classList.remove('speaking'); CURRENT_SPEAK_BTN = null; }
+    clearSpeakLine();
+    return;
+  }
+  const u = new SpeechSynthesisUtterance(item.text);
+  const p = item.profile || {};
+  if (p.voiceObj) u.voice = p.voiceObj;
+  u.lang = 'zh-CN';
+  // 儿童模式：整体更慢更活泼，便于小朋友听懂
+  const isKids = (CURRENT_ROLE && ROLE_STYLE === 'kids') || window.__theater_kids;
+  u.rate = (p.rate || 1.0) * (isKids ? 0.88 : 1.0);
+  u.pitch = (p.pitch || 1.0) * (isKids ? 1.06 : 1.0);
+  // 运行日志：F12 控制台可见每次朗读实际使用的声音与参数
+  console.log('[语音播放]', '声音:', p.voiceObj ? p.voiceObj.name : '(默认)',
+              '| pitch:', u.pitch, '| rate:', u.rate, '| 文本:', item.text.slice(0, 15));
+  if (item.el) { // 小剧场：高亮当前台词
+    clearSpeakLine();
+    SPEAK_LINE_EL = item.el;
+    item.el.classList.add('speaking-line');
+    item.el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  CURRENT_UTTERANCE = u;
+  u.onend = () => {
+    if (session !== SPEAK_SESSION) return;
+    setTimeout(() => playNextUnit(session), item.pause || 200);
+  };
+  u.onerror = () => {
+    if (session !== SPEAK_SESSION) return;
+    setTimeout(() => playNextUnit(session), 60);
+  };
+  window.speechSynthesis.speak(u);
+}
+function toggleVoice() {
+  VOICE_ENABLED = !VOICE_ENABLED;
+  localStorage.setItem('museum_voice_enabled', VOICE_ENABLED ? 'true' : 'false');
+  updateVoiceIcon();
+  if (!VOICE_ENABLED) stopSpeaking();
+}
+function updateVoiceIcon() {
+  const btn = $('voice-toggle');
+  btn.textContent = VOICE_ENABLED ? '🔊' : '🔇';
+  btn.classList.toggle('off', !VOICE_ENABLED);
+  btn.title = VOICE_ENABLED ? '朗读已开启，点击关闭' : '朗读已关闭，点击开启';
+}
+
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+async function api(path, opts) {
+  const r = await fetch(path, opts ? {
+    method: opts.method,
+    headers: { 'Content-Type': 'application/json' },
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  } : undefined);
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || '请求失败');
+  return data;
+}
+function switchTab(name) {
+  // 切换页签时停止朗读，并清掉小剧场儿童模式标记（避免影响问答页语速）
+  if (name !== 'theater') window.__theater_kids = false;
+  stopSpeaking();
+  ['chat', 'theater', 'kb'].forEach(n => {
+    $('tab-' + n).classList.toggle('active', n === name);
+    $('page-' + n).classList.toggle('active', n === name);
+  });
+  if (name === 'kb') loadKB();
+  if (name === 'theater') initTheater();
+}
+
+/* ---------- 问答 ---------- */
+function newChat() {
+  stopSpeaking();
+  $('msgs').innerHTML = '';
+  HISTORY = [];
+  initWelcome();
+  initChips();
+}
+function initWelcome() {
+  let text = '';
+  if (CURRENT_ROLE) {
+    const r = KB.find(e => e.id === CURRENT_ROLE);
+    if (r) {
+      text = `您好，您已开启「时空对话」模式 🌀\n我是${r.title}，来自${r.era}。${r.identity}。\n\n请问您想与我聊聊什么？是我的时代、我的经历，还是馆中与我有关的文物？`;
+    }
+  }
+  if (!text) {
+    text = '您好，欢迎来到泉城数字博物馆 🏛️\n我是本馆的智能问答助手，可以为您介绍开放时间、门票预约、交通路线，也可以讲解馆藏文物、推荐参观展厅。\n\n请问有什么可以帮您？';
+  }
+  const msgDiv = addMsg('bot', text);
+  if (VOICE_ENABLED) {
+    const btn = msgDiv.querySelector('.voice-btn');
+    speak(text, btn);
+  }
+}
+function addMsg(role, html, metaHtml) {
+  const box = $('msgs');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  let voiceBtn = '';
+  if (role === 'bot') {
+    voiceBtn = `<button class="voice-btn" title="朗读" onclick="speakMsg(this)">🔊</button>`;
+  }
+  div.innerHTML = `<div class="avatar ${role}">${role === 'bot' ? '🏛️' : '🧑'}</div>
+    <div><div class="bubble">${html}</div><div style="display:flex;align-items:center;gap:8px;margin-top:6px;">${voiceBtn}${metaHtml || ''}</div></div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+function speakMsg(btn) {
+  const bubble = btn.closest('.msg').querySelector('.bubble');
+  if (!bubble) return;
+  speak(bubble.textContent, btn);
+}
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function metaHtml(res) {
+  if (!res || !res.suggested_questions || !res.suggested_questions.length) return '';
+  let h = '<div class="meta">相关问题：';
+  h += res.suggested_questions.slice(0, 3).map(q =>
+    `<span class="tag clickable" onclick="send(${JSON.stringify(q).replace(/"/g, '&quot;')})">${esc(q)}</span>`).join('');
+  return h + '</div>';
+}
+async function send(q) {
+  const input = $('q-input');
+  const question = (q || input.value).trim();
+  if (!question || sending) return;
+  input.value = '';
+  sending = true; $('send-btn').disabled = true;
+  addMsg('user', esc(question));
+  stopSpeaking();
+  const typing = addMsg('bot', '<span class="typing"><span></span><span></span><span></span></span>');
+  try {
+    const res = await api('/api/chat', { method: 'POST', body: { question, history: HISTORY.slice(-6), role: CURRENT_ROLE || undefined, style: CURRENT_ROLE ? ROLE_STYLE : 'classic' } });
+    typing.remove();
+    const msgDiv = addMsg('bot', esc(res.answer), metaHtml(res));
+    HISTORY.push({ role: 'user', content: question },
+                 { role: 'assistant', content: res.answer });
+    if (HISTORY.length > 12) HISTORY = HISTORY.slice(-12);
+    // 自动朗读最后一条机器人回答
+    if (VOICE_ENABLED) {
+      const btn = msgDiv.querySelector('.voice-btn');
+      speak(res.answer, btn);
+    }
+  } catch (e) {
+    typing.remove();
+    addMsg('bot', '⚠️ ' + esc(e.message));
+  } finally {
+    sending = false; $('send-btn').disabled = false;
+    input.focus();
+  }
+}
+$('q-input').addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+
+const GLOBAL_SUGGESTIONS = [
+  { q: '博物馆有哪些镇馆之宝？', t: '有哪些镇馆之宝？' },
+  { q: '怎么预约门票？', t: '怎么预约门票？' },
+  { q: '博物馆几点开门？', t: '几点开门？' },
+  { q: '带孩子参观推荐哪些展厅？', t: '带孩子推荐哪些展厅？' },
+  { q: '停车方便吗？', t: '停车方便吗？' },
+  { q: '有什么语音讲解服务？', t: '语音讲解服务' },
+  { q: '参观路线怎么安排？', t: '参观路线怎么安排？' },
+  { q: '最近有什么特别展览？', t: '最近有什么特别展览？' },
+];
+
+async function initChips() {
+  try {
+    KB = await api('/api/knowledge');
+    if (CURRENT_ROLE) {
+      const r = KB.find(e => e.id === CURRENT_ROLE);
+      if (r) {
+        const related = (r.related_artifacts || []).slice(0, 2);
+        let html = `<span onclick="send('你的一生经历了什么？')">你的一生经历了什么？</span>`;
+        html += `<span onclick="send('你那个时代的生活是什么样的？')">你那个时代的生活是什么样的？</span>`;
+        html += `<span onclick="send('你最想对现代人说的一句话？')">你最想对现代人说的一句话？</span>`;
+        if (related.length) html += related.map(a => `<span onclick="send('讲讲${esc(a)}')">讲讲${esc(a)}</span>`).join('');
+        $('chips').innerHTML = html;
+        return;
+      }
+    }
+    // 首页推荐：全局性、易上手的问题
+    const shuffled = GLOBAL_SUGGESTIONS.slice().sort(() => Math.random() - 0.5);
+    $('chips').innerHTML = shuffled.slice(0, 6).map(s =>
+      `<span onclick="send(${JSON.stringify(s.q).replace(/"/g, '&quot;')})">${esc(s.t)}</span>`).join('');
+  } catch (e) { /* ignore */ }
+}
+
+/* ---------- 历史小剧场 ---------- */
+function initTheater() {
+  const roles = KB.filter(e => e.category === '历史人物');
+  const opts = roles.map(r => `<option value="${esc(r.id)}">${esc(r.title)} · ${esc(r.era)}</option>`).join('');
+  const aSel = $('theater-a');
+  const bSel = $('theater-b');
+  if (!aSel || !bSel) return;
+  aSel.innerHTML = opts;
+  bSel.innerHTML = opts;
+  // 默认选择前两个不同人物
+  if (roles.length >= 2) {
+    aSel.value = roles[0].id;
+    bSel.value = roles[1].id;
+  }
+  // 若已缓存上次选择，则恢复
+  const lastA = localStorage.getItem('museum_theater_a');
+  const lastB = localStorage.getItem('museum_theater_b');
+  if (lastA && roles.find(r => r.id === lastA)) aSel.value = lastA;
+  if (lastB && roles.find(r => r.id === lastB)) bSel.value = lastB;
+}
+function randomTheater() {
+  const roles = KB.filter(e => e.category === '历史人物');
+  if (roles.length < 2) { toast('知识库中历史人物不足 2 位'); return; }
+  let i = Math.floor(Math.random() * roles.length);
+  let j = Math.floor(Math.random() * roles.length);
+  while (i === j && roles.length > 1) j = Math.floor(Math.random() * roles.length);
+  $('theater-a').value = roles[i].id;
+  $('theater-b').value = roles[j].id;
+  localStorage.setItem('museum_theater_a', roles[i].id);
+  localStorage.setItem('museum_theater_b', roles[j].id);
+}
+async function generateTheater() {
+  stopSpeaking(); // 生成新剧本时停止旧朗读（与问答页行为一致）
+  const aId = $('theater-a').value;
+  const bId = $('theater-b').value;
+  const topic = $('theater-topic').value.trim();
+  const kids = $('theater-kids').checked;
+  if (!aId || !bId) { toast('请先选择两位历史人物'); return; }
+  if (aId === bId) { toast('请选择两个不同的历史人物'); return; }
+  localStorage.setItem('museum_theater_a', aId);
+  localStorage.setItem('museum_theater_b', bId);
+  const stage = $('theater-stage');
+  const scriptDiv = $('theater-script');
+  const badge = $('theater-badge');
+  stage.style.display = 'none';
+  badge.textContent = '正在穿越时空，请稍候…';
+  try {
+    const res = await api('/api/theater', {
+      method: 'POST',
+      body: { character_a: aId, character_b: bId, topic, style: kids ? 'kids' : 'classic' }
+    });
+    renderTheater(res, kids);
+    stage.style.display = 'block';
+    badge.textContent = `已生成：${res.character_a.title} × ${res.character_b.title}`;
+    // 保存完整人物资料（KB 内的原始条目，含 era/persona/quotes 等）供「生成视频」复用，
+    // 视频生成请求需要把博物馆侧字段映射到工坊 CharacterSpec（见 museum-bridge-contract.md §2）
+    const aEntry = KB.find(e => e.id === aId) || res.character_a;
+    const bEntry = KB.find(e => e.id === bId) || res.character_b;
+    window.__theater_last = {
+      a: aEntry, b: bEntry,
+      topic: topic || '穿越时空的相遇',
+      kids,
+      script: res.script
+    };
+  } catch (e) {
+    badge.textContent = '生成失败';
+    toast('小剧场生成失败：' + e.message);
+  }
+}
+function renderTheater(res, kids) {
+  const rawLines = res.script.split('\n').map(l => l.trim()).filter(Boolean);
+  THEATER_META = { a: res.character_a.title, b: res.character_b.title };
+  THEATER_LINES = rawLines.map(line => {
+    const m = line.match(/^([^：:\n]{1,12})[：:](.+)$/);
+    return m ? { speaker: m[1].trim(), text: m[2].trim() } : { speaker: '', text: line };
+  });
+  const html = THEATER_LINES.map((ln, i) => {
+    if (!ln.speaker) {
+      return `<div class="tl-line" id="tl-${i}" style="color:var(--ink-2);font-size:13px;margin:8px 0;padding:4px 10px;">🎬 ${esc(ln.text)}</div>`;
+    }
+    const isA = ln.speaker === THEATER_META.a;
+    const isB = ln.speaker === THEATER_META.b;
+    const color = isA ? 'var(--bronze)' : (isB ? 'var(--green)' : 'var(--ink-2)');
+    const icon = isA ? '🎭' : (isB ? '📖' : '🎬');
+    return `<div class="tl-line" id="tl-${i}" style="margin:10px 0;padding:8px 10px;${isB ? 'margin-left:28px;' : ''}">
+      <div style="font-weight:600;color:${color};font-size:14px;margin-bottom:4px;">${icon} ${esc(ln.speaker)}</div>
+      <div style="color:var(--ink);">${esc(ln.text)}</div>
+    </div>`;
+  }).join('');
+  $('theater-script').innerHTML = html;
+  $('theater-meta').textContent = `${kids ? '儿童白话版' : '文言古风版'} · ${res.mode === 'llm' ? '大模型生成' : '本地模式'} · 朗读时自动切换人物音色`;
+  window.__theater_kids = kids;
+  renderEraCard(res);
+  resetVideoArea();
+}
+/* 渲染「时代背景」卡片：两位历史人物的时代 / 身份 / 性格 / 相关文物 */
+function renderEraCard(res) {
+  const box = $('theater-era-grid');
+  if (!box) return;
+  box.innerHTML = [res.character_a, res.character_b].map((c, i) => {
+    if (!c) return '';
+    const tag = i === 0 ? '人物 A' : '人物 B';
+    const meta = [c.era, c.identity].filter(Boolean).join(' · ');
+    const persona = (c.persona || c.content || '').slice(0, 120);
+    const arts = (c.related_artifacts || []).slice(0, 5)
+      .map(a => `<span class="tv-era-tag">🏺 ${esc(a)}</span>`).join('');
+    return `<div class="tv-era-card">
+      <div class="tv-era-name">${esc(c.title || '')} <span style="font-size:11px;color:var(--ink-2);font-weight:400;">（${tag}）</span></div>
+      <div class="tv-era-sub">${esc(meta || '时代与身份待补充')}</div>
+      ${persona ? `<div class="tv-era-persona">${esc(persona)}</div>` : ''}
+      ${arts ? `<div class="tv-era-tags">${arts}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+/* 生成新剧本后，视频区回到「未生成」占位状态 */
+function resetVideoArea() {
+  const statusEl = $('theater-video-status');
+  const progressEl = $('theater-video-progress');
+  const videoEl = $('theater-video-container');
+  if (statusEl) statusEl.textContent = '影片尚未生成';
+  if (progressEl) progressEl.textContent = '';
+  if (videoEl) {
+    videoEl.innerHTML = `<div class="tv-placeholder">
+        <div class="tv-ph-ico">🎞</div>
+        <div class="tv-ph-tip">点击下方「🎬 生成视频」<br>把这段对话拍成影片</div>
+      </div>`;
+  }
+  const btn = $('theater-video-btn');
+  if (btn) btn.disabled = false;
+}
+function speakTheater(btn) {
+  if (!THEATER_LINES.length) return;
+  if (!VOICE_ENABLED) { toast('语音朗读已关闭，请点击右上角 🔊 开启'); return; }
+  stopSpeaking();
+  const meta = THEATER_META || {};
+  // 依次为 A、B、旁白分配声音：各自优先用贴合形象的声音，
+  // 同性别的两位人物若池中声音够用则各占一个不同声音
+  const used = new Set();
+  const pa = voiceProfileFor(meta.a || '');
+  if (pa.voiceObj) used.add(pa.voiceObj.name);
+  const pb = voiceProfileFor(meta.b || '', used);
+  if (pb.voiceObj) used.add(pb.voiceObj.name);
+  const pn = narratorProfile(used);
+  // 若两个角色最终仍被分到同一个声音（系统只有 1 个中文声音等极端情况），
+  // 播报说话人名字以示区分，且拉大两者 pitch 差
+  const sameVoice = pa.voiceObj && pb.voiceObj && pa.voiceObj.name === pb.voiceObj.name;
+  if (sameVoice) {
+    if (pb.gender === 'male' && !pb.sim) {
+      // 两个男角色共用同一男声：绝不能把 pitch 往上推（会变成女声感），
+      // 只用语速区分，且音调封顶 1.0 保证留在男声区
+      pb.pitch = Math.max(0.4, Math.min(pb.pitch, 1.0));
+      pb.rate = Math.max(0.5, Math.min(1.8, pb.rate + 0.12));
+    } else {
+      // 女声模拟男声（sim）时音调已在男声区，只小幅拉开避免被拉回女声区
+      const step = (pa.sim || pb.sim) ? 0.08 : 0.28;
+      pb.pitch = Math.max(0.3, Math.min(1.9, pb.pitch + (pb.pitch >= pa.pitch ? step : -step)));
+      pb.rate = Math.max(0.5, Math.min(1.8, pb.rate + 0.04));
+    }
+  }
+  SPEAK_QUEUE = [];
+  THEATER_LINES.forEach((ln, i) => {
+    const el = $('tl-' + i);
+    let profile;
+    if (ln.speaker === meta.a) profile = pa;
+    else if (ln.speaker === meta.b) profile = pb;
+    else profile = pn; // 旁白用知性女声
+    if (ln.speaker && sameVoice) {
+      SPEAK_QUEUE.push({ text: ln.speaker, pause: 320, profile: pn, el });
+    }
+    splitIntoUnits(ln.text).forEach(u => SPEAK_QUEUE.push({ ...u, profile, el }));
+  });
+  if (!SPEAK_QUEUE.length) return;
+  if (btn) { CURRENT_SPEAK_BTN = btn; btn.classList.add('speaking'); }
+  playNextUnit(SPEAK_SESSION);
+}
+
+/* ---------- 历史小剧场 → 视频生成（桥接到短剧工坊） ----------
+ * 流程：
+ *   1) 取 window.__theater_last 里已生成剧本（含两位历史人物 KB 完整资料）
+ *   2) 拼成 MuseumBridgeRequest，发 POST http://localhost:8000/api/v1/projects/from-museum
+ *      （工坊已开 CORS，浏览器跨域直连，无需经 museum-agent 中转）
+ *   3) 拿 {project_id, stream_url, video_url} 后用 EventSource 订阅进度
+ *   4) 完成后把 video_url 嵌进 theater-stage 容器播放；SSE 异常时降级轮询 GET .../video
+ * 视频 API Base 默认 http://localhost:8000，可通过 localStorage 'museum_drama_base' 改写
+ */
+const DRAMA_BASE_DEFAULT = 'http://localhost:8000';
+function dramaBase() {
+  return (localStorage.getItem('museum_drama_base') || DRAMA_BASE_DEFAULT).replace(/\/+$/, '');
+}
+// 把博物馆侧 CharacterEntry 映射为工坊 MuseumCharacterPayload（见契约 §3.1）
+function toBridgeCharacter(c) {
+  if (!c) return null;
+  return {
+    id: c.id || ('char-' + (c.title || 'unknown')),
+    title: c.title || '',
+    era: c.era || '',
+    identity: c.identity || '',
+    persona: c.persona || '',
+    quotes: Array.isArray(c.quotes) ? c.quotes : [],
+    related_artifacts: Array.isArray(c.related_artifacts) ? c.related_artifacts : []
+  };
+}
+async function generateTheaterVideo() {
+  const t = window.__theater_last;
+  if (!t || !t.script) { toast('请先点击「✨ 生成对话」拿到剧本'); return; }
+  const btn = $('theater-video-btn');
+  const wrap = $('theater-video-wrap');
+  const statusEl = $('theater-video-status');
+  const progressEl = $('theater-video-progress');
+  const videoEl = $('theater-video-container');
+  if (btn) btn.disabled = true;
+  if (wrap) wrap.style.display = 'block';
+  statusEl.innerHTML = '<span class="tv-spinner"></span>正在提交到视频生成工坊…';
+  progressEl.textContent = '';
+  videoEl.innerHTML = `<div class="tv-placeholder">
+      <div class="tv-ph-ico"><span class="tv-spinner" style="width:26px;height:26px;border-width:3px;"></span></div>
+      <div class="tv-ph-tip">正在生成影片…<br>镜头按顺序自动通过，无需人工确认</div>
+    </div>`;
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const ca = toBridgeCharacter(t.a);
+  const cb = toBridgeCharacter(t.b);
+  if (!ca || !cb) { renderVideoFail('人物资料缺失，无法生成视频'); return; }
+  const payload = {
+    title: `${ca.title}×${cb.title}`,
+    topic: t.topic,
+    style: t.kids ? 'kids' : 'classic',
+    aspect_ratio: '9:16',
+    target_duration_sec: 30,
+    character_a: ca,
+    character_b: cb,
+    dialogue_script: t.script
+  };
+  const base = dramaBase();
+  try {
+    const res = await fetch(`${base}/api/v1/projects/from-museum`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      const detail = err.error || err.detail || `HTTP ${res.status}`;
+      // 422 是参数校验（通常因剧本解析后镜头数为 0 或同一人物）——提示更具体
+      if (res.status === 422) renderVideoFail('剧本解析失败：' + detail);
+      else if (res.status === 503) renderVideoFail('出片服务繁忙，请稍后再试');
+      else renderVideoFail('提交失败：' + detail);
+      return;
+    }
+    const data = await res.json();
+    if (!data.project_id || !data.video_url) {
+      renderVideoFail('返回格式异常：缺少 project_id/video_url');
+      return;
+    }
+    statusEl.innerHTML = `<span class="tv-spinner"></span>项目已创建，正在生成视频（约 3-10 分钟）…`;
+    progressEl.textContent = `项目编号：${esc(data.project_id.slice(0, 8))}，镜头按顺序自动通过，无需人工确认`;
+    subscribeVideoProgress(data.project_id, data.stream_url, data.video_url);
+  } catch (e) {
+    // 跨域失败 / 网络不可达
+    let hint = '';
+    if (/Failed to fetch|TypeError/i.test(e.message)) {
+      hint = `（请确认 ai-short-drama-studio 已启动并监听 ${base}）`;
+    }
+    renderVideoFail('无法连接到视频生成工坊：' + e.message + hint);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+function renderVideoFail(msg) {
+  const wrap = $('theater-video-wrap');
+  const statusEl = $('theater-video-status');
+  if (wrap) wrap.style.display = 'block';
+  if (statusEl) statusEl.innerHTML = `<span class="tv-fail">⚠️ ${esc(msg)}</span>`;
+  const btn = $('theater-video-btn');
+  if (btn) btn.disabled = false;
+}
+function subscribeVideoProgress(projectId, streamUrl, videoUrlRel) {
+  const base = dramaBase();
+  const statusEl = $('theater-video-status');
+  const progressEl = $('theater-video-progress');
+  const videoEl = $('theater-video-container');
+  // video_url 可能是相对路径或绝对 URL，统一构造完整 URL
+  const videoUrl = /^https?:/.test(videoUrlRel) ? videoUrlRel : `${base}${videoUrlRel}`;
+  const sseUrl = streamUrl && (/^https?:/.test(streamUrl) ? streamUrl : `${base}${streamUrl}`);
+  // 优先 EventSource，断流/不支持则降级为轮询
+  let es = null;
+  let embedded = false;
+  let pollTimer = null;
+
+  function embedVideo() {
+    if (embedded) return;
+    embedded = true;
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    statusEl.innerHTML = '✅ 视频生成完成';
+    progressEl.textContent = '';
+    videoEl.innerHTML =
+      `<video controls autoplay playsinline>
+         <source src="${esc(videoUrl)}" type="video/mp4">
+         您的浏览器不支持 video 标签。
+       </video>
+       <div class="tv-meta-row">
+         <a class="btn ghost" href="${esc(videoUrl)}" download="museum-theater-${esc(projectId.slice(0, 8))}.mp4" style="text-decoration:none;font-size:13px;">⬇ 下载视频</a>
+         <span style="font-size:12px;color:var(--ink-2);">${esc(projectId.slice(0, 8))}</span>
+         <a href="${esc(videoUrl)}" target="_blank" style="font-size:12px;color:var(--ink-2);">在新页面打开</a>
+       </div>`;
+    videoEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    const v = videoEl.querySelector('video');
+    if (v) v.addEventListener('error', () => {
+      statusEl.innerHTML = '<span class="tv-fail">⚠️ 播放器加载失败，请点下方链接在新页面打开</span>';
+    });
+  }
+  function failVideo(msg) {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    statusEl.innerHTML = `<span class="tv-fail">⚠️ ${esc(msg)}</span><br>` +
+      `<small style="color:var(--ink-2);">视频可直接访问：<a href="${esc(videoUrl)}" target="_blank">${esc(videoUrl)}</a></small>`;
+  }
+  async function probeVideo() {
+    try {
+      const r = await fetch(videoUrl, { method: 'HEAD', cache: 'no-store' });
+      return r.ok;
+    } catch (e) { return false; }
+  }
+  /* 关键：工坊的 completed 事件可能早于文件真正可服务（mock 实测早 ~0.8s，
+     真实扩散出片也可能有写盘/预签名延迟）。浏览器媒体元素拿到 503 后不会重试，
+     会永远停在 0:00 黑屏——所以先 HEAD 校验能拉流，再挂 <video>。 */
+  async function finishVideo() {
+    if (embedded) return;
+    statusEl.innerHTML = '<span class="tv-spinner"></span>正在校验视频文件…';
+    if (await probeVideo()) { embedVideo(); return; }
+    progressEl.textContent = '视频文件尚未就绪，正在等待…';
+    pollUntilReady('视频文件尚未就绪，');
+  }
+  function pollUntilReady(reason) {
+    if (embedded || pollTimer) return;
+    let attempts = 0, max = 720; // 最多 12 分钟
+    pollTimer = setInterval(async () => {
+      attempts++;
+      if (await probeVideo()) { embedVideo(); return; }
+      if (attempts >= max) {
+        failVideo('等待超时，请直接访问下方视频链接查看是否已完成');
+      } else if (attempts % 15 === 0) {
+        const m = Math.floor(attempts / 60), s = attempts % 60;
+        progressEl.textContent = `${reason || ''}已等待 ${m > 0 ? m + ' 分 ' : ''}${s} 秒…`;
+      }
+    }, 1000);
+  }
+  try {
+    if (sseUrl && window.EventSource) {
+      es = new EventSource(sseUrl);
+      let sawEvent = false;
+      // 工坊现有 SSE 协议（与契约 §3.2 兼容）：每个事件 data: {stage, progress, current, video_url, error}
+      const onMessage = e => {
+        sawEvent = true;
+        if (!e.data) return;
+        let d; try { d = JSON.parse(e.data); } catch { return; }
+        if (d.stage === 'completed') {
+          finishVideo();
+          try { es.close(); } catch {}
+        } else if (d.stage === 'failed') {
+          failVideo(d.error || '视频生成失败');
+          try { es.close(); } catch {}
+        } else if (d.stage) {
+          const stageMap = {
+            script_generating: '剧本生成', preparing_workbench: '准备工坊',
+            keyframes_generating: '关键帧生成', videos_generating: '视频片段生成',
+            composing: '合成与字幕'
+          };
+          const label = stageMap[d.stage] || d.stage;
+          const cur = d.current ? ` · ${d.current}` : '';
+          const pct = (typeof d.progress === 'number') ? ` · ${(d.progress * 100).toFixed(0)}%` : '';
+          statusEl.innerHTML = `<span class="tv-spinner"></span>${esc(label)}${esc(cur)}${esc(pct)}`;
+          progressEl.textContent = `项目 ${projectId.slice(0, 8)}：${esc(label)}`;
+        }
+      };
+      es.onmessage = onMessage;
+      // 某些实现用 addEventListener('progress'/'complete'/'failed')，兼容之
+      ['progress', 'complete', 'failed', 'completed'].forEach(name => {
+        es.addEventListener(name, onMessage);
+      });
+      es.onerror = () => {
+        // EventSource 断流：工坊可能部署了无 keepalive；降级轮询
+        try { es.close(); } catch {}
+        if (!sawEvent) pollUntilReady();
+      };
+      // 安全阀：3 秒内若无任何事件，强制降级（兼容未实现 SSE 的工坊版本）
+      setTimeout(() => { if (!sawEvent && es && es.readyState !== 2) { try { es.close(); } catch {}; pollUntilReady(); } }, 3000);
+    } else {
+      pollUntilReady();
+    }
+  } catch (e) {
+    pollUntilReady();
+  }
+}
+
+/* ---------- 知识库管理 ---------- */
+async function loadKB() {
+  try {
+    KB = await api('/api/knowledge');
+    renderTable();
+  } catch (e) { toast(e.message); }
+}
+function renderTable() {
+  const kw = $('search').value.trim().toLowerCase();
+  const list = KB.filter(e =>
+    !kw || (e.title + (e.keywords || []).join('') + (e.hall || '') + e.content).toLowerCase().includes(kw));
+  const counts = {};
+  KB.forEach(e => counts[e.category] = (counts[e.category] || 0) + 1);
+  $('stat').innerHTML = `共 <b>${KB.length}</b> 条知识` +
+    Object.entries(counts).map(([k, v]) => `（${esc(k)} ${v}）`).join('') +
+    (kw ? `，筛选结果 ${list.length} 条` : '');
+  const tb = $('kb-tbody');
+  $('kb-empty').style.display = list.length ? 'none' : 'block';
+  tb.innerHTML = list.map(e => `
+    <tr>
+      <td><div class="t">${esc(e.title)}</div><div class="c-preview">${esc(e.content)}</div></td>
+      <td><span class="cat cat-${esc(e.category)}">${esc(e.category)}</span></td>
+      <td>${esc(e.hall || '—')}</td>
+      <td>${(e.keywords || []).map(k => `<span class="kw">${esc(k)}</span>`).join('') || '—'}</td>
+      <td class="row-actions">
+        <button onclick="editEntry('${esc(e.id)}')">编辑</button>
+        <button class="del" onclick="delEntry('${esc(e.id)}','${esc(e.title)}')">删除</button>
+      </td>
+    </tr>`).join('');
+}
+function openEditor(entry) {
+  editingId = entry ? entry.id : null;
+  $('editor-title').textContent = entry ? '编辑知识条目' : '新增知识条目';
+  $('f-title').value = entry ? entry.title : '';
+  $('f-category').value = entry ? entry.category : '文物藏品';
+  $('f-hall').value = entry ? (entry.hall || '') : '';
+  $('f-keywords').value = entry ? (entry.keywords || []).join('，') : '';
+  $('f-content').value = entry ? entry.content : '';
+  $('f-era').value = entry ? (entry.era || '') : '';
+  $('f-identity').value = entry ? (entry.identity || '') : '';
+  $('f-persona').value = entry ? (entry.persona || '') : '';
+  $('f-quotes').value = entry ? (entry.quotes || []).join('；') : '';
+  $('f-related').value = entry ? (entry.related_artifacts || []).join('，') : '';
+  toggleCharFields();
+  $('editor').classList.add('open');
+  $('f-title').focus();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function closeEditor() { $('editor').classList.remove('open'); editingId = null; }
+function toggleCharFields() {
+  const isChar = $('f-category').value === '历史人物';
+  $('char-fields').style.display = isChar ? 'block' : 'none';
+}
+function editEntry(id) { openEditor(KB.find(e => e.id === id)); }
+async function saveEntry() {
+  const body = {
+    title: $('f-title').value,
+    category: $('f-category').value,
+    hall: $('f-hall').value.trim(),
+    keywords: $('f-keywords').value,
+    content: $('f-content').value
+  };
+  if (body.category === '历史人物') {
+    body.era = $('f-era').value.trim();
+    body.identity = $('f-identity').value.trim();
+    body.persona = $('f-persona').value.trim();
+    body.quotes = $('f-quotes').value.trim();
+    body.related_artifacts = $('f-related').value.trim();
+  }
+  if (!body.title.trim() || !body.content.trim()) { toast('标题和内容不能为空'); return; }
+  try {
+    if (editingId) {
+      await api('/api/knowledge/' + editingId, { method: 'PUT', body });
+      toast('已保存修改');
+    } else {
+      await api('/api/knowledge', { method: 'POST', body });
+      toast('新增成功，现在可以直接提问验证啦');
+    }
+    closeEditor();
+    await loadKB();
+  } catch (e) { toast(e.message); }
+}
+async function delEntry(id, title) {
+  if (!confirm(`确定删除「${title}」吗？删除后问答将不再覆盖该内容。`)) return;
+  try {
+    await api('/api/knowledge/' + id, { method: 'DELETE' });
+    toast('已删除');
+    await loadKB();
+  } catch (e) { toast(e.message); }
+}
+function exportKB() {
+  const blob = new Blob([JSON.stringify(KB, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'museum-knowledge.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+async function importKB(input) {
+  const file = input.files[0];
+  if (!file) return;
+  try {
+    const items = JSON.parse(await file.text());
+    const res = await api('/api/knowledge/import', { method: 'POST', body: { items } });
+    toast(`导入完成，新增 ${res.added} 条`);
+    await loadKB();
+  } catch (e) { toast('导入失败：' + e.message); }
+  input.value = '';
+}
+
+/* ---------- 模型设置 ---------- */
+async function refreshModeBadge() {
+  try {
+    const cfg = await api('/api/config');
+    const b = $('mode-badge');
+    if (cfg.has_api_key && cfg.mode === 'llm') {
+      b.textContent = '🤖 大模型模式 · ' + (cfg.model || '');
+      b.classList.add('llm');
+    } else {
+      b.textContent = '⚙️ 本地检索模式（点击配置大模型）';
+      b.classList.remove('llm');
+    }
+  } catch (e) { /* ignore */ }
+}
+async function openSettings() {
+  try {
+    const cfg = await api('/api/config');
+    $('s-key').value = '';
+    $('s-key-hint').textContent = cfg.has_api_key
+      ? `已保存 Key：${cfg.api_key_masked}（留空表示不修改）` : '尚未配置，填写后即启用大模型回答';
+    $('s-url').value = cfg.base_url || '';
+    $('s-model').value = cfg.model || '';
+    $('s-mode').value = cfg.mode || 'llm';
+    $('s-temp').value = cfg.temperature ?? 0.3;
+  } catch (e) { toast(e.message); }
+  $('settings-modal').classList.add('open');
+}
+function closeSettings() { $('settings-modal').classList.remove('open'); }
+async function saveSettings() {
+  const body = {
+    base_url: $('s-url').value.trim(),
+    model: $('s-model').value.trim(),
+    mode: $('s-mode').value,
+    temperature: parseFloat($('s-temp').value) || 0.3,
+  };
+  if ($('s-key').value.trim()) body.api_key = $('s-key').value.trim();
+  try {
+    const res = await api('/api/config', { method: 'POST', body });
+    toast(res.has_api_key ? '设置已保存，大模型模式就绪 ✅' : '设置已保存（未配置 Key，仍为本地模式）');
+    closeSettings();
+    refreshModeBadge();
+  } catch (e) { toast(e.message); }
+}
+async function clearKey() {
+  if (!confirm('确定清除已保存的 API Key 并回到本地检索模式吗？')) return;
+  try {
+    await api('/api/config', { method: 'POST', body: { clear_api_key: true, mode: 'local' } });
+    toast('已清除，回到本地检索模式');
+    closeSettings();
+    refreshModeBadge();
+  } catch (e) { toast(e.message); }
+}
+$('settings-modal').addEventListener('click', e => {
+  if (e.target === $('settings-modal')) closeSettings();
+});
+
+/* ---------- 初始化 ---------- */
+initVoice();
+loadRoles().then(() => {
+  updateStyleUI();
+  initWelcome();
+  initChips();
+  initTheater();
+});
+refreshModeBadge();
+$('f-category').addEventListener('change', toggleCharFields);
+</script>
+</body>
+</html>

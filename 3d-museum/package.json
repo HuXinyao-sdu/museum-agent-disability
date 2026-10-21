@@ -1,0 +1,33 @@
+{
+  "name": "3d-museum",
+  "version": "0.1.0",
+  "description": "A Three.js digital museum that curates Echo-exported world artifacts inside an open-source 3D gallery venue.",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "threejs",
+    "museum",
+    "3d-gallery",
+    "digital-heritage",
+    "vite"
+  ],
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc && vite build",
+    "generate:artifacts": "node scripts/generate_artifact_list.mjs",
+    "predev": "node scripts/generate_artifact_list.mjs",
+    "prebuild": "node scripts/generate_artifact_list.mjs",
+    "extract:artifacts": "node scripts/extract-echo-artifacts.mjs",
+    "import:echo": "node scripts/import-echo-export.mjs",
+    "sync:echo": "node scripts/sync-echo-artifacts.mjs",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "three": "^0.184.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.184.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.14"
+  }
+}

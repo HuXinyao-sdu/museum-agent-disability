@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>馆藏图鉴 · 华夏珍宝数字博物馆</title>
+  <style>
+
+      :root {
+        --ink: #3a2f22;
+        --ink-soft: #6b5d48;
+        --gold: #a8842c;
+        --gold-deep: #8a6a20;
+        --paper: #f0e2c0;
+        --paper-deep: #ddc795;
+        --line: #c9b183;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+      }
+
+      body {
+        font-family: "STZhongsong", "STKaiti", "KaiTi", "SimSun", "FangSong",
+          "Microsoft YaHei", "PingFang SC", serif;
+        color: var(--ink);
+        min-height: 100vh;
+        background-color: #e9dab5;
+        background-image:
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='88' viewBox='0 0 88 88'%3E%3Cpath d='M22 22h44v10H32v12h34v10H22z' fill='none' stroke='%238a6a20' stroke-opacity='0.13'/%3E%3Cpath d='M44 4v80M4 44h80' stroke='%238a6a20' stroke-opacity='0.06'/%3E%3C/svg%3E"),
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cpath d='M20 84c10-18 30-20 42-8 4-14 22-18 32-6 14-8 30 0 34 14' fill='none' stroke='%23a8842c' stroke-opacity='0.10' stroke-width='2'/%3E%3Cpath d='M10 128c8-14 24-16 34-6 4-12 18-14 26-4' fill='none' stroke='%23a8842c' stroke-opacity='0.08' stroke-width='2'/%3E%3C/svg%3E"),
+          radial-gradient(rgba(90, 70, 30, 0.055) 1px, transparent 1.5px),
+          linear-gradient(180deg, #f2e5c5 0%, #ead9b2 42%, #dec898 100%);
+        background-size:
+          88px 88px,
+          160px 160px,
+          9px 9px,
+          100% 100%;
+        background-attachment: fixed, fixed, fixed, scroll;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      /* 牛皮纸四边柔和晕影与纸纤维暗角 */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(120% 90% at 50% 0%, transparent 62%, rgba(90, 70, 30, 0.10) 100%),
+          radial-gradient(120% 90% at 50% 100%, transparent 66%, rgba(90, 70, 30, 0.12) 100%);
+      }
+
+      /* —— 顶部官网导航条 —— */
+      .site-header {
+        position: relative;
+        z-index: 8;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px clamp(20px, 5vw, 64px);
+        border-bottom: 1px solid rgb(168 132 44 / 38%);
+        background: rgb(240 226 192 / 62%);
+        backdrop-filter: blur(3px);
+      }
+
+      .site-brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .site-seal {
+        display: grid;
+        place-items: center;
+        width: 46px;
+        height: 46px;
+        border: 2px solid #e7cf9a;
+        border-radius: 50%;
+        color: #fff;
+        background: radial-gradient(circle at 32% 26%, #b8913a, #7d5f24 78%);
+        box-shadow: 0 6px 16px rgb(138 106 32 / 32%);
+      }
+
+      .site-seal svg {
+        width: 74%;
+        height: 74%;
+        fill: #fdf8ea;
+      }
+
+      .site-brand-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .site-brand-text strong {
+        font-size: 20px;
+        letter-spacing: 4px;
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      .site-brand-text span {
+        font-size: 11px;
+        letter-spacing: 3px;
+        color: var(--ink-soft);
+      }
+
+      .site-nav {
+        display: flex;
+        align-items: center;
+        gap: 26px;
+        font-size: 15px;
+        letter-spacing: 2px;
+      }
+
+      .site-nav a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        padding: 6px 2px;
+        border-bottom: 2px solid transparent;
+        transition: color 160ms ease, border-color 160ms ease;
+      }
+
+      .site-nav a:hover,
+      .site-nav a.active {
+        color: var(--gold-deep);
+        border-bottom-color: var(--gold);
+      }
+
+      .site-nav .enter-link {
+        padding: 10px 22px;
+        border: 1px solid var(--gold-deep);
+        border-radius: 2px;
+        color: #fdf8ea;
+        background: linear-gradient(135deg, #b8913a, #8a6a20);
+        box-shadow: 0 8px 20px rgb(138 106 32 / 28%);
+        letter-spacing: 3px;
+        transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+      }
+
+      .site-nav .enter-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 26px rgb(138 106 32 / 36%);
+        filter: brightness(1.05);
+        border-bottom-color: transparent;
+      }
+
+      /* 右上角中英文切换按钮 */
+      .lang-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: 7px 12px;
+        border: 1px solid var(--gold-deep);
+        border-radius: 999px;
+        background: transparent;
+        color: var(--gold-deep);
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 12.5px;
+        letter-spacing: 1px;
+        transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+      }
+
+      .lang-toggle:hover {
+        color: #fff;
+        background: var(--gold);
+        border-color: var(--gold);
+      }
+
+      .lang-toggle .lang-divider {
+        opacity: 0.45;
+      }
+
+      .lang-toggle .lang-zh,
+      .lang-toggle .lang-en {
+        transition: opacity 160ms ease;
+      }
+
+      .lang-toggle .lang-zh {
+        opacity: 0.45;
+      }
+
+      .lang-toggle .lang-en {
+        opacity: 1;
+        font-size: 11px;
+      }
+
+      .lang-toggle[data-lang="zh"] .lang-en {
+        opacity: 0.45;
+      }
+
+      .lang-toggle[data-lang="zh"] .lang-zh {
+        opacity: 1;
+      }
+
+      .site-nav .about-link {
+        padding: 7px 14px;
+        border: 1px solid rgb(168 132 44 / 50%);
+        border-radius: 999px;
+        color: var(--gold-deep);
+        font-size: 13.5px;
+        letter-spacing: 1.5px;
+        transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+      }
+
+      .site-nav .about-link:hover {
+        color: #fdf8ea;
+        background: var(--gold);
+        border-color: var(--gold);
+        border-bottom-color: var(--gold);
+      }
+
+      /* —— 品牌横幅 —— */
+      .hero {
+        position: relative;
+        z-index: 1;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 46px 40px 40px;
+        text-align: center;
+      }
+
+      .hero-kicker {
+        font-size: 13px;
+        letter-spacing: 9px;
+        color: var(--ink-soft);
+        margin-bottom: 14px;
+      }
+
+      .hero h1 {
+        font-size: 44px;
+        line-height: 1.2;
+        letter-spacing: 7px;
+        font-weight: 600;
+        color: var(--ink);
+        text-shadow: 0 1px 0 rgb(255 255 255 / 40%);
+      }
+
+      .hero-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        margin: 18px auto;
+        color: var(--gold);
+        font-size: 13px;
+      }
+
+      .hero-divider::before,
+      .hero-divider::after {
+        content: "";
+        width: 110px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--gold));
+      }
+
+      .hero-divider::after {
+        background: linear-gradient(90deg, var(--gold), transparent);
+      }
+
+      .hero p.intro {
+        max-width: 660px;
+        margin: 0 auto;
+        font-size: 15px;
+        line-height: 2;
+        letter-spacing: 1px;
+        color: var(--ink-soft);
+      }
+
+      .hero p.intro em {
+        font-style: normal;
+        color: var(--gold-deep);
+      }
+
+      /* —— 主区：左侧主题侧边栏 + 右侧图鉴 —— */
+      .museum-layout {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: flex-start;
+        gap: clamp(16px, 2.5vw, 34px);
+        max-width: 1280px;
+        margin: 14px auto 64px;
+        padding: 0 clamp(16px, 4vw, 44px);
+      }
+
+      /* 左侧：图鉴主题侧边栏（与牛皮纸同背景风格） */
+      .gallery-sidebar {
+        flex: none;
+        width: 236px;
+        padding: 22px 16px;
+        background: rgb(250 244 226 / 52%);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        box-shadow:
+          0 1px 0 rgb(255 255 255 / 60%) inset,
+          0 22px 48px rgb(90 70 30 / 14%);
+        position: sticky;
+        top: 20px;
+      }
+
+      .gallery-sidebar::before {
+        content: "";
+        position: absolute;
+        inset: 7px;
+        border: 1px solid rgb(168 132 44 / 26%);
+        border-radius: 3px;
+        pointer-events: none;
+      }
+
+      .sidebar-head {
+        text-align: center;
+        padding: 4px 0 14px;
+        border-bottom: 1px solid rgb(168 132 44 / 30%);
+        margin-bottom: 12px;
+      }
+
+      .sidebar-head .seal-mini {
+        display: inline-grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        margin-bottom: 8px;
+        border: 1px solid var(--gold);
+        border-radius: 8px;
+        background: linear-gradient(145deg, #b8913a, #8a6a20);
+      }
+
+      .sidebar-head .seal-mini svg {
+        width: 78%;
+        height: 78%;
+      }
+
+      .sidebar-head h3 {
+        font-size: 17px;
+        letter-spacing: 5px;
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      .sidebar-head p {
+        margin-top: 5px;
+        font-size: 11px;
+        letter-spacing: 2px;
+        color: #a99a78;
+      }
+
+      .theme-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        list-style: none;
+      }
+
+      .theme-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 11px 12px;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        color: var(--ink-soft);
+        background: transparent;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 14px;
+        letter-spacing: 1px;
+        text-align: left;
+        transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+      }
+
+      .theme-item:hover {
+        color: var(--ink);
+        background: rgb(168 132 44 / 10%);
+      }
+
+      .theme-item.active {
+        color: var(--gold-deep);
+        background: rgb(168 132 44 / 16%);
+        border-color: rgb(168 132 44 / 45%);
+        font-weight: 600;
+      }
+
+      .theme-item .theme-glyph {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border: 1px solid rgb(168 132 44 / 50%);
+        border-radius: 6px;
+        color: var(--gold-deep);
+        background: rgb(250 244 226 / 80%);
+        font-size: 15px;
+        font-family: "STZhongsong", "SimSun", serif;
+      }
+
+      .theme-item.active .theme-glyph {
+        color: #fff;
+        background: linear-gradient(145deg, #b8913a, #8a6a20);
+      }
+
+      .theme-item .theme-info {
+        min-width: 0;
+      }
+
+      .theme-item .theme-name {
+        display: block;
+        font-size: 14px;
+        line-height: 1.3;
+      }
+
+      .theme-item .theme-count {
+        display: block;
+        margin-top: 2px;
+        font-size: 10.5px;
+        letter-spacing: 1px;
+        color: #a99a78;
+      }
+
+      /* 右侧：文物图鉴主区 */
+      .gallery {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+        padding: 34px clamp(16px, 3.5vw, 44px) 40px;
+        background: rgb(255 250 238 / 46%);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        box-shadow:
+          0 1px 0 rgb(255 255 255 / 60%) inset,
+          0 26px 60px rgb(90 70 30 / 16%);
+      }
+
+      .gallery::before {
+        content: "";
+        position: absolute;
+        inset: 9px;
+        border: 1px solid rgb(168 132 44 / 32%);
+        border-radius: 3px;
+        pointer-events: none;
+      }
+
+      .gallery-head {
+        text-align: center;
+        margin-bottom: 26px;
+      }
+
+      .gallery-kicker {
+        font-size: 12px;
+        letter-spacing: 7px;
+        color: var(--ink-soft);
+        margin-bottom: 10px;
+      }
+
+      .gallery-head h2 {
+        font-size: 28px;
+        letter-spacing: 6px;
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      .gallery-theme-head {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin: 12px auto 0;
+        color: var(--gold-deep);
+        font-size: 14px;
+        letter-spacing: 2px;
+      }
+
+      .gallery-theme-head::before,
+      .gallery-theme-head::after {
+        content: "";
+        width: 56px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--gold));
+      }
+
+      .gallery-theme-head::after {
+        background: linear-gradient(90deg, var(--gold), transparent);
+      }
+
+      .gallery-count {
+        margin-top: 8px;
+        font-size: 14px;
+        letter-spacing: 3px;
+        color: var(--gold-deep);
+      }
+
+      .gallery-count b {
+        font-size: 20px;
+        font-weight: 600;
+      }
+
+      .gallery-stage {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(20px, 4vw, 44px);
+        align-items: center;
+      }
+
+      /* 左侧：三维文物展示 */
+      .gallery-art {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .gallery-frame {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 4 / 3.6;
+        border: 1px solid rgb(138 106 32 / 40%);
+        border-radius: 4px;
+        background: linear-gradient(180deg, #f4ead0, #e4d3a6);
+        box-shadow:
+          0 1px 0 rgb(255 255 255 / 70%) inset,
+          0 14px 34px rgb(90 70 30 / 22%);
+        overflow: hidden;
+      }
+
+      .gallery-frame::after {
+        content: "";
+        position: absolute;
+        inset: 8px;
+        border: 1px solid rgb(168 132 44 / 22%);
+        border-radius: 2px;
+        pointer-events: none;
+      }
+
+      #gallery-canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+
+      .gallery-loading {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        color: var(--ink-soft);
+        font-size: 14px;
+        letter-spacing: 3px;
+        background: rgb(244 234 208 / 82%);
+        transition: opacity 240ms ease;
+        z-index: 3;
+      }
+
+      .gallery-loading.hide {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .gallery-empty {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        color: var(--ink-soft);
+        font-size: 14px;
+        line-height: 2;
+        letter-spacing: 2px;
+        background: rgb(244 234 208 / 70%);
+        z-index: 2;
+      }
+
+      .gallery-empty[hidden] {
+        display: none;
+      }
+
+      .gallery-caption {
+        font-size: 11.5px;
+        letter-spacing: 2px;
+        color: #a99a78;
+      }
+
+      /* 右侧：文物信息（博物馆官网式陈列卡） */
+      .gallery-info {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        min-width: 0;
+      }
+
+      .gallery-cat {
+        align-self: flex-start;
+        padding: 3px 12px;
+        border: 1px solid rgb(168 132 44 / 60%);
+        border-radius: 999px;
+        color: var(--gold-deep);
+        background: rgb(168 132 44 / 12%);
+        font-size: 12px;
+        letter-spacing: 2px;
+      }
+
+      .gallery-info h3 {
+        font-size: 32px;
+        letter-spacing: 3px;
+        color: var(--ink);
+        font-weight: 600;
+        line-height: 1.25;
+      }
+
+      .gallery-en {
+        font-size: 12.5px;
+        letter-spacing: 1.5px;
+        color: #a99a78;
+        line-height: 1.5;
+      }
+
+      .gallery-meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 18px;
+        padding: 12px 14px;
+        border: 1px solid rgb(201 177 131 / 70%);
+        border-radius: 4px;
+        background: rgb(244 234 208 / 45%);
+        list-style: none;
+        font-size: 13px;
+        color: var(--ink-soft);
+      }
+
+      .gallery-meta li span {
+        display: block;
+        margin-top: 2px;
+        color: var(--ink);
+        font-size: 13.5px;
+        line-height: 1.5;
+      }
+
+      .gallery-highlight {
+        padding: 10px 14px;
+        border-left: 3px solid var(--gold);
+        background: rgb(168 132 44 / 10%);
+        color: var(--gold-deep);
+        font-size: 14px;
+        line-height: 1.7;
+        letter-spacing: 0.5px;
+      }
+
+      .gallery-desc {
+        font-size: 14px;
+        line-height: 1.95;
+        color: var(--ink-soft);
+        text-align: justify;
+      }
+
+      /* —— "假如文物会说话"对话入口按钮 —— */
+      .gallery-talk {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        align-self: flex-start;
+        margin-top: 2px;
+        padding: 10px 18px;
+        border: 1px solid var(--gold-deep);
+        border-radius: 999px;
+        color: #fdf8ea;
+        background: linear-gradient(135deg, #b8913a, #8a6a20);
+        box-shadow: 0 8px 20px rgb(138 106 32 / 30%);
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 13px;
+        letter-spacing: 1px;
+        transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+      }
+
+      .gallery-talk:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 26px rgb(138 106 32 / 38%);
+        filter: brightness(1.05);
+      }
+
+      .gallery-talk:active {
+        transform: translateY(0) scale(0.98);
+      }
+
+      /* 左右箭头 */
+      .gallery-arrow {
+        position: absolute;
+        top: 50%;
+        z-index: 4;
+        width: 52px;
+        height: 52px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgb(138 106 32 / 55%);
+        border-radius: 50%;
+        color: var(--gold-deep);
+        background: rgb(250 244 226 / 88%);
+        box-shadow: 0 10px 26px rgb(90 70 30 / 22%);
+        cursor: pointer;
+        font-size: 30px;
+        line-height: 1;
+        font-family: "SimSun", serif;
+        transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
+        transform: translateY(-50%);
+      }
+
+      .gallery-arrow.prev {
+        left: -74px;
+      }
+
+      .gallery-arrow.next {
+        right: -74px;
+      }
+
+      .gallery-arrow:hover {
+        transform: translateY(-50%) scale(1.08);
+        background: linear-gradient(145deg, #b8913a, #8a6a20);
+        color: #fff;
+        box-shadow: 0 14px 32px rgb(138 106 32 / 38%);
+      }
+
+      .gallery-arrow:active {
+        transform: translateY(-50%) scale(0.96);
+      }
+
+      /* 缩略导航点 */
+      .gallery-dots {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 26px;
+      }
+
+      .gallery-dot {
+        width: 9px;
+        height: 9px;
+        border: 1px solid var(--gold);
+        border-radius: 50%;
+        background: transparent;
+        cursor: pointer;
+        padding: 0;
+        transition: background 180ms ease, transform 180ms ease;
+      }
+
+      .gallery-dot:hover {
+        transform: scale(1.25);
+      }
+
+      .gallery-dot.active {
+        background: var(--gold);
+        transform: scale(1.25);
+        box-shadow: 0 0 0 3px rgb(168 132 44 / 18%);
+      }
+
+      /* —— 页脚 —— */
+      .site-footer {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 26px 20px 60px;
+        border-top: 1px solid rgb(168 132 44 / 30%);
+        font-size: 12px;
+        letter-spacing: 3px;
+        color: #a99a78;
+      }
+
+      /* —— 首页智能导航讲解：豆包式白色渐变悬浮球（始终是圆形图标），
+         点击后在悬浮球上方弹出独立对话窗口 —— */
+      .home-agent {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        z-index: 7;
+        width: 60px;
+        height: 60px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgb(168 132 44 / 38%);
+        border-radius: 50%;
+        color: #fff;
+        /* 白色圆底 + 顶部高光，营造光滑球体质感（豆包悬浮球风格） */
+        background:
+          radial-gradient(circle at 32% 26%, #ffffff 0%, #fdf6e3 42%, #efe0bc 74%, #e0cc9d 100%);
+        box-shadow:
+          0 12px 30px rgb(138 106 32 / 36%),
+          inset 0 2px 4px rgb(255 255 255 / 95%),
+          inset 0 -3px 8px rgb(138 106 32 / 22%);
+        cursor: pointer;
+        user-select: none;
+        transition: transform 160ms ease;
+        touch-action: none;
+      }
+
+      .home-agent:hover {
+        transform: scale(1.06);
+      }
+
+      .home-agent .fab-glyph {
+        width: 34px;
+        height: 34px;
+        /* 博物馆风格图标：金色鼎形剪影徽章（不使用文字） */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23d9b25e'/%3E%3Cstop offset='1' stop-color='%238a6a20'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M13 9h22l-2 7H15l-2-7z' fill='url(%23g)'/%3E%3Crect x='10' y='16' width='28' height='12' rx='1' fill='url(%23g)'/%3E%3Cpath d='M10 26c4 4 10 5 14 5s10-1 14-5v4c0 5-6 9-14 9S10 35 10 30v-4z' fill='url(%23g)'/%3E%3Crect x='7.5' y='18' width='4' height='11' rx='2' fill='url(%23g)'/%3E%3Crect x='36.5' y='18' width='4' height='11' rx='2' fill='url(%23g)'/%3E%3Cpath d='M16 42h16l-1.5 3h-13L16 42z' fill='url(%23g)'/%3E%3Ccircle cx='24' cy='24' r='21' fill='none' stroke='%23fff' stroke-opacity='0.55' stroke-width='1.2'/%3E%3C/svg%3E");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        pointer-events: none;
+        filter: drop-shadow(0 2px 4px rgb(138 106 32 / 30%));
+      }
+
+      /* 独立对话窗口：点击悬浮球后弹出，位于悬浮球上方；✕ 关闭后回到悬浮球 */
+      .home-agent-panel {
+        position: fixed;
+        right: 20px;
+        bottom: 122px;
+        z-index: 7;
+        width: min(320px, calc(100vw - 40px));
+        max-height: 70vh;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgb(255 252 244 / 97%);
+        color: var(--ink);
+        box-shadow: 0 18px 50px rgb(90 70 30 / 24%);
+        overflow: hidden;
+      }
+
+      .home-agent-panel[hidden] {
+        display: none;
+      }
+
+      /* 头部右侧操作区：新对话 + 关闭（关闭贴右上角） */
+      .home-agent-head-actions {
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .home-agent-new {
+        flex: none;
+        display: grid;
+        width: 26px;
+        height: 26px;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 50%;
+        color: var(--ink-soft);
+        background: rgb(255 252 244 / 80%);
+        cursor: pointer;
+        font-size: 13px;
+        line-height: 1;
+        transition: background 160ms ease, color 160ms ease;
+      }
+
+      .home-agent-new:hover {
+        color: #fff;
+        background: var(--gold);
+        border-color: var(--gold);
+      }
+
+      /* 推荐问题区：首次提问前直接展开；提问后折叠为上拉箭头按钮，点击展开选择提问 */
+      .home-suggests {
+        padding: 0 12px 10px;
+      }
+
+      .home-suggests-toggle {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+        padding: 7px 10px;
+        border: 1px dashed rgb(168 132 44 / 45%);
+        border-radius: 8px;
+        color: var(--gold-deep);
+        background: rgb(168 132 44 / 8%);
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 12px;
+        letter-spacing: 1px;
+        transition: background 160ms ease, color 160ms ease;
+      }
+
+      .home-suggests-toggle:hover {
+        color: #fff;
+        background: var(--gold);
+        border-style: solid;
+        border-color: var(--gold);
+      }
+
+      .home-suggests-toggle[hidden] {
+        display: none;
+      }
+
+      .home-suggests-toggle .suggests-arrow {
+        font-size: 13px;
+        line-height: 1;
+        transition: transform 200ms ease;
+      }
+
+      .home-suggests-toggle[aria-expanded="true"] .suggests-arrow {
+        transform: rotate(180deg);
+      }
+
+      .home-suggests-panel[hidden] {
+        display: none;
+      }
+
+      .home-suggests-title {
+        font-size: 11px;
+        letter-spacing: 1px;
+        color: #a99a78;
+        margin-bottom: 7px;
+        margin-top: 9px;
+      }
+
+      .home-suggests-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+      }
+
+      .home-suggest-chip {
+        padding: 6px 12px;
+        border: 1px solid rgb(168 132 44 / 55%);
+        border-radius: 999px;
+        color: var(--gold-deep);
+        background: rgb(168 132 44 / 10%);
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        line-height: 1.4;
+        transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+      }
+
+      .home-suggest-chip:hover {
+        color: #fff;
+        background: var(--gold);
+        border-color: var(--gold);
+      }
+
+      .home-agent-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        background: rgb(236 225 198 / 60%);
+      }
+
+      .home-agent-mark {
+        display: grid;
+        width: 30px;
+        height: 30px;
+        place-items: center;
+        border-radius: 8px;
+        color: #fff;
+        background: linear-gradient(135deg, #b8913a, #8a6a20);
+        font-size: 12px;
+        font-weight: 700;
+        flex: none;
+      }
+
+      .home-agent-head h2 {
+        font-size: 14px;
+        color: var(--ink);
+        letter-spacing: 1px;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .home-agent-head p {
+        margin-top: 2px;
+        font-size: 11px;
+        color: #a99a78;
+      }
+
+      .home-agent-close {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 26px;
+        height: 26px;
+        border: 1px solid var(--line);
+        border-radius: 50%;
+        color: var(--ink-soft);
+        background: rgb(255 252 244 / 80%);
+        cursor: pointer;
+        font-size: 12px;
+        line-height: 1;
+      }
+
+      .home-agent-close:hover {
+        color: #fff;
+        background: var(--gold);
+        border-color: var(--gold);
+      }
+
+      .home-agent-chat {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px;
+        min-height: 120px;
+        max-height: 300px;
+        overflow-y: auto;
+        flex: 1;
+      }
+
+      .home-sys {
+        color: #a99a78;
+        font-size: 11px;
+        text-align: center;
+        line-height: 1.5;
+      }
+
+      .home-msg {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+      }
+
+      .home-msg.user {
+        flex-direction: row-reverse;
+      }
+
+      .home-avatar {
+        flex: none;
+        display: grid;
+        width: 24px;
+        height: 24px;
+        place-items: center;
+        border-radius: 50%;
+        font-size: 10px;
+        color: #fff;
+        background: var(--gold);
+      }
+
+      .home-msg.user .home-avatar {
+        background: var(--ink-soft);
+      }
+
+      .home-bubble {
+        max-width: 76%;
+        padding: 7px 10px;
+        border-radius: 9px;
+        font-size: 12.5px;
+        line-height: 1.55;
+        color: var(--ink);
+        background: rgb(236 225 198 / 70%);
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .home-msg.user .home-bubble {
+        background: rgb(168 132 44 / 18%);
+      }
+
+      .home-agent-actions {
+        display: grid;
+        gap: 8px;
+        padding: 10px 12px 12px;
+        border-top: 1px solid var(--line);
+      }
+
+      .home-agent-guide {
+        padding: 9px 0;
+        border: 1px solid var(--gold-deep);
+        border-radius: 6px;
+        color: #fdf8ea;
+        background: linear-gradient(135deg, #b8913a, #8a6a20);
+        cursor: pointer;
+        font-size: 13px;
+        letter-spacing: 1px;
+        font-family: inherit;
+      }
+
+      .home-agent-guide:hover {
+        filter: brightness(1.05);
+      }
+
+      .home-agent-form {
+        display: flex;
+        gap: 8px;
+      }
+
+      .home-agent-form input {
+        flex: 1;
+        min-width: 0;
+        padding: 8px 10px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        color: var(--ink);
+        background: #fff;
+        font-size: 13px;
+        outline: none;
+        font-family: inherit;
+      }
+
+      .home-agent-form input:focus {
+        border-color: var(--gold);
+      }
+
+      .home-agent-form button {
+        flex: none;
+        padding: 0 14px;
+        border: 1px solid var(--gold-deep);
+        border-radius: 6px;
+        color: var(--gold-deep);
+        background: transparent;
+        cursor: pointer;
+        font-size: 13px;
+        font-family: inherit;
+      }
+
+      /* —— "假如文物会说话"：居中对话面板（文物第一人称 AI 对话） —— */
+      .artifact-chat-mask {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: rgb(58 47 34 / 42%);
+        backdrop-filter: blur(2px);
+      }
+
+      .artifact-chat-mask[hidden] {
+        display: none;
+      }
+
+      .artifact-chat {
+        width: min(560px, 96vw);
+        max-height: 78vh;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgb(255 252 244 / 98%);
+        box-shadow: 0 26px 70px rgb(58 47 34 / 38%);
+        overflow: hidden;
+      }
+
+      .artifact-chat-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        background:
+          radial-gradient(circle at 32% 26%, #ffffff 0%, #fdf6e3 42%, #efe0bc 74%, #e0cc9d 100%);
+      }
+
+      .artifact-chat-mark {
+        flex: none;
+        display: grid;
+        width: 32px;
+        height: 32px;
+        place-items: center;
+        border-radius: 50%;
+        color: #fff;
+        background: linear-gradient(135deg, #b8913a, #8a6a20);
+        box-shadow: inset 0 2px 4px rgb(255 255 255 / 50%), 0 4px 10px rgb(138 106 32 / 30%);
+        font-size: 13px;
+        font-family: "STZhongsong", "SimSun", serif;
+      }
+
+      .artifact-chat-head h3 {
+        font-size: 15px;
+        letter-spacing: 2px;
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      .artifact-chat-head p {
+        margin-top: 2px;
+        font-size: 11px;
+        color: #a99a78;
+      }
+
+      .artifact-chat-close {
+        flex: none;
+        margin-left: auto;
+        display: grid;
+        width: 27px;
+        height: 27px;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 50%;
+        color: var(--ink-soft);
+        background: rgb(255 252 244 / 85%);
+        cursor: pointer;
+        font-size: 12px;
+        line-height: 1;
+      }
+
+      .artifact-chat-close:hover {
+        color: #fff;
+        background: var(--gold);
+        border-color: var(--gold);
+      }
+
+      .artifact-chat-body {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        padding: 14px;
+        min-height: 220px;
+        max-height: 46vh;
+        overflow-y: auto;
+      }
+
+      .artifact-chat-sys {
+        color: #a99a78;
+        font-size: 11px;
+        text-align: center;
+        line-height: 1.6;
+      }
+
+      .artifact-msg {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+      }
+
+      .artifact-msg.user {
+        flex-direction: row-reverse;
+      }
+
+      .artifact-avatar {
+        flex: none;
+        display: grid;
+        width: 26px;
+        height: 26px;
+        place-items: center;
+        border-radius: 50%;
+        color: #fff;
+        background: linear-gradient(135deg, #b8913a, #8a6a20);
+        font-size: 10px;
+        font-family: "STZhongsong", "SimSun", serif;
+      }
+
+      .artifact-msg.user .artifact-avatar {
+        background: var(--ink-soft);
+      }
+
+      .artifact-bubble {
+        max-width: 78%;
+        padding: 8px 11px;
+        border-radius: 10px;
+        font-size: 13px;
+        line-height: 1.6;
+        color: var(--ink);
+        background: rgb(236 225 198 / 72%);
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .artifact-msg.user .artifact-bubble {
+        background: rgb(168 132 44 / 18%);
+      }
+
+      .artifact-chat-form {
+        display: flex;
+        gap: 8px;
+        padding: 10px 12px 12px;
+        border-top: 1px solid var(--line);
+      }
+
+      .artifact-chat-form input {
+        flex: 1;
+        min-width: 0;
+        padding: 9px 12px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        color: var(--ink);
+        background: #fff;
+        font-size: 13px;
+        outline: none;
+        font-family: inherit;
+      }
+
+      .artifact-chat-form input:focus {
+        border-color: var(--gold);
+      }
+
+      .artifact-chat-form button {
+        flex: none;
+        padding: 0 16px;
+        border: 1px solid var(--gold-deep);
+        border-radius: 6px;
+        color: #fdf8ea;
+        background: linear-gradient(135deg, #b8913a, #8a6a20);
+        cursor: pointer;
+        font-size: 13px;
+        font-family: inherit;
+      }
+
+      /* 文物对话的推荐问题区（可点击直接提问，随对话实时更新） */
+      .artifact-suggests {
+        padding: 0 12px 10px;
+      }
+
+      .artifact-suggests[hidden] {
+        display: none;
+      }
+
+      .artifact-suggests-title {
+        font-size: 11px;
+        letter-spacing: 1px;
+        color: #a99a78;
+        margin-bottom: 7px;
+      }
+
+      .artifact-suggests-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+      }
+
+      .artifact-suggest-chip {
+        padding: 6px 12px;
+        border: 1px solid rgb(168 132 44 / 55%);
+        border-radius: 999px;
+        color: var(--gold-deep);
+        background: rgb(168 132 44 / 10%);
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        line-height: 1.4;
+        transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+      }
+
+      .artifact-suggest-chip:hover {
+        color: #fff;
+        background: var(--gold);
+        border-color: var(--gold);
+      }
+
+      @media (max-width: 980px) {
+        .museum-layout {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .gallery-sidebar {
+          width: 100%;
+          position: static;
+        }
+        .theme-list {
+          flex-direction: row;
+          flex-wrap: wrap;
+        }
+        .theme-item {
+          width: auto;
+          flex: 1 1 150px;
+        }
+      }
+
+      @media (max-width: 860px) {
+        .site-nav a:not(.enter-link) {
+          display: none;
+        }
+        .hero h1 {
+          font-size: 34px;
+          letter-spacing: 4px;
+        }
+        .gallery-stage {
+          grid-template-columns: 1fr;
+        }
+        .gallery-arrow.prev {
+          left: -6px;
+        }
+        .gallery-arrow.next {
+          right: -6px;
+        }
+        .gallery-arrow {
+          width: 44px;
+          height: 44px;
+          font-size: 24px;
+        }
+        .gallery-info h3 {
+          font-size: 27px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .site-header {
+          padding: 14px 16px;
+        }
+        .site-brand-text strong {
+          font-size: 16px;
+          letter-spacing: 2px;
+        }
+        .site-brand-text span {
+          display: none;
+        }
+        .hero {
+          padding: 36px 20px 30px;
+        }
+        .hero h1 {
+          font-size: 27px;
+          letter-spacing: 2px;
+        }
+        .hero p.intro {
+          font-size: 13.5px;
+        }
+        .gallery {
+          padding: 26px 14px 30px;
+        }
+        .gallery-head h2 {
+          font-size: 24px;
+        }
+        .gallery-meta {
+          grid-template-columns: 1fr;
+        }
+        .home-agent-panel {
+          right: 12px;
+          width: calc(100vw - 24px);
+        }
+      }
+    
+  </style>
+</head>
+  <body>
+    <header class="site-header">
+      <div class="site-brand">
+        <span class="site-seal" aria-hidden="true">
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <circle cx="24" cy="24" r="20.5" fill="none" stroke="#fdf8ea" stroke-width="1.5" opacity="0.55" />
+            <path d="M12.5 27.5 L24 17.5 L35.5 27.5 Z" />
+            <rect x="10.5" y="27.8" width="27" height="2.6" />
+            <rect x="14" y="30.4" width="20" height="8.2" />
+            <rect x="20" y="34.6" width="8" height="4" />
+            <rect x="12" y="38.8" width="24" height="2.4" />
+          </svg>
+        </span>
+        <div class="site-brand-text">
+          <strong>华夏珍宝数字博物馆</strong>
+          <span>H U A X I A · D I G I T A L · M U S E U M</span>
+        </div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="/" data-i18n="nav_home">首页</a>
+        <a class="active" href="/gallery.html" data-i18n="nav_gallery">馆藏图鉴</a>
+        <a href="/games.html" data-i18n="nav_games">趣味游戏</a>
+        <a class="about-link" href="/about.html" data-i18n="nav_about">关于我们</a>
+        <a class="enter-link" href="/hall.html" data-i18n="nav_enter">进入展厅 →</a>
+        <button class="lang-toggle" id="lang-toggle" type="button" aria-label="切换语言 / Switch Language">
+          <span class="lang-zh">中</span><span class="lang-divider">/</span><span class="lang-en">EN</span>
+        </button>
+      </nav>
+    </header>
+
+    <main class="museum-layout">
+      <aside class="gallery-sidebar" id="gallery-sidebar" aria-label="图鉴主题">
+        <header class="sidebar-head">
+          <span class="seal-mini" aria-hidden="true">
+            <svg viewBox="0 0 48 48" aria-hidden="true">
+              <!-- 展开的画幅：白色底 -->
+              <rect x="6" y="12" width="36" height="26" rx="2" fill="#fdf8ea" />
+              <!-- 画幅内云纹线刻花纹（金色细线） -->
+              <path d="M9 27 C 12 24, 15 30, 18 27 S 23 24, 26 27" fill="none" stroke="#8a6a20" stroke-width="1" opacity="0.7" />
+              <path d="M31 25 C 34 22, 36 28, 39 25" fill="none" stroke="#8a6a20" stroke-width="1" opacity="0.7" />
+              <!-- 画幅内回纹角花 -->
+              <path d="M9 15 h4 M9 15 v4 M13 19 h-2" fill="none" stroke="#8a6a20" stroke-width="1" opacity="0.6" />
+              <!-- 中央文物（鼎）剪影：白色填充 -->
+              <path d="M21 20c0 2 6 3 6 6v5c0 1-1 2-2 2h-8c-1 0-2-1-2-2v-5c0-3 6-4 6-6z" fill="#fdf8ea" />
+              <!-- 鼎身线刻花纹：口沿、腹部回纹 -->
+              <path d="M17.5 20 h5" stroke="#8a6a20" stroke-width="1" opacity="0.85" />
+              <path d="M18 26 h4 M18 29 h4" stroke="#8a6a20" stroke-width="1" opacity="0.8" />
+              <path d="M22.6 24 h0.8" stroke="#8a6a20" stroke-width="1" opacity="0.8" />
+              <!-- 上方小装饰线 -->
+              <path d="M33 30 h6 M33 34 h6" stroke="#8a6a20" stroke-width="1" opacity="0.6" />
+              <!-- 上下卷轴杆：白色 -->
+              <rect x="4" y="10" width="40" height="3.5" rx="1.5" fill="#fdf8ea" />
+              <rect x="4" y="36.5" width="40" height="3.5" rx="1.5" fill="#fdf8ea" />
+              <!-- 卷轴轴头：深金装饰 -->
+              <rect x="3" y="9.2" width="3.4" height="5" rx="1" fill="#8a6a20" />
+              <rect x="41.6" y="9.2" width="3.4" height="5" rx="1" fill="#8a6a20" />
+              <rect x="3" y="35.8" width="3.4" height="5" rx="1" fill="#8a6a20" />
+              <rect x="41.6" y="35.8" width="3.4" height="5" rx="1" fill="#8a6a20" />
+            </svg>
+          </span>
+          <h3 data-i18n="g_sidebar_title">图鉴主题</h3>
+          <p data-i18n="g_sidebar_sub">按展厅主题浏览馆藏</p>
+        </header>
+        <ul class="theme-list" id="theme-list"></ul>
+      </aside>
+
+      <section class="gallery" id="gallery" aria-label="馆藏文物图鉴">
+        <header class="gallery-head">
+          <p class="gallery-kicker" data-i18n="g_kicker">馆 藏 文 物 · 精 品 图 鉴</p>
+          <h2 data-i18n="g_title">文物图鉴</h2>
+          <p class="gallery-theme-head" id="gallery-theme-name"></p>
+          <p class="gallery-count"><span data-i18n="g_count_pre">第 </span><b id="gallery-index">1</b><span data-i18n="g_count_mid"> 件 · 共 </span><span id="gallery-total">7</span><span data-i18n="g_count_suf"> 件</span></p>
+        </header>
+
+        <div class="gallery-stage">
+          <button class="gallery-arrow prev" id="gallery-prev" type="button" aria-label="上一件文物">‹</button>
+          <div class="gallery-art">
+            <div class="gallery-frame">
+              <canvas id="gallery-canvas"></canvas>
+              <div class="gallery-loading" id="gallery-loading" data-i18n="g_loading">正在陈列…</div>
+              <div class="gallery-empty" id="gallery-empty" hidden>
+                <span data-i18n="g_empty_name">该主题暂未收录三维展品</span><br />
+                <span data-i18n="g_empty_sub">敬请期待</span>
+              </div>
+            </div>
+            <p class="gallery-caption" data-i18n="g_caption">三维数字模型 · 可拖动旋转、滚动缩放查看纹饰</p>
+          </div>
+          <div class="gallery-info">
+            <span class="gallery-cat" id="g-info-cat">青铜器</span>
+            <h3 id="g-info-name">四羊方尊</h3>
+            <p class="gallery-en" id="g-info-en">Four-goat Square Zun</p>
+            <ul class="gallery-meta">
+              <li>年代<span id="g-info-period"></span></li>
+              <li>出土地<span id="g-info-origin"></span></li>
+              <li>馆藏<span id="g-info-museum"></span></li>
+              <li>质地工艺<span id="g-info-craft"></span></li>
+            </ul>
+            <p class="gallery-highlight" id="g-info-highlight"></p>
+            <p class="gallery-desc" id="g-info-desc"></p>
+            <button class="gallery-talk" id="gallery-talk" type="button">
+              <span data-i18n="g_talk_pre">🗣 假如文物会说话 · 与「</span><span id="g-talk-name"></span><span data-i18n="g_talk_end">」对话</span>
+            </button>
+          </div>
+          <button class="gallery-arrow next" id="gallery-next" type="button" aria-label="下一件文物">›</button>
+        </div>
+
+        <div class="gallery-dots" id="gallery-dots"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer" data-i18n="footer_main">
+      华夏珍宝数字博物馆 · 三维馆藏展示 · 让文物活起来
+    </footer>
+
+    <!-- "假如文物会说话"：居中对话面板 -->
+    <div class="artifact-chat-mask" id="artifact-chat-mask" hidden>
+      <div class="artifact-chat" role="dialog" aria-label="假如文物会说话">
+        <div class="artifact-chat-head">
+          <span class="artifact-chat-mark" aria-hidden="true">物</span>
+          <div>
+            <h3 data-i18n="talk_title">假如文物会说话</h3>
+            <p id="artifact-chat-sub" data-i18n="talk_sub">文物第一人称 · 与游客对话</p>
+          </div>
+          <button class="artifact-chat-close" id="artifact-chat-close" type="button" title="关闭对话">✕</button>
+        </div>
+        <div class="artifact-chat-body" id="artifact-chat-body"></div>
+        <div class="artifact-suggests" id="artifact-suggests" hidden>
+          <p class="artifact-suggests-title" data-i18n="suggest_title">可以这样问它</p>
+          <div class="artifact-suggests-list" id="artifact-suggests-list"></div>
+        </div>
+        <form class="artifact-chat-form" id="artifact-chat-form">
+          <input id="artifact-chat-input" type="text" data-i18n-placeholder="talk_placeholder" placeholder="向这件文物提问…" autocomplete="off" />
+          <button type="submit" data-i18n="send">发送</button>
+        </form>
+      </div>
+    </div>
+
+    <script type="module" src="/src/gallery.ts"></script>
+    <script type="module" src="/src/lang.ts"></script>
+  </body>
+</html>

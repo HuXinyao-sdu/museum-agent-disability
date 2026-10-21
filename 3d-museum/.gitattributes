@@ -1,0 +1,9 @@
+*.bin binary -diff
+*.wasm binary -diff
+*.jpg binary -diff
+*.png binary -diff
+*.glb binary -diff
+*.gltf text
+dist/** linguist-generated=true
+public/echo/assets/index-*.js linguist-generated=true
+public/echo/assets/index-*.css linguist-generated=true

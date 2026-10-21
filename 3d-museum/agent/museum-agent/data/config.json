@@ -1,0 +1,7 @@
+{
+  "api_key": "sk-ws-H.PDREIXD.Cyx6.MEUCIQDOq8gMrrTg8mcCDswDTSAQsqSgMKYIGz5aF50JDWfDGQIgOu5xhV4EVU5zHGCiF_mQCbN4c9zAGq9Nr8i_C34VAQM",
+  "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+  "model": "qwen-plus",
+  "mode": "llm",
+  "temperature": 0.3
+}
