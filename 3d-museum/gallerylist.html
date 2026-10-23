@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>馆藏图鉴 · 华夏珍宝数字博物馆</title>
+  <style>
+    :root {
+      --ink: #f0e8d8; --ink-soft: #9a8f7a; --gold: #c9a961; --gold-deep: #a8842c;
+      --line: rgba(201,169,97,0.15);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "STZhongsong", "KaiTi", "SimSun", serif; color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(30,24,18,0.15) 0%, rgba(25,20,15,0.25) 40%, rgba(20,16,12,0.4) 75%, rgba(15,12,10,0.6) 100%),
+        #2a2218;
+      min-height: 100vh;
+    }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 18px 64px; background: rgba(18,14,10,0.65); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .seal { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--gold); color: var(--gold); display: grid; place-items: center; font-weight: bold; }
+    .brand strong { font-size: 17px; letter-spacing: 4px; }
+    .brand span { font-size: 9px; letter-spacing: 3px; color: var(--ink-soft); display: block; margin-top: 2px; }
+    .nav { display: flex; gap: 36px; align-items: center; }
+    .nav a { color: var(--ink-soft); text-decoration: none; font-size: 14px; letter-spacing: 2px; }
+    .nav a.active { color: var(--gold); }
+    .nav .btn { padding: 10px 26px; border: 1px solid var(--gold-deep); color: var(--gold); text-decoration: none; }
+
+    .feature { max-width: 1180px; margin: 50px auto 40px; padding: 0 44px; }
+    .feature-banner {
+      height: 340px;
+      background: linear-gradient(135deg, rgba(201,169,97,0.15), rgba(0,0,0,0.4));
+      border: 1px solid var(--line); border-radius: 12px;
+      padding: 40px; display: flex; flex-direction: column; justify-content: flex-end;
+      position: relative;
+    }
+    .feature-banner .badge { position: absolute; top: 20px; left: 20px; font-size: 11px; letter-spacing: 2px; color: var(--gold); border: 1px solid var(--gold-deep); padding: 4px 12px; border-radius: 999px; background: rgba(0,0,0,0.3); }
+    .feature-banner h2 { font-size: 32px; letter-spacing: 3px; color: #fff; margin-bottom: 10px; }
+    .feature-banner p { max-width: 500px; font-size: 14px; line-height: 1.8; color: var(--ink-soft); }
+
+    .section-title { max-width: 1180px; margin: 0 auto 20px; padding: 0 44px; display: flex; justify-content: space-between; align-items: end; }
+    .section-title .kicker { font-size: 12px; letter-spacing: 6px; color: var(--gold); margin-bottom: 8px; }
+    .section-title h3 { font-size: 24px; letter-spacing: 3px; color: #fff; }
+    .section-title .count { font-size: 12px; color: var(--ink-soft); }
+
+    .grid { max-width: 1180px; margin: 0 auto 60px; padding: 0 44px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+    .card { background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; transition: all 0.3s; cursor: pointer; text-decoration: none; color: inherit; display: block; }
+    .card:hover { border-color: rgba(201,169,97,0.4); transform: translateY(-4px); }
+    .card .img { height: 140px; background: rgba(201,169,97,0.08); display: grid; place-items: center; color: var(--gold); font-size: 32px; border-bottom: 1px solid var(--line); }
+    .card .info { padding: 14px; }
+    .card .name { font-size: 15px; letter-spacing: 2px; margin-bottom: 4px; }
+    .card .era { font-size: 11px; color: var(--ink-soft); }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <span class="seal" aria-hidden="true">
+        <svg viewBox="0 0 48 48" aria-hidden="true" style="width:100%;height:100%;">
+          <circle cx="24" cy="24" r="20.5" fill="none" stroke="#c9a961" stroke-width="1.5" opacity="0.8" />
+          <path d="M12.5 27.5 L24 17.5 L35.5 27.5 Z" fill="#c9a961" opacity="0.9" />
+          <rect x="10.5" y="27.8" width="27" height="2.6" fill="#c9a961" opacity="0.9" />
+          <rect x="14" y="30.4" width="20" height="8.2" fill="#c9a961" opacity="0.9" />
+          <rect x="20" y="34.6" width="8" height="4" fill="#c9a961" opacity="0.9" />
+          <rect x="12" y="38.8" width="24" height="2.4" fill="#c9a961" opacity="0.9" />
+        </svg>
+      </span>
+      <div>
+        <strong>华夏珍宝数字博物馆</strong>
+        <span>HUAXIA DIGITAL MUSEUM</span>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="/">首页</a>
+      <a href="/gallerylist.html" class="active">馆藏图鉴</a>
+      <a href="/games.html">趣味游戏</a>
+      <a href="/about.html">关于我们</a>
+      <a href="/hall.html" class="btn">进入展厅 →</a>
+    </nav>
+  </header>
+
+  <div class="feature">
+    <a href="/gallerydistract.html?id=siyangfangzun" class="feature-banner" style="text-decoration:none;color:inherit;">
+      <span class="badge">镇馆之宝</span>
+      <h2>四羊方尊</h2>
+      <p>商代晚期青铜礼器，现存商代青铜方尊之中体型最大，造型雄奇，肩部四角卷角羊首栩栩如生。</p>
+      <canvas id="banner-canvas" style="position:absolute;right:40px;top:50%;transform:translateY(-50%);width:280px;height:280px;pointer-events:none;"></canvas>
+    </a>
+  </div>
+
+  <div class="section-title">
+    <div>
+      <p class="kicker">ALL COLLECTION</p>
+      <h3>全部展品</h3>
+    </div>
+    <span class="count" id="art-count">共 59 件</span>
+  </div>
+  <div class="grid" id="art-grid">
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // banner 3D模型
+    const canvas = document.getElementById("banner-canvas");
+    if (canvas) {
+      const scene = new THREE.Scene();
+      scene.background = null;
+      const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+      camera.position.set(0, 1, 3);
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+
+      const light = new THREE.DirectionalLight(0xffffff, 1.5);
+      light.position.set(5, 10, 7);
+      scene.add(light);
+      const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+      scene.add(ambient);
+
+      const controls = new OrbitControls(camera, canvas);
+      controls.enableDamping = true;
+      controls.target.set(0, 0.5, 0);
+
+      const loader = new GLTFLoader();
+      loader.load("/my_art/siyangfangzun.glb", (gltf) => {
+        const model = gltf.scene;
+        const box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        const scale = 3.5 / Math.max(size.x, size.y, size.z);
+        model.scale.setScalar(scale);
+        model.position.sub(center.multiplyScalar(scale));
+        scene.add(model);
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      window.addEventListener("resize", () => {
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+      });
+    }
+
+    // ===== 卡片缩略图：共享离屏渲染器批量渲染（仿照首页藏品概览） =====
+    // ===== 全部文物列表（按场馆分类） =====
+    const HALLS = [
+      { id: "center", name: "中央大厅", glyph: "宝", sub: "镇馆之宝" },
+      { id: "bronze", name: "青铜礼乐馆", glyph: "鼎", sub: "青铜重器" },
+      { id: "porcelain", name: "瓷韵千年馆", glyph: "瓷", sub: "珐琅瓷器" },
+      { id: "buddhist", name: "佛光庄严馆", glyph: "佛", sub: "石窟造像" },
+      { id: "world", name: "世界文明馆", glyph: "丝", sub: "丝路文明" },
+      { id: "nature", name: "自然与宇宙馆", glyph: "宙", sub: "自然标本" },
+      { id: "tech", name: "科技体验馆", glyph: "技", sub: "数字体验" },
+    ];
+
+    const ALL_ARTIFACTS = [
+      // 中央大厅（镇馆之宝）
+      { id: "siyangfangzun", name: "四羊方尊", era: "商代 · 中国国家博物馆", model: "/my_art/siyangfangzun.glb", hall: "center" },
+      // 青铜礼乐馆
+      { id: "matafeiyan", name: "马踏飞燕", era: "东汉 · 甘肃省博物馆", model: "/my_art/matafeiyan.glb", hall: "bronze" },
+      { id: "shuochangtaoyong", name: "击鼓说唱陶俑", era: "东汉 · 中国国家博物馆", model: "/my_art/shuochangtaoyong.glb", hall: "bronze" },
+      { id: "handaiqingtongbianzhong", name: "汉代青铜编钟", era: "汉代 · 湖北省博物馆", model: "/my_art/handaiqingtongbianzhong.glb", hall: "bronze" },
+      { id: "qingtongniu", name: "青铜牛", era: "商周 · 中国国家博物馆", model: "/my_art/qingtongniu.glb", hall: "bronze" },
+      { id: "cn-bronze-gong", name: "青铜兽面纹觥", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/cn-bronze-wine-ewer-gong.bin", hall: "bronze" },
+      { id: "cn-elephant-zun", name: "青铜象尊", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/cn2-bronze-elephant-ewer.bin", hall: "bronze" },
+      { id: "cn-bronze-fangyi", name: "青铜方彝", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/cn-bronze-fangyi-vessel.bin", hall: "bronze" },
+      { id: "cn-boshanlu", name: "镶嵌博山炉", era: "汉代 · 史密森尼博物馆", model: "/echo/assets/models/cn-bronze-incense-burner.bin", hall: "bronze" },
+      { id: "cn-owl-zun", name: "青铜鸮尊", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/cn-owl-zun.bin", hall: "bronze" },
+      { id: "cn-winged-dragon", name: "青铜翼龙", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/cn-winged-dragon.bin", hall: "bronze" },
+      { id: "cn-ding-censer", name: "镂空盖鼎式熏炉", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/cn-ding-censer.bin", hall: "bronze" },
+      { id: "cn-sanxingdui-mask", name: "三星堆青铜面具", era: "商代 · 三星堆博物馆", model: "/echo/assets/models/cn-sanxingdui-mask.bin", hall: "bronze" },
+      { id: "cn-bronze-gu", name: "商代青铜觚", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/cn-bronze-gu.bin", hall: "bronze" },
+      { id: "elephant-vessel", name: "商代象形铜觥", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/elephant-vessel.bin", hall: "bronze" },
+      // 瓷韵千年馆
+      { id: "zhongshitaocijingtailanpinglu", name: "景泰蓝瓶炉", era: "明清 · 故宫博物院", model: "/my_art/zhongshitaocijingtailanpinglu.glb", hall: "porcelain" },
+      { id: "tongzhifenghuangjinjilazhutai", name: "铜朱雀蜡台", era: "明清 · 故宫博物院", model: "/my_art/tongzhifenghuangjinjilazhutai.glb", hall: "porcelain" },
+      { id: "cn-porcelain-vase", name: "清康熙青花瓷瓶", era: "清代 · 故宫博物院", model: "/echo/assets/models/cn-porcelain-baluster-vase.bin", hall: "porcelain" },
+      { id: "cn-porcelain-beaker", name: "清康熙青花花觚", era: "清代 · 故宫博物院", model: "/echo/assets/models/cn-porcelain-beaker-vase.bin", hall: "porcelain" },
+      { id: "cn-porcelain-censer", name: "清代景德镇青花瓷香炉", era: "清代 · 故宫博物院", model: "/echo/assets/models/cn-porcelain-incense-burner.bin", hall: "porcelain" },
+      { id: "cn-dragon-dish", name: "清代青花龙纹盘", era: "清代 · 故宫博物院", model: "/echo/assets/models/cn-dragon-dish.bin", hall: "porcelain" },
+      { id: "cn-lion-jar", name: "青花狮钮盖罐", era: "清代 · 故宫博物院", model: "/echo/assets/models/cn-lion-finial-jar.bin", hall: "porcelain" },
+      { id: "cn-songbird-vase", name: "清代青花花鸟觚", era: "清代 · 故宫博物院", model: "/echo/assets/models/cn-songbird-vase.bin", hall: "porcelain" },
+      { id: "cn-dragon-vase", name: "青花龙纹瓶", era: "清代 · 故宫博物院", model: "/echo/assets/models/cn-dragon-vase.bin", hall: "porcelain" },
+      // 佛光庄严馆
+      { id: "cn-cosmic-buddha", name: "宇宙佛", era: "唐代 · 史密森尼博物馆", model: "/echo/assets/models/cn-cosmic-buddha.bin", hall: "buddhist" },
+      { id: "cn-stele-gathering", name: "响堂山石窟诸佛聚会", era: "北齐 · 响堂山石窟", model: "/echo/assets/models/cn-buddhist-stele-gathering.bin", hall: "buddhist" },
+      { id: "cn-stele-paradise", name: "响堂山石窟西方净土", era: "北齐 · 响堂山石窟", model: "/echo/assets/models/cn-buddhist-stele-paradise.bin", hall: "buddhist" },
+      { id: "cn-winged-beast", name: "跪姿带翼神兽", era: "唐代 · 史密森尼博物馆", model: "/echo/assets/models/cn-kneeling-winged-monster.bin", hall: "buddhist" },
+      { id: "cn-water-moon-guanyin", name: "水月观音像", era: "宋代 · 史密森尼博物馆", model: "/echo/assets/models/cn-water-moon-guanyin.bin", hall: "buddhist" },
+      { id: "cn-amoghasiddhi-buddha", name: "鎏金不空成就佛", era: "明代 · 史密森尼博物馆", model: "/echo/assets/models/cn-amoghasiddhi-buddha.bin", hall: "buddhist" },
+      // 世界文明馆
+      { id: "nefertiti", name: "纳芙蒂蒂胸像", era: "古埃及 · 柏林新博物馆", model: "/echo/assets/models/nefertiti-bust.bin", hall: "world" },
+      { id: "venetian-mask", name: "威尼斯狂欢面具", era: "文艺复兴 · 威尼斯", model: "/echo/assets/models/venetian-carnival-mask.bin", hall: "world" },
+      { id: "marine-chronometer", name: "航海精密计时器", era: "19世纪 · 航海博物馆", model: "/echo/assets/models/marine-chronometer.bin", hall: "world" },
+      { id: "naval-mine", name: "历史海军水雷", era: "19世纪 · 海军博物馆", model: "/echo/assets/models/naval-river-mine.bin", hall: "world" },
+      { id: "cuneiform-tablet", name: "楔形文字泥板", era: "公元前3000年 · 美索不达米亚", model: "/echo/assets/models/cuneiform-tablet.bin", hall: "world" },
+      { id: "greek-slave", name: "《希腊奴隶》雕塑", era: "文艺复兴 · 意大利", model: "/echo/assets/models/greek-slave.bin", hall: "world" },
+      { id: "key-marco-cat", name: "马尔科角猫神像", era: "古埃及 · 猫神贝斯特", model: "/echo/assets/models/key-marco-cat.bin", hall: "world" },
+      { id: "tree-of-life", name: "生命之树", era: "当代艺术 · 文明馆", model: "/echo/assets/models/tree-of-life.bin", hall: "world" },
+      { id: "junkanoo-headdress", name: "朱诺卡努狂欢头饰", era: "巴哈马 · 狂欢节", model: "/echo/assets/models/junkanoo-headdress.bin", hall: "world" },
+      // 自然与宇宙馆
+      { id: "triceratops", name: "三角龙骨架", era: "白垩纪 · 自然博物馆", model: "/echo/assets/models/triceratops-skeleton.bin", hall: "nature" },
+      { id: "woolly-mammoth", name: "猛犸象骨架", era: "冰河时期 · 自然博物馆", model: "/echo/assets/models/woolly-mammoth.bin", hall: "nature" },
+      { id: "fossil-whale", name: "史前鲸化石", era: "始新世 · 自然博物馆", model: "/echo/assets/models/fossil-whale-skeleton.bin", hall: "nature" },
+      { id: "trilobite", name: "泥盆纪三叶虫", era: "泥盆纪 · 自然博物馆", model: "/echo/assets/models/devonian-trilobite.bin", hall: "nature" },
+      { id: "amber-mosquito", name: "琥珀中的远古蚊", era: "白垩纪 · 琥珀博物馆", model: "/echo/assets/models/mosquito-in-amber.bin", hall: "nature" },
+      { id: "ivory-mammoth", name: "旧石器象牙猛犸象雕", era: "旧石器时代 · 考古博物馆", model: "/echo/assets/models/ivory-mammoth-figurine.bin", hall: "nature" },
+      { id: "junonia-shell", name: "朱诺尼亚海螺", era: "现代 · 自然博物馆", model: "/echo/assets/models/junonia-shell.bin", hall: "nature" },
+      { id: "spiny-oyster", name: "帝王棘蛎", era: "现代 · 自然博物馆", model: "/echo/assets/models/spiny-oyster.bin", hall: "nature" },
+      { id: "staghorn-coral", name: "鹿角珊瑚", era: "现代 · 自然博物馆", model: "/echo/assets/models/staghorn-coral.bin", hall: "nature" },
+      { id: "butterfly-orchid", name: "蝶翼兰", era: "现代 · 植物标本馆", model: "/echo/assets/models/butterfly-orchid.bin", hall: "nature" },
+      { id: "blue-orchid", name: "蓝万代兰", era: "现代 · 植物标本馆", model: "/echo/assets/models/blue-orchid.bin", hall: "nature" },
+      { id: "moon-orchid", name: "月亮兰", era: "现代 · 植物标本馆", model: "/echo/assets/models/moon-orchid.bin", hall: "nature" },
+      { id: "cassiopeia-a", name: "仙后座A超新星遗迹", era: "宇宙 · 天文馆", model: "/echo/assets/models/cassiopeia-a.bin", hall: "nature" },
+      { id: "crab-nebula", name: "蟹状星云", era: "宇宙 · 天文馆", model: "/echo/assets/models/crab-nebula.bin", hall: "nature" },
+      // 科技体验馆
+      { id: "spacesuit", name: "阿波罗11号宇航服", era: "1969年 · 航天博物馆", model: "/echo/assets/models/neil-armstrong-spacesuit.bin", hall: "tech" },
+      { id: "damaged-helmet", name: "受损头盔", era: "科幻 · 科技体验馆", model: "/echo/assets/models/DamagedHelmet.bin", hall: "tech" },
+      { id: "antique-camera", name: "古董相机", era: "19世纪 · 科技体验馆", model: "/echo/assets/models/AntiqueCamera.bin", hall: "tech" },
+      { id: "chess-set", name: "国际象棋", era: "当代 · 科技体验馆", model: "/echo/assets/models/ABeautifulGame.bin", hall: "tech" },
+      { id: "lantern", name: "铸铁提灯", era: "19世纪 · 科技体验馆", model: "/echo/assets/models/Lantern.bin", hall: "tech" },
+      { id: "boombox", name: "便携式录音机", era: "20世纪 · 科技体验馆", model: "/echo/assets/models/BoomBox.bin", hall: "tech" },
+    ];
+
+    // 动态生成卡片（按场馆分组）
+    const artGrid = document.getElementById("art-grid");
+    document.getElementById("art-count").textContent = `共 ${ALL_ARTIFACTS.length} 件`;
+
+    HALLS.forEach((hall) => {
+      const hallArts = ALL_ARTIFACTS.filter((a) => a.hall === hall.id);
+      if (hallArts.length === 0) return;
+
+      // 场馆标题
+      const hallTitle = document.createElement("div");
+      hallTitle.style.cssText = "grid-column: 1 / -1; margin: 24px 0 12px; padding: 0 4px; display: flex; align-items: center; gap: 12px;";
+      hallTitle.innerHTML = `
+        <span style="width:40px;height:40px;border-radius:50%;background:rgba(201,169,97,0.15);display:grid;place-items:center;color:#c9a961;font-size:18px;">${hall.glyph}</span>
+        <div>
+          <div style="font-size:18px;color:#fff;letter-spacing:2px;">${hall.name}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);letter-spacing:1px;">${hall.sub} · ${hallArts.length} 件展品</div>
+        </div>
+      `;
+      artGrid.appendChild(hallTitle);
+
+      // 该场馆的文物卡片
+      hallArts.forEach((art) => {
+        const card = document.createElement("a");
+        card.href = `/gallerydistract.html?id=${art.id}`;
+        card.className = "card";
+        card.dataset.model = art.id;
+        card.innerHTML = `
+          <div class="img"><canvas style="width:100%;height:100%;"></canvas></div>
+          <div class="info"><div class="name">${art.name}</div><div class="era">${art.era}</div></div>
+        `;
+        artGrid.appendChild(card);
+      });
+    });
+
+    // 创建共享离屏渲染器
+    const scRenderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });
+    scRenderer.setPixelRatio(1);
+    scRenderer.setSize(300, 300, false);
+    const scScene = new THREE.Scene();
+    scScene.background = new THREE.Color(0xefe3c4);
+    const scCamera = new THREE.PerspectiveCamera(38, 1, 0.1, 200);
+    scCamera.position.set(0, 0.7, 3.5);
+    scCamera.lookAt(0, 0, 0);
+
+    scScene.add(
+      new THREE.HemisphereLight("#ffffff", "#cbb27e", 1.35),
+      (() => { const l = new THREE.DirectionalLight("#fff2d8", 2.4); l.position.set(3, 5, 4); return l; })(),
+      (() => { const l = new THREE.DirectionalLight("#ffe6f0", 1.1); l.position.set(-3, 1, -4); return l; })(),
+    );
+
+    const scGltfLoader = new GLTFLoader();
+    const scDraco = new DRACOLoader();
+    scDraco.setDecoderPath("/echo/draco/");
+    scGltfLoader.setDRACOLoader(scDraco);
+
+    function fitModel(model) {
+      const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const scale = maxDim > 0 ? 1.8 / maxDim : 1;
+      model.scale.setScalar(scale);
+      model.position.copy(center).multiplyScalar(-scale);
+      model.position.y += 0.1;
+    }
+
+    async function renderCardShots() {
+      // 缓存机制：从 localStorage 读取已渲染的缩略图
+      const CACHE_KEY = "gallery_thumb_cache_v1";
+      let thumbCache = {};
+      try {
+        thumbCache = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
+      } catch {}
+
+      for (const art of ALL_ARTIFACTS) {
+        const card = document.querySelector(`.card[data-model="${art.id}"]`);
+        if (!card) continue;
+        const imgContainer = card.querySelector(".img");
+        if (!imgContainer) continue;
+
+        // 命中缓存直接用
+        if (thumbCache[art.id]) {
+          imgContainer.innerHTML = `<img src="${thumbCache[art.id]}" alt="${art.name}" style="width:100%;height:100%;object-fit:contain;" />`;
+          continue;
+        }
+
+        try {
+          const gltf = await new Promise((resolve, reject) => {
+            scGltfLoader.load(art.model, resolve, undefined, reject);
+          });
+          const model = gltf.scene;
+          fitModel(model);
+          scScene.add(model);
+          scRenderer.render(scScene, scCamera);
+          const dataUrl = scRenderer.domElement.toDataURL("image/png");
+          scScene.remove(model);
+
+          imgContainer.innerHTML = `<img src="${dataUrl}" alt="${art.name}" style="width:100%;height:100%;object-fit:contain;" />`;
+
+          // 写入缓存
+          thumbCache[art.id] = dataUrl;
+          try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify(thumbCache));
+          } catch {}
+
+          model.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              child.geometry.dispose();
+              const mats = Array.isArray(child.material) ? child.material : [child.material];
+              mats.forEach((m) => m.dispose());
+            }
+          });
+        } catch (err) {
+          console.error(`加载 ${art.id} 失败:`, err);
+          imgContainer.innerHTML = `<div style="width:100%;height:100%;display:grid;place-items:center;color:#c9a961;font-size:24px;">${art.name.charAt(0)}</div>`;
+        }
+      }
+    }
+
+    renderCardShots();
+  </script>
+</body>
+</html>

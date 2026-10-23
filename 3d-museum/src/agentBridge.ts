@@ -7,6 +7,16 @@
 // IPv6(::1) 且回退失败，会自动切换到 IPv4 地址重试。
 
 import type { WorldArtifact } from "./worldArtifacts";
+import * as THREE from "three";
+
+// 预加载浏览器 TTS voice 列表，避免首次说话延迟
+if ("speechSynthesis" in window) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => {
+    window.speechSynthesis.getVoices();
+  };
+}
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 const AGENT_BASES = ["http://localhost:8300", "http://127.0.0.1:8300"];
 const DRAMA_BASE = "http://localhost:8000"; // 视频生成工坊（ai-short-drama-studio，可选）
@@ -245,6 +255,131 @@ function appendChat(role: "user" | "bot", text: string) {
     <div class="agent-bubble">${escapeHtml(text)}</div>`;
   chatBox.appendChild(bubble);
   chatBox.scrollTop = chatBox.scrollHeight;
+  // 古人回复后自动朗读，按人物身份选音色
+  if (role === "bot" && activeRoleId) {
+    const char = characters.find((item) => item.id === activeRoleId);
+    if (char) speakAsChar(text, char);
+  }
+}
+
+// 通用：按人物身份用 TTS 朗读一段文字
+let currentAudio: HTMLAudioElement | null = null;
+
+async function speakAsChar(text: string, char: AgentCharacter) {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  window.speechSynthesis.cancel();
+  await new Promise(r => setTimeout(r, 300));
+  const cleanText = preprocessTtsText(text);
+  const v = getVoiceForChar(char);
+  const utter = new SpeechSynthesisUtterance(cleanText);
+  utter.lang = "zh-CN";
+  utter.rate = v.rate;
+  utter.pitch = v.pitch;
+  utter.volume = 1.0;
+  utter.volume = 1.0;
+  const voice = pickVoice(v.voiceName);
+  if (voice) utter.voice = voice;
+  // 避免长文本卡顿：分段用标点断句
+  utter.rate = v.rate;
+  window.speechSynthesis.speak(utter);
+}
+
+// 预处理 TTS 文本：长专有名词前后加停顿，避免拆字读
+function preprocessTtsText(text: string): string {
+  // 去掉舞台动作提示（中文括号和英文括号里的内容），如"(转身)"、"(举杯)"
+  let t = text.replace(/[（(][^）)]*[）)]/g, "");
+  // 确保句末有标点，避免 TTS 连读
+  t = t.trim();
+  if (t && !/[。！？…；：，、]$/.test(t)) {
+    t += "。";
+  }
+  return t;
+}
+function getVoiceForChar(char: AgentCharacter): { rate: number; pitch: number; voiceName: string } {
+  const name = char.title || "";
+  const text = `${name} ${char.identity ?? ""} ${char.persona ?? ""}`;
+  const isFemale = /武则天|李清照|昭君|贵妃|西施|貂蝉|妇好|女/.test(text);
+  // 帝王系列：浑厚男声
+  if (/秦始皇/.test(name)) return { rate: 0.85, pitch: 0.9, voiceName: "男浑厚" };
+  if (/汉武帝/.test(name)) return { rate: 0.90, pitch: 0.95, voiceName: "男成熟" };
+  if (/唐太宗/.test(name)) return { rate: 0.88, pitch: 0.95, voiceName: "男成熟" };
+  if (/康熙/.test(name)) return { rate: 0.92, pitch: 1.0, voiceName: "男成熟" };
+  if (/乾隆/.test(name)) return { rate: 0.80, pitch: 0.85, voiceName: "男低沉" };
+  // 文人系列
+  if (/李白/.test(name)) return { rate: 1.10, pitch: 1.05, voiceName: "男年轻" };
+  if (/苏轼/.test(name)) return { rate: 0.95, pitch: 0.95, voiceName: "男成熟" };
+  if (/辛弃疾/.test(name)) return { rate: 0.98, pitch: 1.0, voiceName: "男年轻" };
+  if (/屈原/.test(name)) return { rate: 0.90, pitch: 0.9, voiceName: "男低沉" };
+  // 僧人
+  if (/玄奘/.test(name)) return { rate: 0.85, pitch: 0.9, voiceName: "男成熟" };
+  // 女性角色：不同女声 + pitch/rate 微调，统一用最自然的晓晓音色避免卡顿
+  if (/武则天/.test(name)) return { rate: 0.82, pitch: 0.72, voiceName: "女温柔" }; // 晓晓，沉稳女帝气场
+  if (/李清照/.test(name)) return { rate: 0.90, pitch: 0.95, voiceName: "女温柔" }; // 晓晓，温柔婉约
+  if (/妇好/.test(name)) return { rate: 0.95, pitch: 1.05, voiceName: "女温柔" }; // 晓晓，飒爽女将
+  // 武将系列
+  if (/霍去病/.test(name)) return { rate: 1.0, pitch: 1.0, voiceName: "男年轻" };
+  if (/秦琼/.test(name)) return { rate: 0.88, pitch: 0.9, voiceName: "男成熟" };
+  if (/张骞/.test(name)) return { rate: 0.92, pitch: 0.95, voiceName: "男成熟" };
+  if (/岳飞|项羽/.test(name)) return { rate: 0.90, pitch: 0.9, voiceName: "男浑厚" };
+  // 通用分类
+  if (isFemale) return { rate: 0.95, pitch: 1.0, voiceName: "女" };
+  if (/帝|王|皇/.test(text)) return { rate: 0.85, pitch: 0.9, voiceName: "男浑厚" };
+  if (/将军|帅|武将/.test(text)) return { rate: 0.92, pitch: 0.95, voiceName: "男成熟" };
+  return { rate: 1.0, pitch: 1.0, voiceName: "男成熟" };
+}
+
+// 从浏览器可用 voice 里挑对应音色
+function pickVoice(prefer?: string): SpeechSynthesisVoice | null {
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+  const zh = voices.filter((v) => v.lang.toLowerCase().startsWith("zh"));
+  if (!zh.length) return null;
+  if (prefer === "男浑厚") {
+    const v = zh.find((v) => /云健|Yunjian/i.test(v.name));
+    return v || zh.find((v) => /男|Male/i.test(v.name)) || zh[0];
+  }
+  if (prefer === "男成熟") {
+    const v = zh.find((v) => /云扬|Yunyang/i.test(v.name));
+    return v || zh.find((v) => /男|Male/i.test(v.name)) || zh[0];
+  }
+  if (prefer === "男年轻") {
+    const v = zh.find((v) => /云希|Yunxi/i.test(v.name));
+    return v || zh.find((v) => /男|Male/i.test(v.name)) || zh[0];
+  }
+  if (prefer === "男低沉") {
+    const v = zh.find((v) => /云野|Yunye/i.test(v.name));
+    return v || zh.find((v) => /男|Male/i.test(v.name)) || zh[0];
+  }
+  if (prefer === "女温柔") {
+    // 温柔女声：晓晓
+    const v = zh.find((v) => /Xiaoxiao|晓晓/i.test(v.name));
+    return v || zh.find((v) => /女|Female/i.test(v.name)) || zh[zh.length - 1];
+  }
+  if (prefer === "女系统") {
+    // 系统自带女声：慧慧
+    const v = zh.find((v) => /Huihui|慧慧/i.test(v.name));
+    return v || zh.find((v) => /女|Female/i.test(v.name)) || zh[zh.length - 1];
+  }
+  if (prefer === "女成熟") {
+    // 成熟女声：康康
+    const v = zh.find((v) => /Kangkang|康康/i.test(v.name));
+    return v || zh.find((v) => /女|Female/i.test(v.name)) || zh[zh.length - 1];
+  }
+  if (prefer === "女年轻") {
+    // 年轻女声：慧慧
+    const v = zh.find((v) => /Huihui|慧慧/i.test(v.name));
+    return v || zh.find((v) => /女|Female/i.test(v.name)) || zh[zh.length - 1];
+  }
+  if (prefer === "女活泼") {
+    // 活泼女声：晓伊
+    const v = zh.find((v) => /Xiaoyi|晓伊/i.test(v.name));
+    return v || zh.find((v) => /女|Female/i.test(v.name)) || zh[zh.length - 1];
+  }
+  if (prefer === "女") {
+    const v = zh.find((v) => /Xiaoxiao|晓晓/i.test(v.name));
+    return v || zh[zh.length - 1];
+  }
+  return zh[0];
 }
 
 function appendSystem(text: string) {
@@ -316,7 +451,6 @@ async function greetRole(roleId: string) {
   setActiveRole(roleId);
   showChatView();
   questionInput.focus();
-  appendSystem(`正在开启与「${char.title}」的时空对话，可以连续提问…`);
   const typing = appendTyping();
   try {
     const reply = await api<AgentReply>("/api/chat", {
@@ -375,7 +509,21 @@ async function generateKidsTheater() {
     kidsOutput.innerHTML = `<p class="agent-hint">未找到所选历史人物，请重试。</p>`;
     return;
   }
-  kidsOutput.innerHTML = `<p class="agent-hint">正在为「${escapeHtml(currentArtifact.name)}」生成儿童讲解动画剧本…</p>`;
+  kidsOutput.innerHTML = `<p class="agent-hint" id="kids-loading">正在为「${escapeHtml(currentArtifact.name)}」生成儿童讲解动画剧本…</p>`;
+  // 分步进度提示，轮换显示缓解等待焦虑
+  const loadingEl = kidsOutput.querySelector<HTMLElement>("#kids-loading");
+  const tips = [
+    "正在分析两位历史人物的性格与经历…",
+    "正在构思跨越时空的对话场景…",
+    "正在撰写文物讲解台词…",
+    "正在润色对白，让语言更生动…",
+    "剧本即将生成完毕…",
+  ];
+  let tipIdx = 0;
+  const tipTimer = window.setInterval(() => {
+    tipIdx = (tipIdx + 1) % tips.length;
+    if (loadingEl) loadingEl.textContent = tips[tipIdx];
+  }, 2500);
   try {
     const res = await api<{ script: string; mode: string }>("/api/theater", {
       method: "POST",
@@ -390,110 +538,401 @@ async function generateKidsTheater() {
     renderTheaterScript(res.script);
   } catch (error) {
     kidsOutput.innerHTML = `<p class="agent-hint error">⚠️ ${error instanceof Error ? error.message : String(error)}</p>`;
+  } finally {
+    window.clearInterval(tipTimer);
   }
+}
+
+// 人物剪影图片：左边人物用 left/ 文件夹（脸朝右），右边人物用 right/ 文件夹（脸朝左）
+const FIGURE_NAME_MAP: Record<string, string> = {
+  "秦始皇": "秦始皇.png",
+  "汉武帝": "汉武帝.png",
+  "唐太宗": "唐太宗.png",
+  "宋太祖": "宋太祖.png",
+  "成吉思汗": "成吉思汗.png",
+  "朱元璋": "朱元璋.png",
+  "康熙": "康熙.png",
+  "乾隆": "乾隆.png",
+  "武则天": "武则天.png",
+  "玄奘": "玄奘.png",
+  "鉴真": "鉴真.png",
+  "李白": "李白.png",
+  "杜甫": "杜甫.png",
+  "苏轼": "苏轼.png",
+  "李清照": "李清照.png",
+  "屈原": "屈原.png",
+  "张骞": "张骞.png",
+  "妇好": "妇好.png",
+  "项羽": "项羽.png",
+  "关羽": "关羽.png",
+  "岳飞": "岳飞.png",
+  "秦琼": "秦琼.png",
+  "霍去病": "霍去病.png",
+  "辛弃疾": "辛弃疾.png",
+};
+
+function getFigureImgUrl(char: AgentCharacter, side: "left" | "right"): string | null {
+  const name = char.title.replace(/（.*?）/g, "").trim();
+  // 精确匹配人物名
+  let matched: string | null = null;
+  if (FIGURE_NAME_MAP[name]) matched = name;
+  else {
+    for (const key of Object.keys(FIGURE_NAME_MAP)) {
+      if (name.includes(key) || key.includes(name)) { matched = key; break; }
+    }
+  }
+  if (!matched) return null;
+  return `/figures/${side}/${matched}.png`;
+}
+
+// 按身份返回身高缩放比例（戏台内相对高度）
+function getFigureHeightRatio(char: AgentCharacter): number {
+  const text = `${char.title} ${char.identity ?? ""} ${char.persona ?? ""}`;
+  if (/武则天|李清照|昭君|贵妃|西施|貂蝉|妇好|女/.test(text)) return 0.78;
+  if (/项羽|关羽|岳飞|秦琼|霍去病|辛弃疾|将军|帅|武将/.test(text)) return 1.0;
+  if (/秦始皇|汉武|唐太宗|宋太祖|成吉思汗|朱元璋|康熙|乾隆|帝|王|皇/.test(text)) return 0.95;
+  return 0.85; // 文人/僧人默认
+}
+
+// 兜底 SVG（没有对应图片时用）
+const FIGURE_SVGS: Record<string, string> = {
+  emperor: `
+<svg viewBox="0 0 70 140" aria-hidden="true">
+  <rect x="20" y="4" width="30" height="5" rx="1"/>
+  <line x1="24" y1="9" x2="24" y2="14"/><line x1="30" y1="9" x2="30" y2="14"/><line x1="36" y1="9" x2="36" y2="14"/><line x1="42" y1="9" x2="42" y2="14"/>
+  <circle cx="35" cy="24" r="11"/>
+  <circle class="mouth" cx="42" cy="26" r="1.5" fill="#f5e3b3"/>
+  <path d="M25 36 L18 132 L52 132 L45 36 Z"/>
+  <line class="arm" x1="30" y1="44" x2="16" y2="82" stroke="#3a2812" stroke-width="4" stroke-linecap="round"/>
+  <rect x="20" y="72" width="30" height="4"/>
+</svg>`,
+  scholar: `
+<svg viewBox="0 0 70 140" aria-hidden="true">
+  <path d="M24 14 q11 -10 22 0 l-3 4 h-16 z"/>
+  <circle cx="35" cy="26" r="10"/>
+  <circle class="mouth" cx="42" cy="28" r="1.5" fill="#f5e3b3"/>
+  <path d="M26 38 L20 132 L50 132 L44 38 Z"/>
+  <line class="arm" x1="30" y1="46" x2="18" y2="84" stroke="#3a2812" stroke-width="3.5" stroke-linecap="round"/>
+  <rect x="22" y="74" width="26" height="3"/>
+</svg>`,
+  monk: `
+<svg viewBox="0 0 70 140" aria-hidden="true">
+  <ellipse cx="35" cy="14" rx="12" ry="7"/>
+  <circle cx="35" cy="28" r="10"/>
+  <circle class="mouth" cx="42" cy="30" r="1.5" fill="#f5e3b3"/>
+  <path d="M26 40 L22 132 L48 132 L44 40 Z"/>
+  <line class="arm" x1="30" y1="48" x2="18" y2="86" stroke="#3a2812" stroke-width="3.5" stroke-linecap="round"/>
+</svg>`,
+  warrior: `
+<svg viewBox="0 0 70 140" aria-hidden="true">
+  <path d="M24 18 q11 -12 22 0 l2 6 h-26 z"/>
+  <circle cx="35" cy="28" r="10"/>
+  <circle class="mouth" cx="42" cy="30" r="1.5" fill="#f5e3b3"/>
+  <path d="M24 40 L16 132 L54 132 L46 40 Z"/>
+  <line class="arm" x1="30" y1="48" x2="14" y2="80" stroke="#3a2812" stroke-width="4.5" stroke-linecap="round"/>
+  <rect x="18" y="70" width="34" height="5"/>
+</svg>`,
+  lady: `
+<svg viewBox="0 0 70 140" aria-hidden="true">
+  <ellipse cx="35" cy="12" rx="8" ry="6"/>
+  <circle cx="35" cy="26" r="10"/>
+  <circle class="mouth" cx="42" cy="28" r="1.5" fill="#f5e3b3"/>
+  <path d="M26 38 L18 132 L52 132 L44 38 Z"/>
+  <line class="arm" x1="30" y1="46" x2="20" y2="82" stroke="#3a2812" stroke-width="3" stroke-linecap="round"/>
+</svg>`,
+};
+
+function getFigureSvg(char: AgentCharacter): string {
+  const text = `${char.title} ${char.identity ?? ""} ${char.persona ?? ""}`;
+  if (/秦始皇|汉武|唐太宗|宋太祖|成吉思汗|忽必烈|朱元璋|康熙|乾隆|帝|王|皇/.test(text)) return FIGURE_SVGS.emperor;
+  if (/玄奘|鉴真|达摩|僧|和尚|法师/.test(text)) return FIGURE_SVGS.monk;
+  if (/项羽|关羽|张飞|岳飞|韩信|李广|卫青|霍去病|将军|帅|武将/.test(text)) return FIGURE_SVGS.warrior;
+  if (/武则天|慈禧|昭君|贵妃|西施|貂蝉|李清照|女/.test(text)) return FIGURE_SVGS.lady;
+  return FIGURE_SVGS.scholar;
+}
+
+function getArtifactSilhouetteUrl(artifactId: string): string | null {
+  try {
+    const raw = localStorage.getItem("huaxia-showcase-v4");
+    if (!raw) return null;
+    const cache = JSON.parse(raw) as Record<string, string>;
+    return cache[artifactId] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// 离屏剪影渲染器：把文物 3D 模型渲成纯黑剪影 PNG
+let silhouetteRenderer: THREE.WebGLRenderer | null = null;
+let silhouetteLoader: GLTFLoader | null = null;
+
+function getSilhouetteRenderer(): THREE.WebGLRenderer {
+  if (!silhouetteRenderer) {
+    silhouetteRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+    silhouetteRenderer.setPixelRatio(1);
+    silhouetteRenderer.setSize(240, 200, false);
+  }
+  return silhouetteRenderer;
+}
+
+function getSilhouetteLoader(): GLTFLoader {
+  if (!silhouetteLoader) silhouetteLoader = new GLTFLoader();
+  return silhouetteLoader;
+}
+
+async function renderArtifactSilhouette(modelPath: string): Promise<string> {
+  const renderer = getSilhouetteRenderer();
+  const scene = new THREE.Scene();
+  scene.background = null;
+  const camera = new THREE.PerspectiveCamera(35, 240 / 200, 0.1, 200);
+  camera.position.set(0, 0.6, 3.5);
+  camera.lookAt(0, 0, 0);
+
+  const gltf = await getSilhouetteLoader().loadAsync(modelPath);
+  const model = gltf.scene;
+
+  // 所有材质换成纯黑
+  model.traverse((obj) => {
+    const mesh = obj as THREE.Mesh;
+    if (mesh.isMesh) {
+      mesh.material = new THREE.MeshBasicMaterial({ color: 0x2a1a08 });
+    }
+  });
+
+  // 缩放适配
+  const box = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const scale = maxDim > 0 ? 1.6 / maxDim : 1;
+  model.scale.setScalar(scale);
+  model.position.copy(center).multiplyScalar(-scale);
+
+  scene.add(model);
+  renderer.render(scene, camera);
+  const dataUrl = renderer.domElement.toDataURL("image/png");
+  scene.remove(model);
+  return dataUrl;
 }
 
 function renderTheaterScript(script: string) {
-  const lines = script.split("\n").map((line) => line.trim()).filter(Boolean);
-  const html = lines
+  if (!lastTheater) return;
+  shadowCurrentIndex = 0; // 新剧本重置播放位置
+  const charA = lastTheater.characterA;
+  const charB = lastTheater.characterB;
+  const artId = currentArtifact?.id ?? "";
+  const silhouetteUrl = artId ? getArtifactSilhouetteUrl(artId) : null;
+  const artifactBg = silhouetteUrl
+    ? `<img class="shadow-artifact-img" src="${silhouetteUrl}" alt="" />`
+    : `<div class="shadow-artifact">🏺</div>`;
+  // 人物：优先用真实剪影图片，没有才用 SVG 兜底
+  const leftImg = getFigureImgUrl(charA, "left");
+  const rightImg = getFigureImgUrl(charB, "right");
+  const leftRatio = getFigureHeightRatio(charA);
+  const rightRatio = getFigureHeightRatio(charB);
+  const leftFigure = leftImg
+    ? `<img class="shadow-figure-img" src="${leftImg}" alt="${escapeHtml(charA.title)}" style="height:${leftRatio * 100}%" />`
+    : getFigureSvg(charA);
+  const rightFigure = rightImg
+    ? `<img class="shadow-figure-img" src="${rightImg}" alt="${escapeHtml(charB.title)}" style="height:${rightRatio * 100}%" />`
+    : getFigureSvg(charB);
+  kidsOutput.innerHTML = `
+    <div class="shadow-stage" id="shadow-stage">
+      <div id="shadow-artifact-slot">${artifactBg}</div>
+      <div class="shadow-figure left" id="shadow-left">${leftFigure}</div>
+      <div class="shadow-figure right" id="shadow-right">${rightFigure}</div>
+      <div class="shadow-subtitle" id="shadow-subtitle">点击播放，观看两位历史人物讲解「${escapeHtml(currentArtifact?.name ?? "")}」</div>
+      <button class="shadow-expand" id="shadow-expand" type="button" title="放大观看">⛶</button>
+    </div>
+    <div class="shadow-controls" id="shadow-controls">
+      <button class="shadow-btn" id="shadow-play" type="button">▶ 播放讲解</button>
+      <button class="shadow-btn" id="shadow-stop" type="button" disabled>⏹ 停止</button>
+    </div>
+    <p class="agent-hint" style="margin-top:8px;font-size:11.5px;">${escapeHtml(charA.title)} × ${escapeHtml(charB.title)} · 皮影小剧场</p>`;
+
+  // 缓存没有时，异步渲染当前文物剪影并替换背景
+  if (!silhouetteUrl && currentArtifact?.model) {
+    const slot = kidsOutput.querySelector("#shadow-artifact-slot");
+    renderArtifactSilhouette(currentArtifact.model)
+      .then((dataUrl) => {
+        if (slot) {
+          slot.innerHTML = `<img class="shadow-artifact-img" src="${dataUrl}" alt="" />`;
+        }
+      })
+      .catch(() => {
+        // 渲染失败保留占位
+      });
+  }
+
+  const playBtn = kidsOutput.querySelector<HTMLButtonElement>("#shadow-play");
+  const stopBtn = kidsOutput.querySelector<HTMLButtonElement>("#shadow-stop");
+  if (playBtn && stopBtn) {
+    playBtn.addEventListener("click", () => void playShadowTheater(script, playBtn, stopBtn));
+    stopBtn.addEventListener("click", stopShadowTheater);
+  }
+  const expandBtn = kidsOutput.querySelector<HTMLButtonElement>("#shadow-expand");
+  const stage = kidsOutput.querySelector<HTMLDivElement>("#shadow-stage");
+  const controls = kidsOutput.querySelector<HTMLDivElement>("#shadow-controls");
+  expandBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!stage) return;
+    let mask = document.getElementById("shadow-modal-mask");
+    if (stage.classList.contains("enlarged")) {
+      // 关闭：移回原容器
+      if (controls) kidsOutput.appendChild(controls);
+      kidsOutput.appendChild(stage);
+      stage.classList.remove("enlarged");
+      expandBtn.textContent = "⛶";
+      mask?.remove();
+    } else {
+      // 放大：创建独立遮罩，把戏台和控制条一起移到 body 下
+      mask = document.createElement("div");
+      mask.id = "shadow-modal-mask";
+      document.body.appendChild(mask);
+      document.body.appendChild(stage);
+      if (controls) document.body.appendChild(controls);
+      stage.classList.add("enlarged");
+      expandBtn.textContent = "✕";
+      mask.addEventListener("click", () => {
+        if (controls) kidsOutput.appendChild(controls);
+        kidsOutput.appendChild(stage);
+        stage.classList.remove("enlarged");
+        expandBtn.textContent = "⛶";
+        mask?.remove();
+      });
+    }
+  });
+}
+
+interface ShadowLine {
+  speaker: string;
+  text: string;
+  isNarration: boolean;
+}
+
+function parseScriptLines(script: string): ShadowLine[] {
+  return script.split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
     .map((line) => {
       const m = line.match(/^([^：:\n]{1,12})[：:](.+)$/);
       if (!m) {
-        return `<p class="agent-line narration">🎬 ${escapeHtml(line)}</p>`;
+        return { speaker: "", text: line, isNarration: true };
       }
-      return `<p class="agent-line"><b>${escapeHtml(m[1])}：</b>${escapeHtml(m[2])}</p>`;
-    })
-    .join("");
-  kidsOutput.innerHTML = `
-    <div class="agent-script">
-      <div class="agent-script-head">🎞 讲解动画剧本（儿童白话版）</div>
-      <div class="agent-script-body">${html}</div>
-    </div>
-    <button class="agent-gen" id="agent-gen-video" type="button">🎬 生成讲解动画视频</button>
-    <div class="agent-video" id="agent-video"></div>`;
-  const videoBtn = kidsOutput.querySelector<HTMLButtonElement>("#agent-gen-video");
-  videoBtn?.addEventListener("click", generateVideo);
-}
-
-// 把知识库中的历史人物映射为视频工坊要求的角色字段（与 agent_bi 前端契约一致）。
-function toBridgeCharacter(char: AgentCharacter) {
-  return {
-    id: char.id || `char-${char.title}`,
-    title: char.title,
-    era: char.era,
-    identity: char.identity,
-    persona: char.persona,
-    quotes: char.quotes ?? [],
-    related_artifacts: char.related_artifacts ?? [],
-  };
-}
-
-async function generateVideo() {
-  if (!lastTheater || !currentArtifact) {
-    return;
-  }
-  const videoBox = kidsOutput.querySelector<HTMLDivElement>("#agent-video");
-  if (!videoBox) {
-    return;
-  }
-  videoBox.innerHTML = `<p class="agent-hint">正在提交视频生成工坊…（需启动 ai-short-drama-studio，端口 8000）</p>`;
-  const payload = {
-    title: `${lastTheater.characterA.title}×${lastTheater.characterB.title}`,
-    topic: `讲解文物《${currentArtifact.name}》`,
-    style: "kids",
-    aspect_ratio: "9:16",
-    target_duration_sec: 30,
-    character_a: toBridgeCharacter(lastTheater.characterA),
-    character_b: toBridgeCharacter(lastTheater.characterB),
-    dialogue_script: lastTheater.script,
-  };
-  try {
-    const res = await fetch(`${DRAMA_BASE}/api/v1/projects/from-museum`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      return { speaker: m[1].trim(), text: m[2].trim(), isNarration: false };
     });
-    if (!res.ok) {
-      const err = (await res.json().catch(() => ({}))) as { error?: string; detail?: string };
-      videoBox.innerHTML = `<p class="agent-hint error">⚠️ 提交失败：${escapeHtml(err.error || err.detail || `HTTP ${res.status}`)}</p>`;
-      return;
-    }
-    const data = (await res.json()) as { project_id?: string; video_url?: string };
-    if (!data.project_id || !data.video_url) {
-      videoBox.innerHTML = `<p class="agent-hint error">⚠️ 返回格式异常：缺少 project_id / video_url。</p>`;
-      return;
-    }
-    const videoUrl = /^https?:/.test(data.video_url) ? data.video_url : `${DRAMA_BASE}${data.video_url}`;
-    await pollVideo(videoUrl, videoBox, data.project_id);
-  } catch (error) {
-    videoBox.innerHTML = `<p class="agent-hint error">⚠️ 无法连接视频生成工坊：${escapeHtml(error instanceof Error ? error.message : String(error))}。请确认 ai-short-drama-studio 已启动。</p>`;
-  }
 }
 
-async function pollVideo(videoUrl: string, videoBox: HTMLDivElement, projectId: string) {
-  videoBox.innerHTML = `<p class="agent-hint">已创建项目，正在生成视频（约 3–10 分钟）…</p>`;
-  const maxAttempts = 720;
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    try {
-      const response = await fetch(videoUrl, { method: "HEAD", cache: "no-store" });
-      if (response.ok) {
-        videoBox.innerHTML = `
-          <video controls autoplay playsinline style="width:100%;max-height:320px;border-radius:10px;background:#000;">
-            <source src="${escapeHtml(videoUrl)}" type="video/mp4" />
-            您的浏览器不支持 video 标签。
-          </video>
-          <p class="agent-hint">✅ 视频生成完成（项目 ${escapeHtml(projectId.slice(0, 8))}）。</p>`;
-        return;
-      }
-    } catch {
-      // 视频文件尚未就绪，继续轮询
+function matchFigure(speaker: string, charA: AgentCharacter, charB: AgentCharacter): "left" | "right" | null {
+  const aName = charA.title.replace(/（.*?）/g, "").trim();
+  const bName = charB.title.replace(/（.*?）/g, "").trim();
+  if (speaker.includes(aName) || aName.includes(speaker)) return "left";
+  if (speaker.includes(bName) || bName.includes(speaker)) return "right";
+  return null;
+}
+
+let shadowPlaying = false;
+let shadowStoppedByUser = false;
+let shadowCurrentIndex = 0; // 记录当前播放到第几句，用于暂停后继续
+
+function stopShadowTheater() {
+  shadowPlaying = false;
+  shadowStoppedByUser = true;
+  window.speechSynthesis.cancel();
+  const left = kidsOutput.querySelector("#shadow-left");
+  const right = kidsOutput.querySelector("#shadow-right");
+  left?.classList.remove("speaking");
+  right?.classList.remove("speaking");
+  const sub = kidsOutput.querySelector<HTMLDivElement>("#shadow-subtitle");
+  if (sub) sub.textContent = "⏸ 讲解已暂停，点击播放继续";
+}
+
+// 根据人物身份选 TTS 音色参数
+function getVoiceForLine(line: ShadowLine, charA: AgentCharacter, charB: AgentCharacter): { rate: number; pitch: number; voiceName: string } {
+  if (line.isNarration) return { rate: 1.0, pitch: 0.9, voiceName: "男成熟" }; // 旁白用云扬
+  const figure = matchFigure(line.speaker, charA, charB);
+  const char = figure === "left" ? charA : figure === "right" ? charB : null;
+  if (!char) return { rate: 1.0, pitch: 0.9, voiceName: "男成熟" };
+  return getVoiceForChar(char);
+}
+
+async function playShadowTheater(script: string, playBtn: HTMLButtonElement, stopBtn: HTMLButtonElement) {
+  if (!lastTheater) return;
+  const lines = parseScriptLines(script);
+  if (lines.length === 0) return;
+
+  // 如果是暂停后继续，从当前 index 开始；如果是全新播放，从 0 开始
+  const startIndex = shadowStoppedByUser ? shadowCurrentIndex : 0;
+  shadowPlaying = true;
+  shadowStoppedByUser = false;
+  playBtn.disabled = true;
+  stopBtn.disabled = false;
+
+  const leftEl = document.querySelector("#shadow-left");
+  const rightEl = document.querySelector("#shadow-right");
+  const sub = document.querySelector<HTMLDivElement>("#shadow-subtitle");
+  const charA = lastTheater.characterA;
+  const charB = lastTheater.characterB;
+
+  window.speechSynthesis.cancel();
+  await new Promise(r => setTimeout(r, 120)); // 给浏览器清理队列留时间，避免卡顿
+
+  for (let i = startIndex; i < lines.length; i++) {
+    if (!shadowPlaying) {
+      shadowCurrentIndex = i; // 记录暂停位置
+      break;
     }
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    if (attempt % 15 === 0) {
-      videoBox.innerHTML = `<p class="agent-hint">视频生成中… 已等待 ${Math.floor(attempt / 60)} 分 ${attempt % 60} 秒。</p>`;
+    const line = lines[i];
+
+    // 更新字幕
+    if (sub) {
+      sub.textContent = line.isNarration
+        ? line.text
+        : `${line.speaker}：${line.text}`;
     }
+
+    // 高亮对应人物
+    leftEl?.classList.remove("speaking");
+    rightEl?.classList.remove("speaking");
+    const figure = line.isNarration ? null : matchFigure(line.speaker, charA, charB);
+    if (figure === "left") leftEl?.classList.add("speaking");
+    if (figure === "right") rightEl?.classList.add("speaking");
+
+    // TTS 朗读
+    const cleanText = preprocessTtsText(line.text);
+    const voice = getVoiceForLine(line, charA, charB);
+    await new Promise<void>((resolve) => {
+      const utter = new SpeechSynthesisUtterance(cleanText);
+      utter.lang = "zh-CN";
+      utter.rate = voice.rate;
+      utter.pitch = voice.pitch;
+      utter.volume = 1.0;
+      const v = pickVoice(voice.voiceName);
+      if (v) utter.voice = v;
+      utter.onend = () => resolve();
+      utter.onerror = () => resolve();
+      window.speechSynthesis.speak(utter);
+    });
+
+    // 自然节奏：更符合真人说话节奏
+    const textLen = line.text.length;
+    const basePause = line.isNarration ? 250 : 180; // 对话间停顿更短
+    const lenBonus = Math.min(textLen * 10, 280); // 按句长加停顿
+    // 对话间加思考停顿（人物接话前像在想）
+    const thinkPause = !line.isNarration ? 120 : 0;
+    await new Promise((r) => setTimeout(r, basePause + lenBonus + thinkPause));
   }
-  videoBox.innerHTML = `<p class="agent-hint error">⚠️ 等待超时，请直接访问视频链接：<a href="${escapeHtml(videoUrl)}" target="_blank">${escapeHtml(videoUrl)}</a></p>`;
+
+  // 结束
+  shadowPlaying = false;
+  leftEl?.classList.remove("speaking");
+  rightEl?.classList.remove("speaking");
+  if (!shadowStoppedByUser && sub) {
+    sub.textContent = "✅ 讲解完毕";
+  }
+  playBtn.disabled = false;
+  stopBtn.disabled = true;
 }
 
 function bindEvents() {
@@ -586,7 +1025,10 @@ export function syncArtifactToAgent(artifact: WorldArtifact | null) {
   resetChat();
   renderRoleChips(rolesBox, artifact.name, false);
   renderRoleChips(rolesKidsBox, artifact.name, true);
-  kidsOutput.innerHTML = `<p class="agent-hint">点击上方「生成讲解动画」，为「${escapeHtml(artifact.name)}」生成儿童白话讲解动画。</p>`;
+  // 如果已经生成了小剧场剧本，不要重置 kidsOutput，保留当前戏台
+  if (!lastTheater) {
+    kidsOutput.innerHTML = `<p class="agent-hint">点击上方「生成讲解动画」，为「${escapeHtml(artifact.name)}」生成儿童白话讲解动画。</p>`;
+  }
   if (characters.length) {
     agentStatus.textContent = `当前文物：${artifact.name}`;
   }

@@ -8,13 +8,13 @@
     <title>华夏珍宝数字博物馆 · 馆藏文物图鉴</title>
     <style>
       :root {
-        --ink: #3a2f22;
-        --ink-soft: #6b5d48;
-        --gold: #a8842c;
-        --gold-deep: #8a6a20;
-        --paper: #f0e2c0;
-        --paper-deep: #ddc795;
-        --line: #c9b183;
+        --ink: #f0e8d8;
+        --ink-soft: #9a8f7a;
+        --gold: #c9a961;
+        --gold-deep: #a8842c;
+        --paper: rgba(15,12,10,0.6);
+        --paper-deep: rgba(20,16,12,0.7);
+        --line: rgba(201,169,97,0.18);
       }
 
       * {
@@ -33,31 +33,26 @@
           "Microsoft YaHei", "PingFang SC", serif;
         color: var(--ink);
         min-height: 100vh;
-        background-color: #e9dab5;
+        background-color: #2a2015;
         background-image:
-          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='88' viewBox='0 0 88 88'%3E%3Cpath d='M22 22h44v10H32v12h34v10H22z' fill='none' stroke='%238a6a20' stroke-opacity='0.13'/%3E%3Cpath d='M44 4v80M4 44h80' stroke='%238a6a20' stroke-opacity='0.06'/%3E%3C/svg%3E"),
-          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cpath d='M20 84c10-18 30-20 42-8 4-14 22-18 32-6 14-8 30 0 34 14' fill='none' stroke='%23a8842c' stroke-opacity='0.10' stroke-width='2'/%3E%3Cpath d='M10 128c8-14 24-16 34-6 4-12 18-14 26-4' fill='none' stroke='%23a8842c' stroke-opacity='0.08' stroke-width='2'/%3E%3C/svg%3E"),
-          radial-gradient(rgba(90, 70, 30, 0.055) 1px, transparent 1.5px),
-          linear-gradient(180deg, #f2e5c5 0%, #ead9b2 42%, #dec898 100%);
-        background-size:
-          88px 88px,
-          160px 160px,
-          9px 9px,
-          100% 100%;
-        background-attachment: fixed, fixed, fixed, scroll;
+          linear-gradient(180deg, rgba(30,24,18,0.15) 0%, rgba(25,20,15,0.25) 40%, rgba(20,16,12,0.4) 75%, rgba(15,12,10,0.6) 100%),
+          url('/bg-ancient-painting.jpg');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
         position: relative;
         overflow-x: hidden;
       }
 
-      /* 牛皮纸四边柔和晕影与纸纤维暗角 */
+      /* 四边柔和晕影 */
       body::before {
         content: "";
         position: fixed;
         inset: 0;
         pointer-events: none;
         background:
-          radial-gradient(120% 90% at 50% 0%, transparent 62%, rgba(90, 70, 30, 0.10) 100%),
-          radial-gradient(120% 90% at 50% 100%, transparent 66%, rgba(90, 70, 30, 0.12) 100%);
+          radial-gradient(120% 90% at 50% 0%, transparent 62%, rgba(0,0,0,0.15) 100%),
+          radial-gradient(120% 90% at 50% 100%, transparent 66%, rgba(0,0,0,0.2) 100%);
       }
 
       /* —— 顶部官网导航条 —— */
@@ -70,9 +65,9 @@
         justify-content: space-between;
         gap: 16px;
         padding: 18px clamp(20px, 5vw, 64px);
-        border-bottom: 1px solid rgb(168 132 44 / 38%);
-        background: rgb(240 226 192 / 62%);
-        backdrop-filter: blur(3px);
+        border-bottom: 1px solid var(--line);
+        background: rgba(18,14,10,0.65);
+        backdrop-filter: blur(12px);
       }
 
       .site-brand {
@@ -86,11 +81,11 @@
         place-items: center;
         width: 46px;
         height: 46px;
-        border: 2px solid #e7cf9a;
+        border: 1px solid var(--gold);
         border-radius: 50%;
-        color: #fff;
-        background: radial-gradient(circle at 32% 26%, #b8913a, #7d5f24 78%);
-        box-shadow: 0 6px 16px rgb(138 106 32 / 32%);
+        color: var(--gold);
+        background: rgba(20,16,12,0.6);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.3);
       }
 
       .site-seal svg {
@@ -144,11 +139,11 @@
         padding: 10px 22px;
         border: 1px solid var(--gold-deep);
         border-radius: 2px;
-        color: #fdf8ea;
-        background: linear-gradient(135deg, #b8913a, #8a6a20);
-        box-shadow: 0 8px 20px rgb(138 106 32 / 28%);
+        color: var(--gold);
+        background: transparent;
+        box-shadow: none;
         letter-spacing: 3px;
-        transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+        transition: all 160ms ease;
       }
 
       .site-nav .enter-link:hover {
@@ -167,12 +162,12 @@
         border: 1px solid var(--gold-deep);
         border-radius: 999px;
         background: transparent;
-        color: var(--gold-deep);
+        color: var(--gold);
         cursor: pointer;
         font-family: inherit;
         font-size: 12.5px;
         letter-spacing: 1px;
-        transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+        transition: all 160ms ease;
       }
 
       .lang-toggle:hover {
@@ -231,7 +226,7 @@
         overflow: hidden;
         max-width: 1180px;
         margin: 0 auto;
-        padding: 46px clamp(16px, 4vw, 44px) 44px;
+        padding: 60px clamp(16px, 4vw, 44px) 50px;
         text-align: center;
       }
 
@@ -254,8 +249,8 @@
       .hero-kicker {
         font-size: 13px;
         letter-spacing: 9px;
-        color: var(--ink-soft);
-        margin-bottom: 14px;
+        color: var(--gold);
+        margin-bottom: 16px;
       }
 
       .hero h1 {
@@ -263,8 +258,7 @@
         line-height: 1.2;
         letter-spacing: 7px;
         font-weight: 600;
-        color: var(--ink);
-        text-shadow: 0 1px 0 rgb(255 255 255 / 40%);
+        color: #fff;
       }
 
       .hero-divider {
@@ -321,7 +315,7 @@
         margin: 0 0 8px;
         font-size: 12.5px;
         letter-spacing: 5px;
-        color: var(--gold-deep);
+        color: var(--gold);
       }
 
       .venue-head h2 {
@@ -329,23 +323,21 @@
         font-size: 24px;
         font-weight: 500;
         letter-spacing: 6px;
-        color: var(--ink);
+        color: #fff;
       }
 
-      /* 统计条：仿故宫官网"藏品总目"样式——浅棕底 + 超大数字 + 米色圆章单位 */
+      /* 统计条：暗黑风格——半透明深底 + 白色大数字 */
       .venue-stats {
         display: flex;
         justify-content: center;
         align-items: center;
         margin: 0 auto 30px;
-        padding: 24px 10px;
-        border: 1px solid rgb(138 106 32 / 45%);
+        padding: 32px 10px;
+        border: 1px solid var(--line);
         border-radius: 14px;
-        background:
-          radial-gradient(circle at 12% 20%, rgb(255 235 173 / 22%), transparent 42%),
-          linear-gradient(135deg, #a08a62, #b8a27a 55%, #a08a62);
-        box-shadow: 0 10px 24px rgb(90 70 30 / 20%);
-        color: #fdf8ea;
+        background: rgba(0,0,0,0.25);
+        box-shadow: none;
+        color: #f0e8d8;
       }
 
       .venue-stat {
@@ -385,12 +377,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #f3ead6;
-        border: 1px solid rgb(184 145 58 / 65%);
-        color: #7d5f24;
+        background: rgba(20,16,12,0.5);
+        border: 1px solid var(--gold-deep);
+        color: var(--gold);
         font-size: 14px;
         letter-spacing: 1px;
-        box-shadow: 0 2px 8px rgb(70 50 20 / 18%);
+        box-shadow: none;
       }
 
       .venue-label {
@@ -421,7 +413,7 @@
         }
       }
 
-      /* 横版"上图下文"主题卡（仿故宫官网专馆板块：大图 + 名称 + 标语） */
+      /* 横版"上图下文"主题卡（暗黑风格半透明卡片） */
       .venue-card {
         display: flex;
         flex-direction: column;
@@ -429,17 +421,17 @@
         gap: 0;
         padding: 0;
         overflow: hidden;
-        background: rgb(255 252 244 / 82%);
+        background: rgba(0,0,0,0.35);
         border: 1px solid var(--line);
         border-radius: 12px;
         color: inherit;
         text-decoration: none;
-        transition: transform 160ms ease, box-shadow 160ms ease;
+        transition: all 160ms ease;
       }
 
       .venue-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 26px rgb(138 106 32 / 20%);
+        background: rgba(201,169,97,0.08);
+        border-color: rgba(201,169,97,0.3);
       }
 
       /* 横版主题大图区：真实文物代表渲染图（优先）＋ 器物剪影兜底；米白平面纯底，完全铺满，高级简洁 */
@@ -451,8 +443,8 @@
         align-items: center;
         justify-content: center;
         border-radius: 0;
-        border-bottom: 1px solid rgb(138 106 32 / 40%);
-        background: #f7f2e7;
+        border-bottom: 1px solid var(--line);
+        background: rgba(0,0,0,0.2);
       }
 
       .venue-cover {
@@ -492,6 +484,81 @@
         line-height: 1.6;
       }
 
+      /* —— 皮影戏台与历史人物对话：左文右图 —— */
+      .shadow-section {
+        position: relative;
+        z-index: 2;
+        max-width: 1180px;
+        margin: 40px auto 64px;
+        padding: 0 clamp(16px, 4vw, 44px);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: center;
+      }
+      .shadow-text .shadow-kicker {
+        font-size: 12px;
+        letter-spacing: 6px;
+        color: var(--gold);
+        margin: 0 0 16px;
+      }
+      .shadow-text h3 {
+        margin: 0 0 20px;
+        font-size: 32px;
+        letter-spacing: 4px;
+        color: #fff;
+        line-height: 1.3;
+        font-weight: 600;
+      }
+      .shadow-text p {
+        margin: 0 0 24px;
+        font-size: 15px;
+        line-height: 2;
+        color: var(--ink-soft);
+      }
+      .people-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .people-tag {
+        padding: 8px 16px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        font-size: 13px;
+        color: var(--ink);
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .people-tag:hover {
+        border-color: var(--gold);
+        color: var(--gold);
+        background: rgba(201,169,97,0.08);
+      }
+      .shadow-img {
+        height: 320px;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+      }
+      .shadow-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      @media (max-width: 860px) {
+        .shadow-section {
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+        .shadow-text h3 {
+          font-size: 26px;
+        }
+        .shadow-img {
+          height: 240px;
+        }
+      }
+
       /* —— 首页藏品概览：文物图片拼接墙（无文字说明） —— */
       .showcase {
         position: relative;
@@ -509,21 +576,25 @@
       .showcase-head .gallery-kicker {
         font-size: 12.5px;
         letter-spacing: 5px;
-        color: var(--gold-deep);
+        color: var(--gold);
         margin: 0 0 8px;
       }
 
       .showcase-head h2 {
         margin: 0;
-        font-size: 30px;
+        font-size: 28px;
         letter-spacing: 5px;
-        color: var(--ink);
+        color: #fff;
       }
 
       .showcase-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 18px;
+        display: flex;
+        gap: 16px;
+        overflow: hidden;
+      }
+      .showcase-cell {
+        flex: 1;
+        min-width: 0;
       }
 
       .showcase-loading {
@@ -558,23 +629,19 @@
 
       .showcase-cell {
         position: relative;
-        aspect-ratio: 1 / 1;
+        aspect-ratio: 4 / 3;
         border: 1px solid var(--line);
         border-radius: 10px;
         overflow: hidden;
-        background: #f3ead6;
+        background: rgba(0,0,0,0.4);
         cursor: pointer;
-        box-shadow:
-          0 1px 0 rgb(255 255 255 / 60%) inset,
-          0 16px 36px rgb(90 70 30 / 14%);
-        transition: transform 180ms ease, box-shadow 180ms ease;
+        box-shadow: none;
+        transition: all 180ms ease;
       }
 
       .showcase-cell:hover {
-        transform: translateY(-4px);
-        box-shadow:
-          0 1px 0 rgb(255 255 255 / 60%) inset,
-          0 22px 44px rgb(90 70 30 / 22%);
+        background: rgba(201,169,97,0.08);
+        border-color: rgba(201,169,97,0.3);
       }
 
       .showcase-cell img {
@@ -603,13 +670,16 @@
 
       @media (max-width: 900px) {
         .showcase-grid {
-          grid-template-columns: repeat(2, 1fr);
+          flex-wrap: wrap;
+        }
+        .showcase-cell {
+          flex: 0 0 calc(50% - 8px);
         }
       }
 
       @media (max-width: 560px) {
-        .showcase-grid {
-          grid-template-columns: 1fr;
+        .showcase-cell {
+          flex: 0 0 100%;
         }
       }
 
@@ -625,17 +695,15 @@
         padding: 0 clamp(16px, 4vw, 44px);
       }
 
-      /* 左侧：图鉴主题侧边栏（与牛皮纸同背景风格） */
+      /* 左侧：图鉴主题侧边栏（暗黑风格半透明） */
       .gallery-sidebar {
         flex: none;
         width: 236px;
         padding: 22px 16px;
-        background: rgb(250 244 226 / 52%);
+        background: rgba(0,0,0,0.3);
         border: 1px solid var(--line);
         border-radius: 6px;
-        box-shadow:
-          0 1px 0 rgb(255 255 255 / 60%) inset,
-          0 22px 48px rgb(90 70 30 / 14%);
+        box-shadow: none;
         position: sticky;
         top: 20px;
       }
@@ -759,18 +827,16 @@
         color: #a99a78;
       }
 
-      /* 右侧：文物图鉴主区 */
+      /* 右侧：文物图鉴主区（暗黑风格半透明） */
       .gallery {
         position: relative;
         flex: 1;
         min-width: 0;
         padding: 34px clamp(16px, 3.5vw, 44px) 40px;
-        background: rgb(255 250 238 / 46%);
+        background: rgba(0,0,0,0.35);
         border: 1px solid var(--line);
         border-radius: 6px;
-        box-shadow:
-          0 1px 0 rgb(255 255 255 / 60%) inset,
-          0 26px 60px rgb(90 70 30 / 16%);
+        box-shadow: none;
       }
 
       .gallery::before {
@@ -856,12 +922,10 @@
         position: relative;
         width: 100%;
         aspect-ratio: 4 / 3.6;
-        border: 1px solid rgb(138 106 32 / 40%);
+        border: 1px solid var(--line);
         border-radius: 4px;
-        background: linear-gradient(180deg, #f4ead0, #e4d3a6);
-        box-shadow:
-          0 1px 0 rgb(255 255 255 / 70%) inset,
-          0 14px 34px rgb(90 70 30 / 22%);
+        background: linear-gradient(180deg, #1a1510, #15100a);
+        box-shadow: none;
         overflow: hidden;
       }
 
@@ -889,7 +953,7 @@
         color: var(--ink-soft);
         font-size: 14px;
         letter-spacing: 3px;
-        background: rgb(244 234 208 / 82%);
+        background: rgba(26,21,16,0.82);
         transition: opacity 240ms ease;
         z-index: 3;
       }
@@ -909,7 +973,7 @@
         font-size: 14px;
         line-height: 2;
         letter-spacing: 2px;
-        background: rgb(244 234 208 / 70%);
+        background: rgba(26,21,16,0.7);
         z-index: 2;
       }
 
@@ -962,9 +1026,9 @@
         grid-template-columns: 1fr 1fr;
         gap: 8px 18px;
         padding: 12px 14px;
-        border: 1px solid rgb(201 177 131 / 70%);
+        border: 1px solid var(--line);
         border-radius: 4px;
-        background: rgb(244 234 208 / 45%);
+        background: rgba(0,0,0,0.25);
         list-style: none;
         font-size: 13px;
         color: var(--ink-soft);
@@ -981,8 +1045,8 @@
       .gallery-highlight {
         padding: 10px 14px;
         border-left: 3px solid var(--gold);
-        background: rgb(168 132 44 / 10%);
-        color: var(--gold-deep);
+        background: rgba(201,169,97,0.08);
+        color: var(--gold);
         font-size: 14px;
         line-height: 1.7;
         letter-spacing: 0.5px;
@@ -1120,16 +1184,14 @@
         height: 60px;
         display: grid;
         place-items: center;
-        border: 1px solid rgb(168 132 44 / 38%);
+        border: 1px solid var(--gold-deep);
         border-radius: 50%;
-        color: #fff;
-        /* 白色圆底 + 顶部高光，营造光滑球体质感（豆包悬浮球风格） */
-        background:
-          radial-gradient(circle at 32% 26%, #ffffff 0%, #fdf6e3 42%, #efe0bc 74%, #e0cc9d 100%);
+        color: var(--gold);
+        /* 深色圆底 + 金色边框，暗黑博物馆风格 */
+        background: linear-gradient(135deg, #2a2015, #15100a);
         box-shadow:
-          0 12px 30px rgb(138 106 32 / 36%),
-          inset 0 2px 4px rgb(255 255 255 / 95%),
-          inset 0 -3px 8px rgb(138 106 32 / 22%);
+          0 12px 30px rgba(0,0,0,0.5),
+          0 0 20px rgba(201,169,97,0.15);
         cursor: pointer;
         user-select: none;
         transition: transform 160ms ease;
@@ -1164,9 +1226,9 @@
         flex-direction: column;
         border: 1px solid var(--line);
         border-radius: 10px;
-        background: rgb(255 252 244 / 97%);
+        background: rgba(20,16,12,0.95);
         color: var(--ink);
-        box-shadow: 0 18px 50px rgb(90 70 30 / 24%);
+        box-shadow: 0 18px 50px rgba(0,0,0,0.5);
         overflow: hidden;
       }
 
@@ -1284,7 +1346,7 @@
         gap: 10px;
         padding: 12px 14px;
         border-bottom: 1px solid var(--line);
-        background: rgb(236 225 198 / 60%);
+        background: rgba(0,0,0,0.2);
       }
 
       .home-agent-mark {
@@ -1386,13 +1448,13 @@
         font-size: 12.5px;
         line-height: 1.55;
         color: var(--ink);
-        background: rgb(236 225 198 / 70%);
+        background: rgba(201,169,97,0.1);
         white-space: pre-wrap;
         word-break: break-word;
       }
 
       .home-msg.user .home-bubble {
-        background: rgb(168 132 44 / 18%);
+        background: rgba(100,90,75,0.4);
       }
 
       .home-agent-actions {
@@ -1430,7 +1492,7 @@
         border: 1px solid var(--line);
         border-radius: 6px;
         color: var(--ink);
-        background: #fff;
+        background: rgba(0,0,0,0.3);
         font-size: 13px;
         outline: none;
         font-family: inherit;
@@ -1780,7 +1842,7 @@
       </div>
       <nav class="site-nav" aria-label="主导航">
         <a class="active" href="/" data-i18n="nav_home">首页</a>
-        <a href="/gallery.html" data-i18n="nav_gallery">馆藏图鉴</a>
+        <a href="/gallerylist.html" data-i18n="nav_gallery">馆藏图鉴</a>
         <a href="/games.html" data-i18n="nav_games">趣味游戏</a>
         <a class="about-link" href="/about.html" data-i18n="nav_about">关于我们</a>
         <a class="enter-link" href="/hall.html" data-i18n="nav_enter">进入展厅 →</a>
@@ -1790,141 +1852,100 @@
       </nav>
     </header>
 
-    <section class="hero">
-      <svg class="hero-mountains" viewBox="0 0 1440 190" preserveAspectRatio="none" aria-hidden="true">
-        <!-- 远山：水墨曲线，断断续续，从左贯穿到右 -->
-        <path d="M-30 128 C 40 92, 130 78, 220 104 S 400 148, 470 118" fill="none" stroke="rgba(138,106,32,0.26)" stroke-width="2" />
-        <path d="M540 110 C 620 76, 700 72, 780 98 S 960 142, 1030 112" fill="none" stroke="rgba(138,106,32,0.26)" stroke-width="2" />
-        <path d="M1100 102 C 1180 72, 1280 76, 1360 98 S 1480 136, 1520 122" fill="none" stroke="rgba(138,106,32,0.26)" stroke-width="2" />
-        <!-- 中景山：曲线起伏 -->
-        <path d="M-30 150 C 70 112, 180 156, 300 138 C 420 122, 520 168, 640 146 C 760 124, 860 166, 980 144 C 1100 124, 1220 162, 1340 142 C 1400 132, 1460 152, 1480 142"
-              fill="none" stroke="rgba(184,145,58,0.4)" stroke-width="2.2" />
-        <path d="M-30 150 C 70 112, 180 156, 300 138 C 420 122, 520 168, 640 146 C 760 124, 860 166, 980 144 C 1100 124, 1220 162, 1340 142 C 1400 132, 1460 152, 1480 142 V 190 H -30 Z"
-              fill="rgba(184,145,58,0.07)" />
-        <!-- 近山：墨色稍深 -->
-        <path d="M-30 174 C 90 136, 200 186, 330 164 C 470 142, 600 192, 740 168 C 880 144, 1010 192, 1150 168 C 1290 146, 1400 186, 1480 166"
-              fill="none" stroke="rgba(90,69,38,0.34)" stroke-width="2" />
-        <path d="M-30 174 C 90 136, 200 186, 330 164 C 470 142, 600 192, 740 168 C 880 144, 1010 192, 1150 168 C 1290 146, 1400 186, 1480 166 V 190 H -30 Z"
-              fill="rgba(90,69,38,0.06)" />
-      </svg>
-      <p class="hero-kicker" data-i18n="hero_kicker">华 夏 文 明 · 千 载 重 器</p>
-      <h1 data-i18n="hero_title">华夏珍宝数字博物馆</h1>
-      <div class="hero-divider">◆</div>
-      <p class="intro" data-i18n="hero_intro">
-        一件文物，一段文明。本馆以三维技术复现国之重器，将四羊方尊、马踏飞燕、击鼓说唱陶俑与景泰蓝瓶炉等馆藏陈列于数字展厅，足不出户，亦可驻足凝望千年之美。点击右上角「馆藏图鉴」可按主题逐件欣赏馆藏的纹饰与故事，或点击「进入展厅」亲临 3D 展厅漫游观览。
-      </p>
+    <!-- Hero区：左对齐，亮度调高 -->
+    <section style="max-width:1180px;margin:0 auto;padding:100px 44px 80px;text-align:left !important;">
+      <p style="font-size:12px;letter-spacing:8px;color:var(--gold);margin:0 0 20px;text-align:left !important;">华 夏 文 明 · 千 载 重 器</p>
+      <h1 data-i18n="hero_title" style="font-size:56px;line-height:1.15;letter-spacing:6px;font-weight:600;color:#fff;margin:0 0 24px;text-align:left !important;">华夏珍宝<br>数字博物馆</h1>
+      <div style="width:80px;height:1px;background:var(--gold);margin:0 0 28px;text-align:left !important;"></div>
+      <p data-i18n="hero_intro" style="max-width:560px;font-size:15px;line-height:2;color:var(--ink-soft);margin:0;text-align:left !important;">一件文物，一段文明。以三维技术复现国之重器，将四羊方尊、马踏飞燕、击鼓说唱陶俑与景泰蓝瓶炉等馆藏陈列于数字展厅，足不出户，亦可驻足凝望千年之美。</p>
     </section>
 
-    <!-- 场馆介绍：数字统计（仿故宫数字馆动态计数）+ 主题展区卡片（仿国博官网板块） -->
-    <section class="venue" id="venue" aria-label="场馆介绍">
-      <header class="venue-head">
-        <p class="gallery-kicker" data-i18n="v_kicker">场 馆 介 绍 · V E N U E</p>
-        <h2 data-i18n="v_title">场馆介绍</h2>
-      </header>
-
-      <div class="venue-stats">
-        <div class="venue-stat">
-          <div class="venue-stat-core">
-            <b class="venue-num" data-count="52">0</b>
-            <span class="venue-badge" data-i18n="v_b1">件</span>
-          </div>
-          <em class="venue-label" data-i18n="v_stat1">三维数字化展品</em>
-        </div>
-        <div class="venue-stat">
-          <div class="venue-stat-core">
-            <b class="venue-num" data-count="7">0</b>
-            <span class="venue-badge" data-i18n="v_b2">大区</span>
-          </div>
-          <em class="venue-label" data-i18n="v_stat2">主题展区</em>
-        </div>
-        <div class="venue-stat">
-          <div class="venue-stat-core">
-            <b class="venue-num" data-count="13">0</b>
-            <span class="venue-badge" data-i18n="v_b3">位</span>
-          </div>
-          <em class="venue-label" data-i18n="v_stat3">可对话历史人物</em>
-        </div>
+    <!-- 统计条：左对齐 -->
+    <section style="max-width:1180px;margin:0 auto 70px;padding:40px 44px;display:flex;gap:80px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);text-align:left !important;">
+      <div>
+        <div style="font-size:48px;font-weight:600;color:#fff;" class="venue-num" data-count="52">0</div>
+        <div style="font-size:13px;letter-spacing:2px;color:var(--ink-soft);margin-top:8px;">三维数字化展品</div>
       </div>
-
-      <div class="venue-grid">
-        <a class="venue-card" href="/gallery.html?theme=bronze">
-          <span class="venue-icon" aria-hidden="true">
-            <img class="venue-cover" data-theme="bronze" alt="青铜礼乐馆" hidden />
-            <svg viewBox="0 0 48 48">
-              <path d="M18 10 h12 l-4 5 h-4 z" />
-              <rect x="14" y="15" width="20" height="9" rx="1" />
-              <path d="M14 22 c5 4 10 5 10 5 s5 -1 10 -5 v3 c0 5 -7 8 -10 8 s-10 -3 -10 -8 z" />
-              <rect x="11" y="15" width="4" height="8" />
-              <rect x="33" y="15" width="4" height="8" />
-            </svg>
-          </span>
-          <b data-i18n="v_c1">青铜礼乐馆</b>
-        </a>
-        <a class="venue-card" href="/gallery.html?theme=porcelain">
-          <span class="venue-icon" aria-hidden="true">
-            <img class="venue-cover" data-theme="porcelain" alt="瓷韵千年馆" hidden />
-            <svg viewBox="0 0 48 48">
-              <path d="M19 6 h10 v3 h-2 l-1 4 h5 l2 16 c0 5 -5 8 -9 8 s-9 -3 -9 -8 l2 -16 h5 l-1 -4 h-2 z" />
-            </svg>
-          </span>
-          <b data-i18n="v_c2">瓷韵千年馆</b>
-        </a>
-        <a class="venue-card" href="/gallery.html?theme=buddhist">
-          <span class="venue-icon" aria-hidden="true">
-            <img class="venue-cover" data-theme="buddhist" alt="佛光庄严馆" hidden />
-            <svg viewBox="0 0 48 48">
-              <path d="M24 8 c-3 4 -3 8 0 12 c3 -4 3 -8 0 -12 z" />
-              <path d="M12 18 c3 2 3 5 0 8 c3 -1 5 -3 6 -5 c-1 3 -1 6 0 9 c2 -3 3 -6 3 -9 c1 2 3 4 6 5 c-3 -3 -3 -6 0 -8 c-4 1 -7 0 -9 -2 c2 2 5 3 9 2 c-4 -1 -7 -4 -9 -8 c-2 4 -5 7 -9 8 c4 1 7 0 9 -2 z" />
-            </svg>
-          </span>
-          <b data-i18n="v_c3">佛光庄严馆</b>
-        </a>
-        <a class="venue-card" href="/gallery.html?theme=world">
-          <span class="venue-icon" aria-hidden="true">
-            <img class="venue-cover" data-theme="world" alt="世界文明馆" hidden />
-            <svg viewBox="0 0 48 48">
-              <circle cx="24" cy="24" r="12" />
-              <ellipse cx="24" cy="24" rx="12" ry="5.5" />
-              <path d="M12 24 h24 M19 14 c3 6 7 6 10 0 M19 34 c3 -6 7 -6 10 0" />
-            </svg>
-          </span>
-          <b data-i18n="v_c4">世界文明馆</b>
-        </a>
-        <a class="venue-card" href="/gallery.html?theme=nature">
-          <span class="venue-icon" aria-hidden="true">
-            <img class="venue-cover" data-theme="nature" alt="自然与宇宙馆" hidden />
-            <svg viewBox="0 0 48 48">
-              <path d="M8 32 L16 18 L22 27 L28 14 L40 32 z" />
-              <circle cx="34" cy="12" r="1.6" />
-              <circle cx="40" cy="20" r="1.1" />
-              <circle cx="13" cy="12" r="1.2" />
-            </svg>
-          </span>
-          <b data-i18n="v_c5">自然与宇宙馆</b>
-        </a>
-        <a class="venue-card" href="/gallery.html?theme=tech">
-          <span class="venue-icon" aria-hidden="true">
-            <img class="venue-cover" data-theme="tech" alt="科技体验馆" hidden />
-            <svg viewBox="0 0 48 48">
-              <circle cx="24" cy="24" r="8" />
-              <path d="M24 12 v-5 M24 41 v-5 M12 24 h-5 M41 24 h-5 M15.5 15.5 l-3.5 -3.5 M36 36 l-3.5 -3.5 M32.5 15.5 l3.5 -3.5 M12 36 l3.5 -3.5" />
-              <circle cx="24" cy="24" r="3" />
-            </svg>
-          </span>
-          <b data-i18n="v_c6">科技体验馆</b>
-        </a>
+      <div>
+        <div style="font-size:48px;font-weight:600;color:#fff;" class="venue-num" data-count="7">0</div>
+        <div style="font-size:13px;letter-spacing:2px;color:var(--ink-soft);margin-top:8px;">主题展区</div>
+      </div>
+      <div>
+        <div style="font-size:48px;font-weight:600;color:#fff;" class="venue-num" data-count="13">0</div>
+        <div style="font-size:13px;letter-spacing:2px;color:var(--ink-soft);margin-top:8px;">可对话历史人物</div>
       </div>
     </section>
 
-    <!-- 藏品概览：文物图片拼接墙（仿国博藏品概览，无文字说明，点击进入完整图鉴） -->
-    <section class="showcase" id="showcase" aria-label="藏品概览">
-      <header class="showcase-head">
-        <p class="gallery-kicker" data-i18n="sc_kicker">馆 藏 精 华 · C O L L E C T I O N</p>
-        <h2 data-i18n="sc_title">藏品概览</h2>
-      </header>
-      <div class="showcase-grid" id="showcase-grid"></div>
-      <p class="showcase-loading" id="showcase-loading" hidden data-i18n="sc_loading">正在陈列第 0 / 0 件…</p>
-      <p class="showcase-tip" data-i18n="sc_tip">点击任一藏品，进入馆藏图鉴继续欣赏</p>
+    <!-- 主题展区标题 -->
+    <div style="max-width:1180px;margin:0 auto 30px;padding:0 44px;">
+      <p style="font-size:12px;letter-spacing:6px;color:var(--gold);margin:0 0 10px;">EXHIBITIONS</p>
+      <h2 style="font-size:28px;letter-spacing:4px;color:#fff;font-weight:600;margin:0;">主题展区</h2>
+    </div>
+    <!-- 主题展区卡片 -->
+    <div style="max-width:1180px;margin:0 auto 70px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:0 44px;">
+      <a href="/gallery.html?theme=bronze" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
+        <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">01</div>
+        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:var(--ink);">青铜礼乐馆</div>
+        <div style="font-size:13px;color:var(--ink-soft);line-height:1.6;">商周青铜重器，礼乐文明的见证</div>
+      </a>
+      <a href="/gallery.html?theme=porcelain" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
+        <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">02</div>
+        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:var(--ink);">瓷韵千年馆</div>
+        <div style="font-size:13px;color:var(--ink-soft);line-height:1.6;">唐宋元明清，千年瓷韵流变</div>
+      </a>
+      <a href="/gallery.html?theme=buddhist" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
+        <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">03</div>
+        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:var(--ink);">佛光庄严馆</div>
+        <div style="font-size:13px;color:var(--ink-soft);line-height:1.6;">佛教造像艺术，庄严净土之美</div>
+      </a>
+      <a href="/gallery.html?theme=world" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
+        <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">04</div>
+        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:var(--ink);">世界文明馆</div>
+        <div style="font-size:13px;color:var(--ink-soft);line-height:1.6;">中外文明交流互鉴的物证</div>
+      </a>
+      <a href="/gallery.html?theme=nature" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
+        <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">05</div>
+        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:var(--ink);">自然与宇宙馆</div>
+        <div style="font-size:13px;color:var(--ink-soft);line-height:1.6;">自然与人类文明的对话</div>
+      </a>
+      <a href="/gallery.html?theme=tech" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
+        <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">06</div>
+        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:var(--ink);">科技体验馆</div>
+        <div style="font-size:13px;color:var(--ink-soft);line-height:1.6;">互动体验，感受文物背后的科技</div>
+      </a>
+    </div>
+
+    <!-- 皮影戏台左文右图 -->
+    <section style="max-width:1180px;margin:0 auto 70px;padding:0 44px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;" aria-label="皮影戏台">
+      <div>
+        <p style="font-size:12px;letter-spacing:6px;color:var(--gold);margin:0 0 16px;">SHADOW PUPPET THEATER</p>
+        <h3 style="font-size:32px;letter-spacing:4px;color:#fff;margin:0 0 20px;line-height:1.3;font-weight:600;">皮影戏台<br>与历史人物对话</h3>
+        <p style="font-size:15px;line-height:2;color:var(--ink-soft);margin:0 0 24px;">走进皮影戏台，在光影之间与千年历史人物面对面。点击任意人物，开启跨时空对话。</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">
+          <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">秦始皇</span>
+          <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">李白</span>
+          <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">苏轼</span>
+          <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">武则天</span>
+          <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">屈原</span>
+          <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">霍去病</span>
+          <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">辛弃疾</span>
+        </div>
+      </div>
+      <div style="height:320px;border-radius:12px;overflow:hidden;border:1px solid var(--line);">
+        <img src="shadow-puppet-stage.jpg" alt="皮影戏戏台" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </section>
+
+    <!-- 藏品概览标题 -->
+    <div style="max-width:1180px;margin:0 auto 30px;padding:0 44px;">
+      <p style="font-size:12px;letter-spacing:6px;color:var(--gold);margin:0 0 10px;">COLLECTION</p>
+      <h2 style="font-size:28px;letter-spacing:4px;color:#fff;font-weight:600;margin:0;">藏品概览</h2>
+    </div>
+    <!-- 藏品概览 -->
+    <section class="showcase" id="showcase" style="max-width:1180px;margin:0 auto 70px;padding:0 44px;" aria-label="藏品概览">
+      <div class="showcase-grid" id="showcase-grid" style="display:flex;gap:20px;"></div>
+      <p class="showcase-loading" id="showcase-loading" hidden style="margin:20px 0 0;text-align:center;font-size:13px;letter-spacing:3px;color:var(--gold-deep);">正在陈列第 0 / 0 件…</p>
+      <p class="showcase-tip" style="margin:16px 0 0;text-align:center;font-size:12px;letter-spacing:2px;color:var(--ink-soft);">点击任一藏品，进入馆藏图鉴继续欣赏</p>
     </section>
 
 

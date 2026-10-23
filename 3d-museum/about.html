@@ -6,13 +6,13 @@
   <title>关于我们 · 华夏珍宝数字博物馆</title>
   <style>
     :root {
-      --paper: #f6ecd7;
-      --paper-2: #efe0c2;
-      --ink: #4b3a25;
-      --ink-soft: #7a6748;
-      --gold: #b8913a;
-      --gold-deep: #8a6a20;
-      --line: rgb(168 132 44 / 34%);
+      --paper: rgba(0,0,0,0.25);
+      --paper-2: rgba(0,0,0,0.35);
+      --ink: #f0e8d8;
+      --ink-soft: #9a8f7a;
+      --gold: #c9a961;
+      --gold-deep: #a8842c;
+      --line: rgba(201,169,97,0.15);
     }
 
     * {
@@ -29,26 +29,9 @@
       font-family: "STZhongsong", "STKaiti", "KaiTi", "SimSun", "FangSong", serif;
       color: var(--ink);
       background:
-        radial-gradient(1200px 620px at 82% -10%, rgb(168 132 44 / 10%), transparent 62%),
-        radial-gradient(1000px 560px at -8% 108%, rgb(138 106 32 / 10%), transparent 60%),
-        var(--paper);
-      background-attachment: fixed;
+        linear-gradient(180deg, rgba(30,24,18,0.15) 0%, rgba(25,20,15,0.25) 40%, rgba(20,16,12,0.4) 75%, rgba(15,12,10,0.6) 100%),
+        url('/bg-ancient-painting.jpg') center/cover fixed;
       min-height: 100vh;
-    }
-
-    /* 牛皮纸质感底纹 */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      opacity: 0.55;
-      background-image:
-        repeating-linear-gradient(0deg, rgb(138 106 32 / 4%) 0 1px, transparent 1px 5px),
-        radial-gradient(circle at 12% 18%, rgb(184 145 58 / 7%) 0 1.5px, transparent 1.5px 14px),
-        radial-gradient(circle at 68% 42%, rgb(138 106 32 / 6%) 0 1px, transparent 1px 11px),
-        radial-gradient(circle at 88% 78%, rgb(184 145 58 / 7%) 0 1.5px, transparent 1.5px 16px);
     }
 
     .page {
@@ -101,7 +84,7 @@
       display: block;
       font-size: 19px;
       letter-spacing: 3px;
-      color: var(--ink);
+      color: #fff;
     }
 
     .site-brand-text span {
@@ -218,20 +201,21 @@
       border-bottom-color: var(--gold);
     }
 
-    /* —— 长条横幅：位于介绍文字下方，左右扩展至页面边界；上下渐隐、柔和融入文字的金色光带（灵动云纹波浪 + 光斑漂移） —— */
+    /* —— 动态背景：绝对定位铺在文字区域背后——上边界在主标题下方、下边界在介绍文字下方，左右扩展至页面边界；上下渐隐、灵动云纹波浪 + 光斑漂移 —— */
     .about-banner {
-      display: block;
-      position: relative;
-      overflow: hidden;
+      position: absolute;
+      left: calc(50% - 50vw);
       width: 100vw;
-      margin-left: calc(50% - 50vw);
-      height: 96px;
+      top: 52%;
+      bottom: 0;
+      z-index: 0;
+      overflow: hidden;
       background:
         radial-gradient(circle at 16% 32%, rgb(255 235 173 / 28%), transparent 55%),
         radial-gradient(circle at 84% 66%, rgb(255 235 173 / 20%), transparent 55%),
         linear-gradient(90deg, #7d5f24, #b8913a 26%, #d8b26a 50%, #b8913a 74%, #7d5f24);
-      -webkit-mask-image: linear-gradient(180deg, transparent 0, black 32%, black 68%, transparent 100%);
-      mask-image: linear-gradient(180deg, transparent 0, black 32%, black 68%, transparent 100%);
+      -webkit-mask-image: linear-gradient(180deg, transparent 0, black 34%, black 66%, transparent 100%);
+      mask-image: linear-gradient(180deg, transparent 0, black 34%, black 66%, transparent 100%);
       box-shadow: 0 14px 34px rgb(90 70 30 / 12%);
     }
 
@@ -261,7 +245,7 @@
       }
     }
 
-    /* 灵动渐变：曲线带金→米白渐变，光斑缓慢漂移（透明度降低，贴合文字区域） */
+    /* 灵动渐变：波浪曲线横向滚动，光斑缓慢漂移（透明度降低，贴合文字区域） */
     .bn-flow {
       position: absolute;
       left: 0;
@@ -317,10 +301,19 @@
       }
     }
 
-    /* 主体 */
+    /* 主体：文字层浮于动态背景之上 */
     .about-hero {
+      position: relative;
       text-align: center;
       padding: 54px 0 26px;
+    }
+
+    .about-hero .kicker,
+    .about-hero h1,
+    .about-hero .divider,
+    .about-hero p.lead {
+      position: relative;
+      z-index: 1;
     }
 
     .about-hero .kicker {
@@ -334,7 +327,7 @@
       margin: 0;
       font-size: 34px;
       letter-spacing: 6px;
-      color: var(--ink);
+      color: #fff;
     }
 
     .about-hero .divider {
@@ -363,23 +356,22 @@
       margin: 0 0 16px;
       font-size: 20px;
       letter-spacing: 3px;
-      color: var(--ink);
+      color: #fff;
     }
 
     .section h2::before {
       content: "";
       width: 22px;
       height: 4px;
-      background: linear-gradient(90deg, var(--gold), rgb(184 145 58 / 20%));
+      background: linear-gradient(90deg, var(--gold), rgba(201,169,97,0.2));
       border-radius: 2px;
     }
 
     .card {
       padding: 20px 22px;
       border: 1px solid var(--line);
-      border-radius: 10px;
-      background: rgb(255 252 244 / 62%);
-      box-shadow: 0 10px 26px rgb(138 106 32 / 10%);
+      border-radius: 12px;
+      background: rgba(0,0,0,0.25);
     }
 
     .card p {
@@ -398,9 +390,8 @@
     .feature {
       padding: 18px 20px;
       border: 1px solid var(--line);
-      border-radius: 10px;
-      background: rgb(255 252 244 / 62%);
-      box-shadow: 0 10px 26px rgb(138 106 32 / 10%);
+      border-radius: 12px;
+      background: rgba(0,0,0,0.25);
     }
 
     .feature b {
@@ -408,7 +399,7 @@
       margin-bottom: 8px;
       font-size: 15px;
       letter-spacing: 2px;
-      color: var(--ink);
+      color: #fff;
     }
 
     .feature p {
@@ -433,8 +424,8 @@
       gap: 12px;
       padding: 14px 16px;
       border: 1px solid var(--line);
-      border-radius: 10px;
-      background: rgb(255 252 244 / 62%);
+      border-radius: 12px;
+      background: rgba(0,0,0,0.25);
       font-size: 13.5px;
       line-height: 1.75;
       color: var(--ink-soft);
@@ -462,6 +453,49 @@
     .tech-list li span {
       flex: 1;
       align-self: center;
+    }
+
+    /* 历史人物横向自动滚动 */
+    .portrait-strip-wrap {
+      overflow: hidden;
+      padding: 10px 0 18px;
+      mask-image: linear-gradient(90deg, transparent, black 6%, black 94%, transparent);
+      -webkit-mask-image: linear-gradient(90deg, transparent, black 6%, black 94%, transparent);
+    }
+    .portrait-strip {
+      display: flex;
+      gap: 18px;
+      width: max-content;
+      animation: portrait-scroll 30s linear infinite;
+    }
+    .portrait-strip-wrap:hover .portrait-strip {
+      animation-play-state: paused;
+    }
+    @keyframes portrait-scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    .portrait-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      width: 110px;
+      flex: none;
+    }
+    .portrait-card img {
+      width: 100px;
+      height: 130px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.3);
+    }
+    .portrait-card span {
+      font-size: 13px;
+      letter-spacing: 2px;
+      color: var(--ink-soft);
     }
 
     /* —— 页脚 —— */
@@ -521,7 +555,7 @@
     </div>
     <nav class="site-nav" aria-label="主导航">
       <a href="/" data-i18n="nav_home">首页</a>
-      <a href="/gallery.html" data-i18n="nav_gallery">馆藏图鉴</a>
+      <a href="/gallerylist.html" data-i18n="nav_gallery">馆藏图鉴</a>
       <a href="/games.html" data-i18n="nav_games">趣味游戏</a>
       <a class="about-link active" href="/about.html" data-i18n="nav_about">关于我们</a>
       <a class="enter-link" href="/hall.html" data-i18n="nav_enter">进入展厅 →</a>
@@ -541,33 +575,9 @@
         让每一件沉默的文物开口说话——让历史可看、可听、可对话，
         也让更多人跨越时空与障碍，走近文物背后的文明。
       </p>
-    </section>
 
-    <!-- 长条横幅：位于介绍文字下方，左右扩展至页面边界；动态简约云纹波浪 + 灵动渐变 -->
-    <div class="about-banner" aria-hidden="true">
-      <span class="bn-sheen"></span>
-      <svg class="bn-flow" viewBox="0 0 600 72" preserveAspectRatio="none" aria-hidden="true">
-        <defs>
-          <linearGradient id="bnGold" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="#fdf8ea" stop-opacity="0.22" />
-            <stop offset="0.5" stop-color="#fff3cf" stop-opacity="0.8" />
-            <stop offset="1" stop-color="#fdf8ea" stop-opacity="0.22" />
-          </linearGradient>
-          <radialGradient id="bnGlow" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0" stop-color="#ffe9ad" stop-opacity="0.65" />
-            <stop offset="1" stop-color="#ffe9ad" stop-opacity="0" />
-          </radialGradient>
-        </defs>
-        <ellipse class="bn-glow g1" cx="180" cy="20" rx="90" ry="26" fill="url(#bnGlow)" />
-        <ellipse class="bn-glow g2" cx="430" cy="52" rx="110" ry="30" fill="url(#bnGlow)" />
-        <path d="M0 38 C 50 14, 100 62, 150 38 S 250 14, 300 38 S 400 62, 450 38 S 550 14, 600 38"
-              stroke="url(#bnGold)" stroke-width="2" />
-        <path d="M0 50 C 50 28, 100 72, 150 50 S 250 28, 300 50 S 400 72, 450 50 S 550 28, 600 50"
-              stroke="url(#bnGold)" stroke-width="1.5" opacity="0.6" />
-        <path d="M0 62 C 50 44, 100 80, 150 62 S 250 44, 300 62 S 400 80, 450 62 S 550 44, 600 62"
-              stroke="url(#bnGold)" stroke-width="1.2" opacity="0.4" />
-      </svg>
-    </div>
+      <!-- 动态背景已去除 -->
+    </section>
 
     <section class="section">
       <h2 data-i18n="ab_s1_title">项目简介</h2>
@@ -576,8 +586,8 @@
           华夏珍宝数字博物馆是山东大学人工智能学院《智识千面·有声无界》课程项目，
           面向无障碍博物馆场景构建的数字化服务平台。项目以 3D 数字展厅为核心，
           复现四羊方尊、马踏飞燕、击鼓说唱陶俑、景泰蓝瓶炉等数十件馆藏珍品，
-          并配套文物图鉴、智能导览讲解、历史人物跨时空对话与"假如文物会说话"等
-          AI 交互模块，探索"科技 + 文博"的沉浸式观展体验。
+          并配套文物图鉴、智能导览讲解、历史人物跨时空对话、"假如文物会说话"、
+          皮影小剧场等 AI 交互模块，探索"科技 + 文博"的沉浸式观展体验。
         </p>
       </div>
     </section>
@@ -599,15 +609,58 @@
         </div>
         <div class="feature">
           <b data-i18n="f4_title">古人跨时空对话</b>
-          <p data-i18n="f4_body">与十余位历史人物实时问答，听他们以第一人称讲述身世、时代与心声。</p>
+          <p data-i18n="f4_body">与十余位历史人物实时问答，听他们以第一人称讲述身世、时代与心声，人物音色贴合身份形象。</p>
         </div>
         <div class="feature">
           <b data-i18n="f5_title">假如文物会说话</b>
           <p data-i18n="f5_body">每一件文物都拥有自己的"人格"与记忆，可与其展开第一人称对话，听文物自述身世，向文物提问。</p>
         </div>
         <div class="feature">
-          <b data-i18n="f6_title">无障碍体验</b>
-          <p data-i18n="f6_body">项目面向视障、听障等特殊人群设计：语音朗读文物介绍、键盘漫游操作、清晰的操作指南与简洁的界面，让参观无边界。</p>
+          <b data-i18n="f6_title">皮影小剧场</b>
+          <p data-i18n="f6_body">两位历史人物围绕文物展开对话讲解，皮影戏风格人物剪影，配合文物背景剪影与语音朗读，像看一场儿童皮影戏。</p>
+        </div>
+        <div class="feature">
+          <b data-i18n="f7_title">无障碍体验</b>
+          <p data-i18n="f7_body">项目面向视障、听障等特殊人群设计：语音朗读文物介绍、键盘漫游操作、清晰的操作指南与简洁的界面，让参观无边界。</p>
+        </div>
+        <div class="feature">
+          <b data-i18n="f8_title">中英文双语</b>
+          <p data-i18n="f8_body">全站支持中英文切换，界面文字、导航与介绍均可一键切换，面向更广泛的参观者。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>历史人物群像</h2>
+      <div class="portrait-strip-wrap">
+        <div class="portrait-strip">
+          <div class="portrait-card"><img src="/figures/portraits/秦始皇.png" alt="秦始皇"><span>秦始皇</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/乾隆.png" alt="乾隆"><span>乾隆</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/李白.png" alt="李白"><span>李白</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/苏轼.png" alt="苏轼"><span>苏轼</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/辛弃疾.png" alt="辛弃疾"><span>辛弃疾</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/屈原.png" alt="屈原"><span>屈原</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/玄奘.png" alt="玄奘"><span>玄奘</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/武则天.png" alt="武则天"><span>武则天</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/李清照.png" alt="李清照"><span>李清照</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/霍去病.png" alt="霍去病"><span>霍去病</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/秦琼.png" alt="秦琼"><span>秦琼</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/张骞.png" alt="张骞"><span>张骞</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/妇好.png" alt="妇好"><span>妇好</span></div>
+          <!-- 复制一份用于无缝循环 -->
+          <div class="portrait-card"><img src="/figures/portraits/秦始皇.png" alt="秦始皇"><span>秦始皇</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/乾隆.png" alt="乾隆"><span>乾隆</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/李白.png" alt="李白"><span>李白</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/苏轼.png" alt="苏轼"><span>苏轼</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/辛弃疾.png" alt="辛弃疾"><span>辛弃疾</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/屈原.png" alt="屈原"><span>屈原</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/玄奘.png" alt="玄奘"><span>玄奘</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/武则天.png" alt="武则天"><span>武则天</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/李清照.png" alt="李清照"><span>李清照</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/霍去病.png" alt="霍去病"><span>霍去病</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/秦琼.png" alt="秦琼"><span>秦琼</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/张骞.png" alt="张骞"><span>张骞</span></div>
+          <div class="portrait-card"><img src="/figures/portraits/妇好.png" alt="妇好"><span>妇好</span></div>
         </div>
       </div>
     </section>
@@ -617,10 +670,12 @@
       <ul class="tech-list">
         <li><b data-i18n="t1_label">前端</b> <span data-i18n="t1_body">Vite + TypeScript，单页应用架构，首页 / 展厅 / 图鉴 / 关于我们多页面路由</span></li>
         <li><b data-i18n="t2_label">3D 渲染</b> <span data-i18n="t2_body">Three.js + GLB 模型资产，自适应分辨率与阴影优化，保障大场景流畅度</span></li>
-        <li><b data-i18n="t3_label">后端服务</b> <span data-i18n="t3_body">Python FastAPI（agent_bi / museum-agent），承载知识库检索与问答</span></li>
-        <li><b data-i18n="t4_label">AI 对话</b> <span data-i18n="t4_body">大模型驱动的讲解 Agent 与文物/历史人物角色，支持角色化人设与多轮对话</span></li>
-        <li><b data-i18n="t5_label">知识库</b> <span data-i18n="t5_body">结构化 JSON 知识库（文物条目、历史人物条目、主题展区条目），支持检索增强回答</span></li>
-        <li><b data-i18n="t6_label">无障碍</b> <span data-i18n="t6_body">键盘操作、语音朗读、推荐问题引导、操作指南可视化等</span></li>
+        <li><b data-i18n="t3_label">后端服务</b> <span data-i18n="t3_body">Python FastAPI（museum-agent），承载知识库检索与问答</span></li>
+        <li><b data-i18n="t4_label">AI 大模型</b> <span data-i18n="t4_body">智谱 GLM-4-Flash 大模型驱动，角色化人设与多轮对话，支持儿童剧剧本生成</span></li>
+        <li><b data-i18n="t5_label">语音合成</b> <span data-i18n="t5_body">浏览器内置 TTS，按人物身份匹配音色（帝王低沉、文人飘逸、僧人沉稳等）</span></li>
+        <li><b data-i18n="t6_label">知识库</b> <span data-i18n="t6_body">结构化 JSON 知识库（文物条目、历史人物条目、主题展区条目），支持检索增强回答</span></li>
+        <li><b data-i18n="t7_label">无障碍</b> <span data-i18n="t7_body">键盘操作、语音朗读、推荐问题引导、操作指南可视化等</span></li>
+        <li><b data-i18n="t8_label">双语</b> <span data-i18n="t8_body">中英文双语切换，全站文案支持中英双语展示</span></li>
       </ul>
     </section>
 

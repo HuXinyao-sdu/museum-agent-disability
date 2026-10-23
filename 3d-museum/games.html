@@ -7,13 +7,13 @@
   <style>
 
       :root {
-        --ink: #3a2f22;
-        --ink-soft: #6b5d48;
-        --gold: #a8842c;
-        --gold-deep: #8a6a20;
-        --paper: #f0e2c0;
-        --paper-deep: #ddc795;
-        --line: #c9b183;
+        --ink: #f0e8d8;
+        --ink-soft: #9a8f7a;
+        --gold: #c9a961;
+        --gold-deep: #a8842c;
+        --paper: rgba(0,0,0,0.25);
+        --paper-deep: rgba(0,0,0,0.35);
+        --line: rgba(201,169,97,0.15);
       }
 
       * {
@@ -32,30 +32,11 @@
           "Microsoft YaHei", "PingFang SC", serif;
         color: var(--ink);
         min-height: 100vh;
-        background-color: #e9dab5;
-        background-image:
-          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='88' viewBox='0 0 88 88'%3E%3Cpath d='M22 22h44v10H32v12h34v10H22z' fill='none' stroke='%238a6a20' stroke-opacity='0.13'/%3E%3Cpath d='M44 4v80M4 44h80' stroke='%238a6a20' stroke-opacity='0.06'/%3E%3C/svg%3E"),
-          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cpath d='M20 84c10-18 30-20 42-8 4-14 22-18 32-6 14-8 30 0 34 14' fill='none' stroke='%23a8842c' stroke-opacity='0.10' stroke-width='2'/%3E%3Cpath d='M10 128c8-14 24-16 34-6 4-12 18-14 26-4' fill='none' stroke='%23a8842c' stroke-opacity='0.08' stroke-width='2'/%3E%3C/svg%3E"),
-          radial-gradient(rgba(90, 70, 30, 0.055) 1px, transparent 1.5px),
-          linear-gradient(180deg, #f2e5c5 0%, #ead9b2 42%, #dec898 100%);
-        background-size:
-          88px 88px,
-          160px 160px,
-          9px 9px,
-          100% 100%;
-        background-attachment: fixed, fixed, fixed, scroll;
+        background:
+          linear-gradient(180deg, rgba(30,24,18,0.15) 0%, rgba(25,20,15,0.25) 40%, rgba(20,16,12,0.4) 75%, rgba(15,12,10,0.6) 100%),
+          url('/bg-ancient-painting.jpg') center/cover fixed;
         position: relative;
         overflow-x: hidden;
-      }
-
-      body::before {
-        content: "";
-        position: fixed;
-        inset: 0;
-        pointer-events: none;
-        background:
-          radial-gradient(120% 90% at 50% 0%, transparent 62%, rgba(90, 70, 30, 0.10) 100%),
-          radial-gradient(120% 90% at 50% 100%, transparent 66%, rgba(90, 70, 30, 0.12) 100%);
       }
 
       [hidden] {
@@ -64,7 +45,8 @@
 
       /* —— 顶部官网导航条 —— */
       .site-header {
-        position: relative;
+        position: sticky;
+        top: 0;
         z-index: 8;
         width: 100%;
         display: flex;
@@ -72,9 +54,9 @@
         justify-content: space-between;
         gap: 16px;
         padding: 18px clamp(20px, 5vw, 64px);
-        border-bottom: 1px solid rgb(168 132 44 / 38%);
-        background: rgb(240 226 192 / 62%);
-        backdrop-filter: blur(3px);
+        border-bottom: 1px solid var(--line);
+        background: rgba(18,14,10,0.65);
+        backdrop-filter: blur(12px);
       }
 
       .site-brand {
@@ -110,7 +92,7 @@
       .site-brand-text strong {
         font-size: 20px;
         letter-spacing: 4px;
-        color: var(--ink);
+        color: #fff;
         font-weight: 600;
       }
 
@@ -247,8 +229,8 @@
         line-height: 1.2;
         letter-spacing: 7px;
         font-weight: 600;
-        color: var(--ink);
-        text-shadow: 0 1px 0 rgb(255 255 255 / 40%);
+        color: #fff;
+        text-shadow: 0 2px 12px rgba(0,0,0,0.5);
       }
 
       .hero-divider {
@@ -296,12 +278,9 @@
 
       .games-panel {
         position: relative;
-        background: rgb(255 250 238 / 50%);
+        background: rgba(0,0,0,0.25);
         border: 1px solid var(--line);
-        border-radius: 6px;
-        box-shadow:
-          0 1px 0 rgb(255 255 255 / 60%) inset,
-          0 22px 48px rgb(90 70 30 / 14%);
+        border-radius: 12px;
         padding: 24px clamp(16px, 3vw, 30px);
       }
 
@@ -322,7 +301,7 @@
       .games-panel-head h3 {
         font-size: 20px;
         letter-spacing: 5px;
-        color: var(--ink);
+        color: #fff;
         font-weight: 600;
       }
 
@@ -390,10 +369,10 @@
         align-items: center;
         gap: 8px;
         padding: 26px 18px 20px;
-        border: 1px solid rgb(168 132 44 / 42%);
-        border-radius: 6px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
         color: var(--ink);
-        background: linear-gradient(180deg, rgb(250 244 226 / 78%), rgb(240 226 192 / 55%));
+        background: rgba(0,0,0,0.3);
         cursor: pointer;
         font-family: inherit;
         text-align: center;
@@ -435,7 +414,7 @@
         font-size: 19px;
         letter-spacing: 2px;
         font-weight: 600;
-        color: var(--ink);
+        color: #fff;
       }
 
       .game-card-tagline {
@@ -467,7 +446,7 @@
       .games-ach-head h3 {
         font-size: 20px;
         letter-spacing: 5px;
-        color: var(--ink);
+        color: #fff;
         font-weight: 600;
       }
 
@@ -502,7 +481,7 @@
         border: 1px solid var(--line);
         border-radius: 50%;
         color: #b9a98a;
-        background: rgb(236 225 198 / 55%);
+        background: rgba(0,0,0,0.3);
         font-size: 26px;
         font-family: "STZhongsong", "SimSun", serif;
         filter: grayscale(1);
@@ -561,9 +540,8 @@
         flex-wrap: wrap;
         padding: 14px 18px;
         border: 1px solid var(--line);
-        border-radius: 6px;
-        background: rgb(255 250 238 / 62%);
-        box-shadow: 0 1px 0 rgb(255 255 255 / 60%) inset, 0 14px 30px rgb(90 70 30 / 13%);
+        border-radius: 12px;
+        background: rgba(0,0,0,0.25);
       }
 
       .shell-stat {
@@ -582,7 +560,7 @@
       .shell-stat-value {
         font-size: 20px;
         font-weight: 600;
-        color: var(--ink);
+        color: #fff;
         font-variant-numeric: tabular-nums;
       }
 
@@ -600,9 +578,9 @@
 
       .shell-progress-bar {
         height: 10px;
-        border: 1px solid rgb(168 132 44 / 50%);
+        border: 1px solid var(--line);
         border-radius: 999px;
-        background: rgb(236 225 198 / 60%);
+        background: rgba(0,0,0,0.3);
         overflow: hidden;
       }
 
@@ -656,9 +634,8 @@
         padding: 38px clamp(20px, 5vw, 48px);
         text-align: center;
         border: 1px solid var(--line);
-        border-radius: 8px;
-        background: rgb(255 250 238 / 66%);
-        box-shadow: 0 1px 0 rgb(255 255 255 / 60%) inset, 0 24px 56px rgb(90 70 30 / 16%);
+        border-radius: 12px;
+        background: rgba(0,0,0,0.3);
       }
 
       .shell-start-glyph {
@@ -686,7 +663,7 @@
       .shell-start-title {
         font-size: 30px;
         letter-spacing: 4px;
-        color: var(--ink);
+        color: #fff;
         font-weight: 600;
         margin-bottom: 10px;
       }
@@ -753,9 +730,8 @@
         padding: 38px clamp(20px, 5vw, 48px);
         text-align: center;
         border: 1px solid var(--line);
-        border-radius: 8px;
-        background: rgb(255 250 238 / 66%);
-        box-shadow: 0 1px 0 rgb(255 255 255 / 60%) inset, 0 24px 56px rgb(90 70 30 / 16%);
+        border-radius: 12px;
+        background: rgba(0,0,0,0.3);
       }
 
       .shell-result-mark {
@@ -776,7 +752,7 @@
       .shell-result-title {
         font-size: 28px;
         letter-spacing: 5px;
-        color: var(--ink);
+        color: #fff;
         font-weight: 600;
         margin-bottom: 18px;
       }
@@ -880,9 +856,8 @@
         margin: 0 auto;
         padding: 26px clamp(16px, 4vw, 34px) 34px;
         border: 1px solid var(--line);
-        border-radius: 8px;
-        background: rgb(255 250 238 / 62%);
-        box-shadow: 0 1px 0 rgb(255 255 255 / 60%) inset, 0 22px 48px rgb(90 70 30 / 14%);
+        border-radius: 12px;
+        background: rgba(0,0,0,0.3);
       }
 
       .g-board-hint {
@@ -908,9 +883,9 @@
         align-items: center;
         gap: 6px;
         padding: 16px 8px;
-        border: 2px dashed rgb(168 132 44 / 55%);
+        border: 2px dashed var(--line);
         border-radius: 8px;
-        background: rgb(236 225 198 / 40%);
+        background: rgba(0,0,0,0.2);
       }
 
       .g-casting-slot-no {
@@ -942,10 +917,10 @@
         align-items: center;
         gap: 6px;
         padding: 16px 10px;
-        border: 1px solid rgb(168 132 44 / 45%);
+        border: 1px solid var(--line);
         border-radius: 8px;
         color: var(--ink);
-        background: linear-gradient(180deg, rgb(250 244 226 / 85%), rgb(240 226 192 / 60%));
+        background: rgba(0,0,0,0.3);
         cursor: pointer;
         font-family: inherit;
         text-align: center;
@@ -1017,10 +992,10 @@
         align-items: center;
         gap: 6px;
         padding: 15px 12px;
-        border: 1px solid rgb(168 132 44 / 45%);
+        border: 1px solid var(--line);
         border-radius: 8px;
         color: var(--ink);
-        background: linear-gradient(180deg, rgb(250 244 226 / 85%), rgb(240 226 192 / 60%));
+        background: rgba(0,0,0,0.3);
         cursor: pointer;
         font-family: inherit;
         text-align: center;
@@ -1089,9 +1064,9 @@
         align-items: center;
         gap: 12px;
         padding: 12px 14px;
-        border: 2px dashed rgb(168 132 44 / 55%);
+        border: 2px dashed var(--line);
         border-radius: 6px;
-        background: rgb(236 225 198 / 40%);
+        background: rgba(0,0,0,0.2);
         cursor: pointer;
         transition: border-color 140ms ease, background 140ms ease;
       }
@@ -1150,10 +1125,10 @@
         flex-direction: column;
         gap: 5px;
         padding: 14px 12px;
-        border: 1px solid rgb(168 132 44 / 45%);
+        border: 1px solid var(--line);
         border-radius: 8px;
         color: var(--ink);
-        background: linear-gradient(180deg, rgb(250 244 226 / 85%), rgb(240 226 192 / 60%));
+        background: rgba(0,0,0,0.3);
         cursor: pointer;
         font-family: inherit;
         text-align: center;
@@ -1251,15 +1226,14 @@
         padding: 38px clamp(20px, 5vw, 48px);
         text-align: center;
         border: 1px solid var(--line);
-        border-radius: 8px;
-        background: rgb(255 250 238 / 66%);
-        box-shadow: 0 1px 0 rgb(255 255 255 / 60%) inset, 0 24px 56px rgb(90 70 30 / 16%);
+        border-radius: 12px;
+        background: rgba(0,0,0,0.3);
       }
 
       .g-narrative-title {
         font-size: 26px;
         letter-spacing: 5px;
-        color: var(--ink);
+        color: #fff;
         font-weight: 600;
         margin-bottom: 20px;
       }
@@ -1310,9 +1284,9 @@
         align-items: center;
         gap: 6px;
         padding: 12px 14px;
-        border: 2px dashed rgb(168 132 44 / 55%);
+        border: 2px dashed var(--line);
         border-radius: 8px;
-        background: rgb(236 225 198 / 40%);
+        background: rgba(0,0,0,0.2);
         cursor: pointer;
         min-width: 96px;
         transition: border-color 140ms ease, background 140ms ease;
@@ -1361,10 +1335,10 @@
         flex-direction: column;
         gap: 5px;
         padding: 15px 12px;
-        border: 1px solid rgb(168 132 44 / 45%);
+        border: 1px solid var(--line);
         border-radius: 8px;
         color: var(--ink);
-        background: linear-gradient(180deg, rgb(250 244 226 / 85%), rgb(240 226 192 / 60%));
+        background: rgba(0,0,0,0.3);
         cursor: pointer;
         font-family: inherit;
         text-align: center;
@@ -1419,10 +1393,8 @@
         height: 58vh;
         min-height: 420px;
         border: 1px solid var(--line);
-        border-radius: 8px;
-        background:
-          radial-gradient(120% 90% at 50% 40%, rgb(250 244 226 / 60%), rgb(232 216 176 / 75%));
-        box-shadow: 0 1px 0 rgb(255 255 255 / 60%) inset, 0 22px 48px rgb(90 70 30 / 16%);
+        border-radius: 12px;
+        background: rgba(0,0,0,0.3);
         overflow: hidden;
       }
 
@@ -1441,7 +1413,7 @@
         color: var(--ink-soft);
         font-size: 14px;
         letter-spacing: 3px;
-        background: rgb(244 234 208 / 70%);
+        background: rgba(0,0,0,0.4);
         pointer-events: none;
       }
 
@@ -1451,10 +1423,10 @@
         z-index: 1;
         text-align: center;
         padding: 26px 20px 60px;
-        border-top: 1px solid rgb(168 132 44 / 30%);
+        border-top: 1px solid var(--line);
         font-size: 12px;
         letter-spacing: 3px;
-        color: #a99a78;
+        color: var(--ink-soft);
       }
 
       /* —— AI 陪玩悬浮 NPC —— */
@@ -1507,9 +1479,9 @@
         flex-direction: column;
         border: 1px solid var(--line);
         border-radius: 10px;
-        background: rgb(255 252 244 / 97%);
+        background: rgba(20,16,12,0.95);
         color: var(--ink);
-        box-shadow: 0 18px 50px rgb(90 70 30 / 24%);
+        box-shadow: 0 18px 50px rgba(0,0,0,0.4);
         overflow: hidden;
       }
 
@@ -1519,7 +1491,7 @@
         gap: 10px;
         padding: 12px 14px;
         border-bottom: 1px solid var(--line);
-        background: rgb(236 225 198 / 60%);
+        background: rgba(0,0,0,0.3);
       }
 
       .home-agent-mark {
@@ -1614,13 +1586,13 @@
         font-size: 12.5px;
         line-height: 1.55;
         color: var(--ink);
-        background: rgb(236 225 198 / 70%);
+        background: rgba(255,255,255,0.08);
         white-space: pre-wrap;
         word-break: break-word;
       }
 
       .home-msg.user .home-bubble {
-        background: rgb(168 132 44 / 18%);
+        background: rgba(201,169,97,0.2);
       }
 
       .home-agent-form {
@@ -1637,7 +1609,7 @@
         border: 1px solid var(--line);
         border-radius: 6px;
         color: var(--ink);
-        background: #fff;
+        background: rgba(255,255,255,0.1);
         font-size: 13px;
         outline: none;
         font-family: inherit;
@@ -1757,7 +1729,7 @@
     </div>
     <nav class="site-nav" aria-label="主导航">
       <a href="/" data-i18n="nav_home">首页</a>
-      <a href="/gallery.html" data-i18n="nav_gallery">馆藏图鉴</a>
+      <a href="/gallerylist.html" data-i18n="nav_gallery">馆藏图鉴</a>
       <a class="active" href="/games.html" data-i18n="nav_games">趣味游戏</a>
       <a class="about-link" href="/about.html" data-i18n="nav_about">关于我们</a>
       <a class="enter-link" href="/hall.html" data-i18n="nav_enter">进入展厅 →</a>

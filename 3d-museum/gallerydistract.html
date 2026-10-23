@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>文物详情 · 华夏珍宝数字博物馆</title>
+  <style>
+    :root {
+      --ink: #f0e8d8; --ink-soft: #9a8f7a; --gold: #c9a961; --gold-deep: #a8842c;
+      --line: rgba(201,169,97,0.15);
+      --paper: #efe3c4;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "STZhongsong", "KaiTi", "SimSun", serif; color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(30,24,18,0.15) 0%, rgba(25,20,15,0.25) 40%, rgba(20,16,12,0.4) 75%, rgba(15,12,10,0.6) 100%),
+        #2a2218;
+      min-height: 100vh;
+    }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 18px 64px; background: rgba(18,14,10,0.65); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .seal { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--gold); color: var(--gold); display: grid; place-items: center; font-weight: bold; }
+    .brand strong { font-size: 17px; letter-spacing: 4px; }
+    .brand span { font-size: 9px; letter-spacing: 3px; color: var(--ink-soft); display: block; margin-top: 2px; }
+    .nav { display: flex; gap: 36px; align-items: center; }
+    .nav a { color: var(--ink-soft); text-decoration: none; font-size: 14px; letter-spacing: 2px; }
+    .nav a.active { color: var(--gold); }
+    .nav .btn { padding: 10px 26px; border: 1px solid var(--gold-deep); color: var(--gold); text-decoration: none; }
+
+    .back-btn { position: absolute; top: 100px; left: 44px; z-index: 5; }
+    .back-btn a { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: rgba(0,0,0,0.4); border: 1px solid var(--line); border-radius: 8px; color: var(--gold); text-decoration: none; font-size: 14px; letter-spacing: 2px; }
+    .back-btn a:hover { border-color: var(--gold); }
+
+    .breadcrumb { max-width: 1180px; margin: 30px auto 20px; padding: 0 44px; font-size: 12px; color: var(--ink-soft); }
+    .breadcrumb a { color: var(--ink-soft); text-decoration: none; }
+    .breadcrumb span { margin: 0 8px; color: var(--gold); }
+
+    .detail { max-width: 1180px; margin: 0 auto 60px; padding: 0 44px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    .detail-img {
+      height: 480px;
+      background: var(--paper);
+      border: 1px solid var(--line); border-radius: 12px;
+      position: relative; overflow: hidden;
+    }
+    .detail-img canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+    .detail-img .loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #8a6a20; font-size: 14px; z-index: 2; }
+
+    .detail-info .tag {
+      display: inline-block; padding: 4px 14px; border: 1px solid var(--gold-deep);
+      border-radius: 999px; color: var(--gold); font-size: 12px; letter-spacing: 2px; margin-bottom: 20px;
+    }
+    .detail-info h1 { font-size: 40px; letter-spacing: 4px; color: #fff; margin-bottom: 8px; }
+    .detail-info .en { font-size: 13px; color: var(--ink-soft); margin-bottom: 30px; letter-spacing: 1px; }
+    .meta-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+      padding: 20px; border: 1px solid var(--line); border-radius: 8px;
+      background: rgba(0,0,0,0.25); margin-bottom: 24px;
+    }
+    .meta-item .label { font-size: 12px; color: var(--ink-soft); margin-bottom: 4px; }
+    .meta-item .value { font-size: 14px; color: var(--ink); }
+    .desc { font-size: 14px; line-height: 2; color: var(--ink-soft); margin-bottom: 30px; }
+    .talk-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 28px; border: none; border-radius: 999px;
+      background: linear-gradient(135deg, #b8913a, #8a6a20);
+      color: #fff; font-size: 14px; letter-spacing: 2px; cursor: pointer;
+      box-shadow: 0 8px 20px rgba(138,106,32,0.3);
+    }
+
+    .related-title { max-width: 1180px; margin: 0 auto 20px; padding: 0 44px; font-size: 20px; letter-spacing: 3px; color: #fff; }
+    .related { max-width: 1180px; margin: 0 auto 60px; padding: 0 44px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .rel-card { background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; cursor: pointer; transition: all 0.3s; text-decoration: none; color: inherit; display: block; }
+    .rel-card:hover { border-color: rgba(201,169,97,0.4); transform: translateY(-3px); }
+    .rel-card .img { height: 110px; background: rgba(201,169,97,0.08); display: grid; place-items: center; color: var(--gold); font-size: 22px; border-bottom: 1px solid var(--line); }
+    .rel-card .name { padding: 12px; font-size: 14px; letter-spacing: 2px; }
+
+    /* 假如文物会说话 对话面板 */
+    .artifact-chat-mask {
+      position: fixed; inset: 0; background: rgba(10,8,5,0.75); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
+    }
+    .artifact-chat-mask[hidden] { display: none; }
+    .artifact-chat {
+      width: 640px; max-width: 92vw; max-height: 80vh; background: #1a1510;
+      border: 1px solid var(--line); border-radius: 16px; display: flex; flex-direction: column; overflow: hidden;
+    }
+    .artifact-chat-head {
+      padding: 18px 24px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 14px;
+    }
+    .artifact-chat-mark {
+      width: 40px; height: 40px; border-radius: 50%; background: rgba(201,169,97,0.15);
+      display: grid; place-items: center; color: var(--gold); font-size: 18px;
+    }
+    .artifact-chat-head h3 { font-size: 16px; color: #fff; letter-spacing: 2px; }
+    .artifact-chat-head p { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+    .artifact-chat-close { margin-left: auto; background: none; border: none; color: var(--ink-soft); font-size: 20px; cursor: pointer; padding: 4px 8px; }
+    .artifact-chat-close:hover { color: var(--gold); }
+    .artifact-chat-body { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+    .chat-row { display: flex; gap: 10px; align-items: flex-start; }
+    .chat-avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(201,169,97,0.15); display: grid; place-items: center; color: var(--gold); font-size: 14px; flex-shrink: 0; }
+    .chat-bubble { padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.7; max-width: 80%; }
+    .chat-row.bot .chat-bubble { background: rgba(201,169,97,0.1); color: var(--ink); }
+    .chat-row.user { flex-direction: row-reverse; }
+    .chat-row.user .chat-bubble { background: rgba(100,120,150,0.2); color: var(--ink); }
+    .artifact-suggests { padding: 0 24px 12px; }
+    .artifact-suggests-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .suggest-chip { padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); font-size: 12px; cursor: pointer; background: none; }
+    .suggest-chip:hover { border-color: var(--gold); color: var(--gold); }
+    .artifact-chat-form { display: flex; gap: 10px; padding: 16px 24px; border-top: 1px solid var(--line); }
+    .artifact-chat-input { flex: 1; padding: 10px 16px; background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 999px; color: var(--ink); font-size: 14px; outline: none; }
+    .artifact-chat-input:focus { border-color: var(--gold); }
+    .artifact-chat-send { padding: 10px 24px; background: linear-gradient(135deg, #b8913a, #8a6a20); border: none; border-radius: 999px; color: #fff; font-size: 14px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <span class="seal" aria-hidden="true">
+        <svg viewBox="0 0 48 48" aria-hidden="true" style="width:100%;height:100%;">
+          <circle cx="24" cy="24" r="20.5" fill="none" stroke="#c9a961" stroke-width="1.5" opacity="0.8" />
+          <path d="M12.5 27.5 L24 17.5 L35.5 27.5 Z" fill="#c9a961" opacity="0.9" />
+          <rect x="10.5" y="27.8" width="27" height="2.6" fill="#c9a961" opacity="0.9" />
+          <rect x="14" y="30.4" width="20" height="8.2" fill="#c9a961" opacity="0.9" />
+          <rect x="20" y="34.6" width="8" height="4" fill="#c9a961" opacity="0.9" />
+          <rect x="12" y="38.8" width="24" height="2.4" fill="#c9a961" opacity="0.9" />
+        </svg>
+      </span>
+      <div>
+        <strong>华夏珍宝数字博物馆</strong>
+        <span>HUAXIA DIGITAL MUSEUM</span>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="/">首页</a>
+      <a href="/gallerylist.html" class="active">馆藏图鉴</a>
+      <a href="/games.html">趣味游戏</a>
+      <a href="/about.html">关于我们</a>
+      <a href="/hall.html" class="btn">进入展厅 →</a>
+    </nav>
+  </header>
+
+  <div class="back-btn">
+    <a href="/gallerylist.html">← 返回图鉴列表</a>
+  </div>
+
+  <div class="breadcrumb">
+    <a href="/">首页</a><span>/</span><a href="/gallerylist.html">馆藏图鉴</a><span>/</span><span id="detail-name">四羊方尊</span>
+  </div>
+
+  <div class="detail">
+    <div class="detail-img">
+      <div class="loading" id="detail-loading">正在加载三维模型…</div>
+    </div>
+    <div class="detail-info">
+      <span class="tag" id="detail-tag">镇馆之宝</span>
+      <h1 id="detail-title">四羊方尊</h1>
+      <div class="en" id="detail-en">SI YANG FANG ZUN · Bronze Vessel with Four Goats</div>
+      <div class="meta-grid">
+        <div class="meta-item"><div class="label">年代</div><div class="value" id="detail-period">商代晚期</div></div>
+        <div class="meta-item"><div class="label">类别</div><div class="value" id="detail-category">青铜礼器</div></div>
+        <div class="meta-item"><div class="label">出土地</div><div class="value" id="detail-origin">湖南宁乡</div></div>
+        <div class="meta-item"><div class="label">馆藏</div><div class="value" id="detail-museum">中国国家博物馆</div></div>
+      </div>
+      <p class="desc" id="detail-desc">
+        四羊方尊是现存商代青铜方尊之中体型最大者，造型雄奇，肩部、腹部与足部被设计成四只卷角羊，尊四角各塑一羊，肩高浮雕卷角羊首，将动物形象与器型完美结合，是商代青铜铸造巅峰之作。
+      </p>
+      <button class="talk-btn" id="talk-btn">🗣 假如文物会说话 · 和文物对话 →</button>
+    </div>
+  </div>
+
+  <div class="related-title">相关推荐</div>
+  <div class="related" id="related-grid" style="grid-template-columns: repeat(7, 1fr); gap: 12px;">
+  </div>
+
+  <!-- 假如文物会说话 对话面板 -->
+  <div class="artifact-chat-mask" id="artifact-chat-mask" hidden>
+    <div class="artifact-chat" role="dialog" aria-label="假如文物会说话">
+      <div class="artifact-chat-head">
+        <span class="artifact-chat-mark">物</span>
+        <div>
+          <h3>假如文物会说话</h3>
+          <p id="artifact-chat-sub">文物第一人称 · 与游客对话</p>
+        </div>
+        <button class="artifact-chat-close" id="artifact-chat-close" type="button" title="关闭对话">✕</button>
+      </div>
+      <div class="artifact-chat-body" id="artifact-chat-body"></div>
+      <div class="artifact-suggests" id="artifact-suggests">
+        <div class="artifact-suggests-list" id="artifact-suggests-list"></div>
+      </div>
+      <form class="artifact-chat-form" id="artifact-chat-form">
+        <input class="artifact-chat-input" id="artifact-chat-input" placeholder="问问这件文物的故事…" autocomplete="off" />
+        <button class="artifact-chat-send" type="submit">发送</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+    import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+    const ARTIFACTS = {
+      siyangfangzun: {
+        name: "四羊方尊", en: "SI YANG FANG ZUN · Bronze Vessel with Four Goats",
+        period: "商代晚期", category: "青铜礼器", origin: "湖南宁乡", museum: "中国国家博物馆",
+        desc: "四羊方尊是现存商代青铜方尊之中体型最大者，造型雄奇，肩部、腹部与足部被设计成四只卷角羊，尊四角各塑一羊，肩高浮雕卷角羊首，将动物形象与器型完美结合，是商代青铜铸造巅峰之作。",
+        tag: "镇馆之宝", model: "/my_art/siyangfangzun.glb"
+      },
+      matafeiyan: {
+        name: "马踏飞燕", en: "MA TA FEI YAN · Flying Horse",
+        period: "东汉", category: "青铜艺术品", origin: "甘肃武威", museum: "甘肃省博物馆",
+        desc: "马踏飞燕又名马超龙雀，东汉青铜艺术品，奔马三足腾空，一足踏飞燕，体现了中国古代高超的青铜铸造艺术和浪漫主义精神，是中国旅游标志。",
+        tag: "国宝级", model: "/my_art/matafeiyan.glb"
+      },
+      shuochangtaoyong: {
+        name: "击鼓说唱陶俑", en: "SHUO CHANG TAO YONG · Storyteller",
+        period: "东汉", category: "陶俑", origin: "四川成都", museum: "中国国家博物馆",
+        desc: "东汉击鼓说唱陶俑，身着袒露，左臂抱鼓，右臂高举作击鼓状，张口嬉笑，神态生动活泼，是汉代陶俑中最具艺术魅力的珍品，展现了汉代说唱艺术的生动场景。",
+        tag: "国宝级", model: "/my_art/shuochangtaoyong.glb"
+      },
+      handaiqingtongbianzhong: {
+        name: "汉代青铜编钟", en: "QING TONG BIAN ZHONG · Bronze Bells",
+        period: "汉代", category: "青铜乐器", origin: "湖北随州", museum: "湖北省博物馆",
+        desc: "汉代青铜编钟是古代打击乐器，由一系列青铜钟组成，按大小排列悬挂，敲击时发出不同音高，是中国古代礼乐文明的重要象征，体现了汉代高超的音乐铸造工艺。",
+        tag: "珍品", model: "/my_art/handaiqingtongbianzhong.glb"
+      },
+      qingtongniu: {
+        name: "青铜牛", en: "QING TONG NIU · Bronze Ox",
+        period: "商代", category: "青铜雕塑", origin: "湖南宁乡", museum: "湖南省博物馆",
+        desc: "商代青铜牛，造型古朴厚重，牛身健硕，神态沉稳，是商代青铜雕塑艺术的代表作品，体现了商代对牛的崇拜和青铜铸造的高超技艺。",
+        tag: "珍品", model: "/my_art/qingtongniu.glb"
+      },
+      zhongshitaocijingtailanpinglu: {
+        name: "景泰蓝瓶炉", en: "JING TAI LAN · Cloisonne",
+        period: "明代", category: "珐琅器", origin: "北京", museum: "故宫博物院",
+        desc: "景泰蓝又称铜胎掐丝珐琅，明代景泰年间工艺达到巅峰，以青铜为胎，掐丝填珐琅釉，色彩绚丽，纹饰精美，是中国传统工艺的瑰宝。",
+        tag: "精品", model: "/my_art/zhongshitaocijingtailanpinglu.glb"
+      },
+      tongzhifenghuangjinjilazhutai: {
+        name: "铜朱雀蜡台", en: "TONG ZHU QUE · Bronze Candlestick",
+        period: "明代", category: "铜器", origin: "北京", museum: "故宫博物院",
+        desc: "铜朱雀蜡台，以朱雀为造型，朱雀展翅欲飞，造型优美，工艺精湛，是明代铜器中的精品，体现了古代工匠的高超技艺和对朱雀神鸟的崇拜。",
+        tag: "精品", model: "/my_art/tongzhifenghuangjinjilazhutai.glb"
+      },
+      // 自带资源库文物
+      "cn-bronze-gong": {
+        name: "青铜兽面纹觥", en: "BRONZE GONG · Ritual Vessel",
+        period: "商代", category: "青铜器", origin: "河南安阳", museum: "史密森尼博物馆",
+        desc: "觥是商周时期的一种青铜酒器。这件晚商酒觥通体铸满纹饰——狰狞的兽面纹、夔龙与各种动物盘绕器身，流、盖俱全。三千年前的青铜匠人以范铸法，将先民对天地神灵的敬畏凝固在了金属之上。",
+        tag: "国宝级", model: "/echo/assets/models/cn-bronze-wine-ewer-gong.bin"
+      },
+      "cn-elephant-zun": {
+        name: "青铜象尊", en: "ELEPHANT ZUN · Bronze Vessel",
+        period: "商代", category: "青铜器", origin: "湖南醴陵", museum: "史密森尼博物馆",
+        desc: "商代晚期青铜礼器，整体被铸造成一头大象的形状，长鼻上扬，憨态中透着庄重，器身覆满兽面纹与云雷纹。商代工匠常将礼器塑成动物形态——既是高超铸造技艺的展示，也寄托着先民对自然与神灵的崇拜。",
+        tag: "国宝级", model: "/echo/assets/models/cn2-bronze-elephant-ewer.bin"
+      },
+      "cn-bronze-fangyi": {
+        name: "青铜方彝", en: "BRONZE FANGYI · Wine Container",
+        period: "商代", category: "青铜器", origin: "山东长清", museum: "史密森尼博物馆",
+        desc: "方彝是商周时期的青铜礼器，长方形器身，带盖，通体布满纹饰。这件方彝纹饰精美，工艺精湛，是商代青铜礼器的代表作品，体现了商代贵族的等级制度和礼乐文明。",
+        tag: "珍品", model: "/echo/assets/models/cn-bronze-fangyi-vessel.bin"
+      },
+      "cn-boshanlu": {
+        name: "镶嵌博山炉", en: "BOSHAN LU · Incense Burner",
+        period: "汉代", category: "铜器", origin: "河北满城", museum: "史密森尼博物馆",
+        desc: "博山炉是汉代的焚香器具，炉盖铸成仙山形状，象征海上仙山博山。这件博山炉通体镶嵌纹饰，工艺精湛，点燃后烟雾从山间缭绕而出，宛如仙境，是汉代贵族的奢华用品。",
+        tag: "珍品", model: "/echo/assets/models/cn-bronze-incense-burner.bin"
+      },
+      "cn-cosmic-buddha": {
+        name: "宇宙佛", en: "COSMIC BUDDHA · Buddha Statue",
+        period: "唐代", category: "佛教造像", origin: "山西五台山", museum: "史密森尼博物馆",
+        desc: "宇宙佛造像体现了佛教宇宙观，佛身周围环绕着诸天护法、日月星辰，象征佛陀遍照一切的智慧。造像精美庄严，是唐代佛教艺术的巅峰之作。",
+        tag: "国宝级", model: "/echo/assets/models/cn-cosmic-buddha.bin"
+      },
+      "cn-stele-gathering": {
+        name: "响堂山石窟诸佛聚会", en: "XIANGTANGSHAN · Buddhist Stele",
+        period: "北齐", category: "石窟造像", origin: "河北邯郸", museum: "响堂山石窟",
+        desc: "响堂山石窟始建于北齐，是北齐皇室的石窟寺。这幅浮雕描绘诸佛聚会说法的场景，人物众多，神态各异，体现了北齐佛教艺术的独特风格。",
+        tag: "国宝级", model: "/echo/assets/models/cn-buddhist-stele-gathering.bin"
+      },
+      "cn-stele-paradise": {
+        name: "响堂山石窟西方净土", en: "PURE LAND · Buddhist Relief",
+        period: "北齐", category: "石窟造像", origin: "河北邯郸", museum: "响堂山石窟",
+        desc: "西方净土变浮雕描绘阿弥陀佛西方极乐世界的景象，宝楼宫殿、莲花池畔，诸佛菩萨聚会说法。这幅浮雕构图繁复，雕刻精美，是北齐佛教艺术的杰作。",
+        tag: "国宝级", model: "/echo/assets/models/cn-buddhist-stele-paradise.bin"
+      },
+      "cn-winged-beast": {
+        name: "跪姿带翼神兽", en: "WINGED BEAST · Mythical Creature",
+        period: "唐代", category: "石刻", origin: "陕西西安", museum: "史密森尼博物馆",
+        desc: "带翼神兽融合了中国传统神兽与西域外来文化元素，跪姿造型，羽翼丰满，神态威严。这种造型体现了唐代丝绸之路文化交流的繁荣景象。",
+        tag: "珍品", model: "/echo/assets/models/cn-kneeling-winged-monster.bin"
+      },
+      "cn-porcelain-vase": {
+        name: "清康熙青花瓷瓶", en: "KANGXI BLUE & WHITE VASE",
+        period: "清代", category: "瓷器", origin: "江西景德镇", museum: "故宫博物院",
+        desc: "康熙青花瓷是清代瓷器的巅峰，发色翠蓝，层次分明。这件瓷瓶纹饰精美，绘画精细，体现了康熙时期景德镇官窑的高超制瓷工艺。",
+        tag: "国宝级", model: "/echo/assets/models/cn-porcelain-baluster-vase.bin"
+      },
+      "cn-porcelain-beaker": {
+        name: "清康熙青花花觚", en: "KANGXI GU · Beaker Vase",
+        period: "清代", category: "瓷器", origin: "江西景德镇", museum: "故宫博物院",
+        desc: "花觚是仿古青铜酒器造型的瓷器，这件康熙青花花觚造型典雅，纹饰丰富，是清代官窑瓷器的精品之作。",
+        tag: "珍品", model: "/echo/assets/models/cn-porcelain-beaker-vase.bin"
+      },
+      "cn-owl-zun": {
+        name: "青铜鸮尊", en: "OWL ZUN · Bronze Vessel",
+        period: "商代", category: "青铜器", origin: "河南安阳", museum: "史密森尼博物馆",
+        desc: "鸮尊是商代以猫头鹰为造型的青铜礼器，鸮鸟站立，双目圆睁，神态威猛。商人以鸮为神鸟，象征勇武和胜利。",
+        tag: "国宝级", model: "/echo/assets/models/cn-owl-zun.bin"
+      },
+      "cn-winged-dragon": {
+        name: "青铜翼龙", en: "WINGED DRAGON · Bronze Figure",
+        period: "商代", category: "青铜器", origin: "河南安阳", museum: "史密森尼博物馆",
+        desc: "带翼的龙形青铜器，造型奇特，融合了中原与西域的艺术元素，体现了商代青铜铸造的想象力和高超技艺。",
+        tag: "珍品", model: "/echo/assets/models/cn-winged-dragon.bin"
+      },
+      "cn-water-moon-guanyin": {
+        name: "水月观音像", en: "WATER MOON GUANYIN",
+        period: "宋代", category: "佛教造像", origin: "四川大足", museum: "史密森尼博物馆",
+        desc: "水月观音是观音菩萨的一种造型，游戏坐姿态，观水中月影，象征般若空慧。宋代观音造像优美端庄，体现了宋代佛教世俗化的审美风格。",
+        tag: "国宝级", model: "/echo/assets/models/cn-water-moon-guanyin.bin"
+      },
+      "cn-amoghasiddhi-buddha": {
+        name: "鎏金不空成就佛", en: "AMOGHASIDDHI BUDDHA",
+        period: "明代", category: "佛教造像", origin: "西藏", museum: "史密森尼博物馆",
+        desc: "不空成就佛是五方佛之一，代表成所作智，能成就一切事业。这尊鎏金铜佛造像精美，工艺精湛，是明代藏传佛教造像的精品。",
+        tag: "珍品", model: "/echo/assets/models/cn-amoghasiddhi-buddha.bin"
+      },
+      "cn-ding-censer": {
+        name: "镂空盖鼎式熏炉", en: "DING CENSER · Incense Burner",
+        period: "商代", category: "青铜器", origin: "河南安阳", museum: "史密森尼博物馆",
+        desc: "鼎式熏炉仿照青铜鼎造型，带镂空盖，焚香时香烟从镂空处飘散。这件熏炉工艺精湛，纹饰精美，是古代贵族的香具珍品。",
+        tag: "珍品", model: "/echo/assets/models/cn-ding-censer.bin"
+      },
+      "cn-sanxingdui-mask": {
+        name: "三星堆青铜面具", en: "SANXINGDUI MASK",
+        period: "商代", category: "青铜器", origin: "四川广汉", museum: "三星堆博物馆",
+        desc: "三星堆青铜面具造型奇特，双目突出，大耳阔嘴，与中原青铜文明风格迥异，展现了古蜀文明的神秘与独特，是中华文明多元一体的重要见证。",
+        tag: "国宝级", model: "/echo/assets/models/cn-sanxingdui-mask.bin"
+      },
+      "cn-bronze-gu": {
+        name: "商代青铜觚", en: "BRONZE GU · Wine Vessel",
+        period: "商代", category: "青铜器", origin: "河南安阳", museum: "史密森尼博物馆",
+        desc: "觚是商代的饮酒器，细腰高身，口部呈喇叭形。这件青铜觚纹饰精美，是商代青铜礼器组合中的重要组成部分，体现了商代的礼乐制度。",
+        tag: "珍品", model: "/echo/assets/models/cn-bronze-gu.bin"
+      },
+      "cn-porcelain-censer": {
+        name: "清代景德镇青花瓷香炉", en: "BLUE & WHITE CENSER",
+        period: "清代", category: "瓷器", origin: "江西景德镇", museum: "故宫博物院",
+        desc: "清代景德镇青花瓷香炉，造型端庄，纹饰精美，青花发色纯正，是清代民间青花瓷的代表作品。",
+        tag: "精品", model: "/echo/assets/models/cn-porcelain-incense-burner.bin"
+      },
+      "cn-dragon-dish": {
+        name: "清代青花龙纹盘", en: "DRAGON DISH · Blue & White",
+        period: "清代", category: "瓷器", origin: "江西景德镇", museum: "故宫博物院",
+        desc: "龙纹是皇家专用纹饰，这件青花龙纹盘绘有五爪龙，神态矫健，是清代官窑瓷器的精品，体现了皇家的威严与气派。",
+        tag: "珍品", model: "/echo/assets/models/cn-dragon-dish.bin"
+      },
+      "cn-lion-jar": {
+        name: "青花狮钮盖罐", en: "LION JAR · Covered Jar",
+        period: "清代", category: "瓷器", origin: "江西景德镇", museum: "故宫博物院",
+        desc: "盖罐以狮子为钮，造型生动，罐身绘青花纹饰，是清代青花瓷中的精品，兼具实用与观赏价值。",
+        tag: "精品", model: "/echo/assets/models/cn-lion-finial-jar.bin"
+      },
+      "cn-songbird-vase": {
+        name: "清代青花花鸟觚", en: "SONGBIRD VASE · Flower & Bird",
+        period: "清代", category: "瓷器", origin: "江西景德镇", museum: "故宫博物院",
+        desc: "花鸟纹饰是清代瓷器常见题材，这件花觚绘有花鸟图案，构图优美，绘画精细，体现了清代官窑的绘画水平。",
+        tag: "精品", model: "/echo/assets/models/cn-songbird-vase.bin"
+      },
+      "cn-dragon-vase": {
+        name: "青花龙纹瓶", en: "DRAGON VASE · Blue & White",
+        period: "清代", category: "瓷器", origin: "江西景德镇", museum: "故宫博物院",
+        desc: "龙纹瓶是清代官窑典型器型，龙纹矫健，云纹缭绕，气势恢宏，体现了皇家瓷器的尊贵与华美。",
+        tag: "珍品", model: "/echo/assets/models/cn-dragon-vase.bin"
+      },
+      "nefertiti": {
+        name: "纳芙蒂蒂胸像", en: "NEFERTITI BUST",
+        period: "古埃及", category: "石雕", origin: "埃及阿玛尔纳", museum: "柏林新博物馆",
+        desc: "纳芙蒂蒂是古埃及最美的王后，她的胸像被誉为世界最美的女性雕像，距今已有3300多年历史，是古埃及艺术的巅峰之作。",
+        tag: "世界瑰宝", model: "/echo/assets/models/nefertiti-bust.bin"
+      },
+      "venetian-mask": {
+        name: "威尼斯狂欢面具", en: "VENETIAN MASK",
+        period: "文艺复兴", category: "工艺品", origin: "意大利威尼斯", museum: "威尼斯博物馆",
+        desc: "威尼斯狂欢节面具是威尼斯独特的文化符号，精致华丽的面具背后隐藏着身份与秘密，体现了文艺复兴时期威尼斯的繁华与浪漫。",
+        tag: "特色展品", model: "/echo/assets/models/venetian-carnival-mask.bin"
+      },
+      "marine-chronometer": {
+        name: "航海精密计时器", en: "MARINE CHRONOMETER",
+        period: "19世纪", category: "科技文物", origin: "英国", museum: "航海博物馆",
+        desc: "航海精密计时器是大航海时代的重要发明，能够在海上精确测量经度，开启了人类精确航海的时代，是近代科技文明的重要里程碑。",
+        tag: "科技里程碑", model: "/echo/assets/models/marine-chronometer.bin"
+      },
+      "spacesuit": {
+        name: "阿波罗11号宇航服", en: "APOLLO 11 SPACESUIT",
+        period: "1969年", category: "航天文物", origin: "美国", museum: "航天博物馆",
+        desc: "这是人类首次登月时宇航员穿着的宇航服，1969年7月20日，人类第一次踏上月球，这件宇航服见证了人类航天史上最伟大的时刻。",
+        tag: "历史见证", model: "/echo/assets/models/neil-armstrong-spacesuit.bin"
+      },
+      "naval-mine": {
+        name: "历史海军水雷", en: "NAVAL MINE",
+        period: "19世纪", category: "军事文物", origin: "欧洲", museum: "海军博物馆",
+        desc: "水雷是现代海战的重要武器，这件历史水雷见证了近代海军战争的发展，是军事科技与战争史的实物见证。",
+        tag: "历史见证", model: "/echo/assets/models/naval-river-mine.bin"
+      },
+      "cuneiform-tablet": {
+        name: "楔形文字泥板", en: "CUNEIFORM TABLET",
+        period: "公元前3000年", category: "文字文物", origin: "美索不达米亚", museum: "大英博物馆",
+        desc: "楔形文字是人类最早的文字之一，刻在泥板上，记录了古代两河流域的商业、法律与文学。这块泥板是人类文明起源的重要见证。",
+        tag: "文明起源", model: "/echo/assets/models/cuneiform-tablet.bin"
+      },
+      "greek-slave": {
+        name: "《希腊奴隶》雕塑", en: "GREEK SLAVE · Sculpture",
+        period: "文艺复兴", category: "雕塑", origin: "意大利", museum: "佛罗伦萨美术馆",
+        desc: "文艺复兴时期的雕塑作品，体现了人文主义精神，对人的形象与情感的刻画达到了新的高度，是文艺复兴艺术的代表之作。",
+        tag: "文艺复兴杰作", model: "/echo/assets/models/greek-slave.bin"
+      },
+      "key-marco-cat": {
+        name: "马尔科角猫神像", en: "BASTET · Cat Goddess",
+        period: "古埃及", category: "青铜造像", origin: "埃及", museum: "大英博物馆",
+        desc: "猫是古埃及的神物，贝斯特猫女神象征家庭守护与丰收。这尊猫神像造型优美，体现了古埃及人对猫的崇拜。",
+        tag: "古埃及珍宝", model: "/echo/assets/models/key-marco-cat.bin"
+      },
+      "tree-of-life": {
+        name: "生命之树", en: "TREE OF LIFE",
+        period: "当代", category: "艺术品", origin: "国际当代艺术", museum: "文明馆",
+        desc: "生命之树是世界各文明共通的文化符号，象征生命的繁衍与延续，连接天地与过去未来，是人类共同的文化意象。",
+        tag: "当代艺术", model: "/echo/assets/models/tree-of-life.bin"
+      },
+      "junkanoo-headdress": {
+        name: "朱诺卡努狂欢头饰", en: "JUNKANOO HEADDRESS",
+        period: "当代", category: "民族服饰", origin: "巴哈马", museum: "民族博物馆",
+        desc: "朱诺卡努是巴哈马的传统狂欢节，华丽的头饰和鲜艳的服饰体现了非洲加勒比文化的热情与活力，是非物质文化遗产的代表。",
+        tag: "民族特色", model: "/echo/assets/models/junkanoo-headdress.bin"
+      },
+      "triceratops": {
+        name: "三角龙骨架", en: "TRICERATOPS SKELETON",
+        period: "白垩纪", category: "古生物化石", origin: "北美", museum: "自然博物馆",
+        desc: "三角龙是白垩纪末期的大型植食恐龙，三只角和颈盾是它的标志。完整的三角龙骨架是古生物研究的珍贵标本。",
+        tag: "古生物珍品", model: "/echo/assets/models/triceratops-skeleton.bin"
+      },
+      "woolly-mammoth": {
+        name: "猛犸象骨架", en: "WOOLLY MAMMOTH",
+        period: "冰河时期", category: "古生物化石", origin: "西伯利亚", museum: "自然博物馆",
+        desc: "猛犸象是冰河时期的代表性动物，身披长毛，适应寒冷气候。完整的猛犸象骨架为研究冰河时期生态提供了重要证据。",
+        tag: "古生物珍品", model: "/echo/assets/models/woolly-mammoth.bin"
+      },
+      "fossil-whale": {
+        name: "史前鲸化石", en: "FOSSIL WHALE",
+        period: "始新世", category: "古生物化石", origin: "埃及", museum: "自然博物馆",
+        desc: "史前鲸类化石记录了鲸类从陆地到海洋的进化历程，是生物进化论的重要实物证据。",
+        tag: "进化证据", model: "/echo/assets/models/fossil-whale-skeleton.bin"
+      },
+      "trilobite": {
+        name: "泥盆纪三叶虫", en: "TRILOBITE",
+        period: "泥盆纪", category: "古生物化石", origin: "全球广泛分布", museum: "自然博物馆",
+        desc: "三叶虫是古生代最具代表性的节肢动物，在地球上生存了近3亿年，是古生代的标志性生物。",
+        tag: "古生物标志", model: "/echo/assets/models/devonian-trilobite.bin"
+      },
+      "amber-mosquito": {
+        name: "琥珀中的远古蚊", en: "MOSQUITO IN AMBER",
+        period: "白垩纪", category: "琥珀化石", origin: "缅甸", museum: "琥珀博物馆",
+        desc: "琥珀是树脂化石，包裹在琥珀中的远古昆虫保存了数千万年前的生物细节，就像时间胶囊一样珍贵。",
+        tag: "时间胶囊", model: "/echo/assets/models/mosquito-in-amber.bin"
+      },
+      "ivory-mammoth": {
+        name: "旧石器象牙猛犸象雕", en: "IVORY MAMMOTH FIGURINE",
+        period: "旧石器时代", category: "史前艺术品", origin: "欧洲", museum: "考古博物馆",
+        desc: "这是距今约3万年前的象牙雕刻，是人类最早的艺术品之一，体现了旧石器时代人类的审美与想象力。",
+        tag: "史前艺术", model: "/echo/assets/models/ivory-mammoth-figurine.bin"
+      },
+      "junonia-shell": {
+        name: "朱诺尼亚海螺", en: "JUNONIA SHELL",
+        period: "现代", category: "海洋生物标本", origin: "加勒比海", museum: "自然博物馆",
+        desc: "朱诺尼亚海螺是世界上最美丽的海螺之一，花纹精美，极为稀有，是贝壳收藏中的极品。",
+        tag: "自然珍品", model: "/echo/assets/models/junonia-shell.bin"
+      },
+      "elephant-vessel": {
+        name: "商代象形铜觥", en: "ELEPHANT VESSEL",
+        period: "商代", category: "青铜器", origin: "湖南醴陵", museum: "史密森尼博物馆",
+        desc: "象形铜觥以大象为造型，造型生动，工艺精湛，是商代动物形青铜器的代表作品。",
+        tag: "国宝级", model: "/echo/assets/models/elephant-vessel.bin"
+      },
+      "spiny-oyster": {
+        name: "帝王棘蛎", en: "SPINY OYSTER",
+        period: "现代", category: "海洋生物标本", origin: "南海", museum: "自然博物馆",
+        desc: "帝王棘蛎是一种大型牡蛎，壳上布满棘刺，造型奇特，是海洋生物多样性的典型代表。",
+        tag: "自然标本", model: "/echo/assets/models/spiny-oyster.bin"
+      },
+      "staghorn-coral": {
+        name: "鹿角珊瑚", en: "STAGHORN CORAL",
+        period: "现代", category: "海洋生物标本", origin: "南海", museum: "自然博物馆",
+        desc: "鹿角珊瑚是珊瑚礁生态系统的重要组成部分，形似鹿角，为海洋生物提供栖息地，是海洋生态的关键物种。",
+        tag: "海洋生态", model: "/echo/assets/models/staghorn-coral.bin"
+      },
+      "butterfly-orchid": {
+        name: "蝶翼兰", en: "BUTTERFLY ORCHID",
+        period: "现代", category: "植物标本", origin: "东南亚", museum: "植物标本馆",
+        desc: "蝶翼兰是一种美丽的兰花，花瓣形似蝴蝶飞舞，是兰花中的珍品，深受园艺爱好者喜爱。",
+        tag: "植物珍品", model: "/echo/assets/models/butterfly-orchid.bin"
+      },
+      "blue-orchid": {
+        name: "蓝万代兰", en: "BLUE ORCHID",
+        period: "现代", category: "植物标本", origin: "东南亚", museum: "植物标本馆",
+        desc: "蓝色兰花极为稀有，蓝万代兰以其独特的蓝色花朵闻名，是兰花中的珍稀品种。",
+        tag: "珍稀植物", model: "/echo/assets/models/blue-orchid.bin"
+      },
+      "moon-orchid": {
+        name: "月亮兰", en: "MOON ORCHID",
+        period: "现代", category: "植物标本", origin: "东南亚", museum: "植物标本馆",
+        desc: "月亮兰花朵洁白如玉，形似满月，清香淡雅，是兰花中的经典品种，深受人们喜爱。",
+        tag: "植物珍品", model: "/echo/assets/models/moon-orchid.bin"
+      },
+      "cassiopeia-a": {
+        name: "仙后座A超新星遗迹", en: "CASSIOPEIA A",
+        period: "宇宙", category: "天文影像", origin: "宇宙深处", museum: "天文馆",
+        desc: "仙后座A是银河系中最年轻的超新星遗迹，距离地球约11000光年，是恒星生命终结时爆炸的壮丽景象。",
+        tag: "宇宙奇观", model: "/echo/assets/models/cassiopeia-a.bin"
+      },
+      "crab-nebula": {
+        name: "蟹状星云", en: "CRAB NEBULA",
+        period: "宇宙", category: "天文影像", origin: "金牛座", museum: "天文馆",
+        desc: "蟹状星云是公元1054年超新星爆发的遗迹，中国宋代天文学家曾记录下这一天文奇观。星云中心有一颗脉冲星，是现代天文学研究的重要对象。",
+        tag: "宇宙奇观", model: "/echo/assets/models/crab-nebula.bin"
+      },
+      "damaged-helmet": {
+        name: "受损头盔", en: "DAMAGED HELMET",
+        period: "科幻", category: "科技体验馆", origin: "科幻作品", museum: "科技体验馆",
+        desc: "未来科幻风格的头盔模型，展现了人类对未来科技的想象，是科技体验馆的互动展品。",
+        tag: "科技体验", model: "/echo/assets/models/DamagedHelmet.bin"
+      },
+      "antique-camera": {
+        name: "古董相机", en: "ANTIQUE CAMERA",
+        period: "19世纪", category: "科技文物", origin: "欧洲", museum: "科技体验馆",
+        desc: "这是早期的胶片相机，见证了摄影术从发明到普及的历程，是影像科技发展的历史见证。",
+        tag: "科技历史", model: "/echo/assets/models/AntiqueCamera.bin"
+      },
+      "chess-set": {
+        name: "国际象棋", en: "CHESS SET",
+        period: "当代", category: "互动展品", origin: "国际", museum: "科技体验馆",
+        desc: "国际象棋是世界上最流行的棋类游戏，象征人类智慧与策略的巅峰，是科技体验馆的经典互动项目。",
+        tag: "互动体验", model: "/echo/assets/models/ABeautifulGame.bin"
+      },
+      "lantern": {
+        name: "铸铁提灯", en: "LANTERN",
+        period: "19世纪", category: "科技文物", origin: "欧洲", museum: "科技体验馆",
+        desc: "这是早期的煤油提灯，在电力普及之前为人类提供照明，是近代照明科技发展的实物见证。",
+        tag: "科技历史", model: "/echo/assets/models/Lantern.bin"
+      },
+      "boombox": {
+        name: "便携式录音机", en: "BOOMBOX",
+        period: "20世纪", category: "科技文物", origin: "日本", museum: "科技体验馆",
+        desc: "便携式收录机是20世纪80年代的流行文化符号，见证了音频科技的普及和流行文化的传播。",
+        tag: "流行文化", model: "/echo/assets/models/BoomBox.bin"
+      }
+    };
+
+    const id = new URLSearchParams(location.search).get("id") || "siyangfangzun";
+    const art = ARTIFACTS[id] || ARTIFACTS.siyangfangzun;
+    document.title = art.name + " · 华夏珍宝数字博物馆";
+    document.getElementById("detail-name").textContent = art.name;
+    document.getElementById("detail-title").textContent = art.name;
+    document.getElementById("detail-en").textContent = art.en;
+    document.getElementById("detail-period").textContent = art.period;
+    document.getElementById("detail-category").textContent = art.category;
+    document.getElementById("detail-origin").textContent = art.origin;
+    document.getElementById("detail-museum").textContent = art.museum;
+    document.getElementById("detail-desc").textContent = art.desc;
+    document.getElementById("detail-tag").textContent = art.tag;
+
+    // ===== 3D 模型加载 =====
+    const container = document.querySelector(".detail-img");
+    const loading = document.getElementById("detail-loading");
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.setClearColor(new THREE.Color("#efe3c4"), 1);
+    container.appendChild(renderer.domElement);
+    renderer.domElement.style.width = "100%";
+    renderer.domElement.style.height = "100%";
+    renderer.domElement.style.display = "block";
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color("#efe3c4");
+
+    const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 200);
+    camera.position.set(0, 1.6, 7.2);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 1.6;
+    controls.enablePan = false;
+    controls.minDistance = 3.2;
+    controls.maxDistance = 16;
+
+    // 灯光
+    const hemi = new THREE.HemisphereLight("#fff3e0", "#7a5f33", 1.15);
+    const key = new THREE.DirectionalLight("#ffe9c4", 2.4);
+    key.position.set(4, 6, 5);
+    const fill = new THREE.DirectionalLight("#ffffff", 1.0);
+    fill.position.set(-4, 2, -5);
+    scene.add(hemi, key, fill);
+
+    // 阴影地面
+    const groundShadow = new THREE.Mesh(
+      new THREE.CircleGeometry(1.9, 48),
+      new THREE.MeshBasicMaterial({ color: 0x8a6a20, transparent: true, opacity: 0.16, depthWrite: false })
+    );
+    groundShadow.rotation.x = -Math.PI / 2;
+    groundShadow.position.y = -0.02;
+    scene.add(groundShadow);
+
+    // DRACO 加载器
+    const gltfLoader = new GLTFLoader();
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath("/echo/draco/");
+    gltfLoader.setDRACOLoader(dracoLoader);
+
+    function resize() {
+      const width = Math.max(1, container.clientWidth);
+      const height = Math.max(1, container.clientHeight);
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    function fitModelToView(model) {
+      const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z) || 1;
+      const target = 3.4;
+      const scale = target / maxDim;
+      model.scale.multiplyScalar(scale);
+      model.position.x -= center.x * scale;
+      model.position.z -= center.z * scale;
+      model.position.y -= box.min.y * scale;
+    }
+
+    // 加载模型
+    let currentModel = null;
+    async function loadModel() {
+      try {
+        const gltf = await gltfLoader.loadAsync(art.model);
+        if (currentModel) {
+          scene.remove(currentModel);
+        }
+        currentModel = gltf.scene;
+        fitModelToView(currentModel);
+        scene.add(currentModel);
+        camera.position.set(0, 1.6, 7.2);
+        controls.target.set(0, 1.2, 0);
+        controls.update();
+        loading.style.display = "none";
+      } catch (err) {
+        loading.textContent = "模型加载失败";
+        console.error(err);
+      }
+    }
+    loadModel();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // ===== 假如文物会说话 对话功能 =====
+    const talkMask = document.getElementById("artifact-chat-mask");
+    const talkBody = document.getElementById("artifact-chat-body");
+    const talkForm = document.getElementById("artifact-chat-form");
+    const talkInput = document.getElementById("artifact-chat-input");
+    const talkClose = document.getElementById("artifact-chat-close");
+    const talkSub = document.getElementById("artifact-chat-sub");
+    const talkSuggestsList = document.getElementById("artifact-suggests-list");
+    const talkBtn = document.getElementById("talk-btn");
+
+    let talkHistory = [];
+    let talkBusy = false;
+
+    const SUGGESTIONS = ["这件文物是做什么用的？", "它背后有什么故事？", "它是怎么被发现的？"];
+
+    function renderSuggests() {
+      talkSuggestsList.innerHTML = "";
+      SUGGESTIONS.forEach((q) => {
+        const chip = document.createElement("button");
+        chip.className = "suggest-chip";
+        chip.type = "button";
+        chip.textContent = q;
+        chip.addEventListener("click", () => ask(q));
+        talkSuggestsList.appendChild(chip);
+      });
+    }
+
+    function addChatRow(role, content) {
+      const row = document.createElement("div");
+      row.className = "chat-row " + role;
+      const avatar = document.createElement("div");
+      avatar.className = "chat-avatar";
+      avatar.textContent = role === "bot" ? "物" : "我";
+      const bubble = document.createElement("div");
+      bubble.className = "chat-bubble";
+      bubble.textContent = content;
+      row.appendChild(avatar);
+      row.appendChild(bubble);
+      talkBody.appendChild(row);
+      talkBody.scrollTop = talkBody.scrollHeight;
+    }
+
+    function openTalk() {
+      talkHistory = [];
+      talkSub.textContent = art.name + " · 文物第一人称";
+      talkBody.innerHTML = "";
+      talkMask.hidden = false;
+      renderSuggests();
+      // 自动打招呼
+      addChatRow("bot", "你好，我是" + art.name + "。很高兴见到你，有什么想了解的吗？");
+    }
+
+    function closeTalk() {
+      talkMask.hidden = true;
+      talkHistory = [];
+      talkBody.innerHTML = "";
+    }
+
+    async function ask(text) {
+      const trimmed = text.trim();
+      if (!trimmed || talkBusy) return;
+      talkBusy = true;
+      addChatRow("user", trimmed);
+      talkInput.value = "";
+      talkSuggestsList.innerHTML = "";
+
+      try {
+        const resp = await fetch("http://localhost:8300/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: trimmed,
+            current_hall: art.name,
+            history: talkHistory
+          })
+        });
+        const data = await resp.json();
+        const answer = data.answer || data.reply || "我暂时说不出话了…";
+        talkHistory.push({ role: "user", content: trimmed });
+        talkHistory.push({ role: "assistant", content: answer });
+        addChatRow("bot", answer);
+      } catch (err) {
+        addChatRow("bot", "（网络连接不上，稍后再试吧）");
+      }
+      talkBusy = false;
+    }
+
+    talkBtn.addEventListener("click", openTalk);
+    talkClose.addEventListener("click", closeTalk);
+    talkMask.addEventListener("click", (e) => {
+      if (e.target === talkMask) closeTalk();
+    });
+    talkForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      ask(talkInput.value);
+    });
+
+    // ===== 相关推荐：动态生成，排除当前文物 =====
+    const ALL_REL_ARTIFACTS = [
+      { id: "siyangfangzun", name: "四羊方尊", model: "/my_art/siyangfangzun.glb" },
+      { id: "matafeiyan", name: "马踏飞燕", model: "/my_art/matafeiyan.glb" },
+      { id: "shuochangtaoyong", name: "说唱陶俑", model: "/my_art/shuochangtaoyong.glb" },
+      { id: "handaiqingtongbianzhong", name: "汉代编钟", model: "/my_art/handaiqingtongbianzhong.glb" },
+      { id: "qingtongniu", name: "青铜牛", model: "/my_art/qingtongniu.glb" },
+      { id: "zhongshitaocijingtailanpinglu", name: "景泰蓝瓶炉", model: "/my_art/zhongshitaocijingtailanpinglu.glb" },
+      { id: "tongzhifenghuangjinjilazhutai", name: "铜朱雀蜡台", model: "/my_art/tongzhifenghuangjinjilazhutai" },
+    ];
+
+    const currentId = new URLSearchParams(location.search).get("id");
+    const relGrid = document.getElementById("related-grid");
+    const relList = ALL_REL_ARTIFACTS.filter((a) => a.id !== currentId);
+
+    // 动态生成卡片
+    relList.forEach((art) => {
+      const card = document.createElement("a");
+      card.href = `/gallerydistract.html?id=${art.id}`;
+      card.className = "rel-card";
+      card.dataset.model = art.id;
+      card.innerHTML = `
+        <div class="img"><canvas style="width:100%;height:100%;"></canvas></div>
+        <div class="name">${art.name}</div>
+      `;
+      relGrid.appendChild(card);
+    });
+
+    // ===== 相关推荐缩略图渲染（共享离屏渲染器 + 缓存） =====
+    const relRenderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });
+    relRenderer.setPixelRatio(1);
+    relRenderer.setSize(200, 110, false);
+    const relScene = new THREE.Scene();
+    relScene.background = new THREE.Color(0xefe3c4);
+    const relCamera = new THREE.PerspectiveCamera(38, 1, 0.1, 200);
+    relCamera.position.set(0, 0.7, 3.5);
+    relCamera.lookAt(0, 0, 0);
+    relScene.add(
+      new THREE.HemisphereLight("#ffffff", "#cbb27e", 1.35),
+      (() => { const l = new THREE.DirectionalLight("#fff2d8", 2.4); l.position.set(3, 5, 4); return l; })(),
+      (() => { const l = new THREE.DirectionalLight("#ffe6f0", 1.1); l.position.set(-3, 1, -4); return l; })(),
+    );
+    const relLoader = new GLTFLoader();
+    const relDraco = new DRACOLoader();
+    relDraco.setDecoderPath("/echo/draco/");
+    relLoader.setDRACOLoader(relDraco);
+
+    async function renderRelShots() {
+      // 缓存机制
+      const CACHE_KEY = "rel_thumb_cache_v1";
+      let thumbCache = {};
+      try {
+        thumbCache = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
+      } catch {}
+
+      for (const art of relList) {
+        const card = document.querySelector(`.rel-card[data-model="${art.id}"]`);
+        if (!card) continue;
+        const imgContainer = card.querySelector(".img");
+        if (!imgContainer) continue;
+
+        // 命中缓存直接用
+        if (thumbCache[art.id]) {
+          imgContainer.innerHTML = `<img src="${thumbCache[art.id]}" style="width:100%;height:100%;object-fit:contain;" />`;
+          continue;
+        }
+
+        try {
+          const gltf = await new Promise((resolve, reject) => {
+            relLoader.load(art.model, resolve, undefined, reject);
+          });
+          const model = gltf.scene;
+          const box = new THREE.Box3().setFromObject(model);
+          const size = box.getSize(new THREE.Vector3());
+          const center = box.getCenter(new THREE.Vector3());
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const scale = maxDim > 0 ? 1.2 / maxDim : 1;
+          model.scale.setScalar(scale);
+          model.position.copy(center).multiplyScalar(-scale);
+          relScene.add(model);
+          relRenderer.render(relScene, relCamera);
+          const dataUrl = relRenderer.domElement.toDataURL("image/png");
+          relScene.remove(model);
+          imgContainer.innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:contain;" />`;
+          thumbCache[art.id] = dataUrl;
+          try { localStorage.setItem(CACHE_KEY, JSON.stringify(thumbCache)); } catch {}
+        } catch (err) {
+          console.error(`相关推荐 ${art.id} 加载失败:`, err);
+        }
+      }
+    }
+    renderRelShots();
+  </script>
+</body>
+</html>
