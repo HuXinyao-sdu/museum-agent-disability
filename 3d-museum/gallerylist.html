@@ -13,11 +13,12 @@
     body {
       font-family: "STZhongsong", "KaiTi", "SimSun", serif; color: var(--ink);
       background:
-        linear-gradient(180deg, rgba(30,24,18,0.15) 0%, rgba(25,20,15,0.25) 40%, rgba(20,16,12,0.4) 75%, rgba(15,12,10,0.6) 100%),
-        #2a2218;
+        radial-gradient(ellipse at top, rgba(60,45,28,0.4) 0%, transparent 60%),
+        radial-gradient(ellipse at bottom, rgba(20,15,10,0.6) 0%, transparent 50%),
+        linear-gradient(180deg, #251d14 0%, #1a140d 50%, #120e0a 100%);
       min-height: 100vh;
     }
-    .header { display: flex; justify-content: space-between; align-items: center; padding: 18px 64px; background: rgba(18,14,10,0.65); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 18px 64px; background: rgba(18,14,10,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; }
     .brand { display: flex; align-items: center; gap: 14px; }
     .seal { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--gold); color: var(--gold); display: grid; place-items: center; font-weight: bold; }
     .brand strong { font-size: 17px; letter-spacing: 4px; }
@@ -30,14 +31,14 @@
     .feature { max-width: 1180px; margin: 50px auto 40px; padding: 0 44px; }
     .feature-banner {
       height: 340px;
-      background: linear-gradient(135deg, rgba(201,169,97,0.15), rgba(0,0,0,0.4));
+      background: linear-gradient(135deg, rgba(201,169,97,0.12), rgba(0,0,0,0.5));
       border: 1px solid var(--line); border-radius: 12px;
       padding: 40px; display: flex; flex-direction: column; justify-content: flex-end;
       position: relative;
     }
-    .feature-banner .badge { position: absolute; top: 20px; left: 20px; font-size: 11px; letter-spacing: 2px; color: var(--gold); border: 1px solid var(--gold-deep); padding: 4px 12px; border-radius: 999px; background: rgba(0,0,0,0.3); }
+    .feature-banner .badge { position: absolute; top: 20px; left: 20px; font-size: 11px; letter-spacing: 2px; color: var(--gold); border: 1px solid var(--gold-deep); padding: 4px 12px; border-radius: 999px; background: rgba(0,0,0,0.4); }
     .feature-banner h2 { font-size: 32px; letter-spacing: 3px; color: #fff; margin-bottom: 10px; }
-    .feature-banner p { max-width: 500px; font-size: 14px; line-height: 1.8; color: var(--ink-soft); }
+    .feature-banner p { max-width: 500px; font-size: 14px; line-height: 1.8; color: #d8d0c0; }
 
     .section-title { max-width: 1180px; margin: 0 auto 20px; padding: 0 44px; display: flex; justify-content: space-between; align-items: end; }
     .section-title .kicker { font-size: 12px; letter-spacing: 6px; color: var(--gold); margin-bottom: 8px; }
@@ -45,12 +46,11 @@
     .section-title .count { font-size: 12px; color: var(--ink-soft); }
 
     .grid { max-width: 1180px; margin: 0 auto 60px; padding: 0 44px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
-    .card { background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; transition: all 0.3s; cursor: pointer; text-decoration: none; color: inherit; display: block; }
+    .card { background: rgba(0,0,0,0.4); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; transition: all 0.3s; cursor: pointer; text-decoration: none; color: inherit; display: block; }
     .card:hover { border-color: rgba(201,169,97,0.4); transform: translateY(-4px); }
-    .card .img { height: 140px; background: rgba(201,169,97,0.08); display: grid; place-items: center; color: var(--gold); font-size: 32px; border-bottom: 1px solid var(--line); }
-    .card .info { padding: 14px; }
-    .card .name { font-size: 15px; letter-spacing: 2px; margin-bottom: 4px; }
-    .card .era { font-size: 11px; color: var(--ink-soft); }
+    .card .img { height: 150px; background: linear-gradient(135deg, #3a2f20, #2a2115); display: grid; place-items: center; color: var(--gold); font-size: 32px; border-bottom: 1px solid var(--line); }
+    .card .info { padding: 12px 14px; background: rgba(18,14,10,0.9); }
+    .card .era { font-size: 11px; color: #d9c59a; letter-spacing: 1px; }
   </style>
 </head>
 <body>
@@ -179,9 +179,9 @@
       { id: "matafeiyan", name: "马踏飞燕", era: "东汉 · 甘肃省博物馆", model: "/my_art/matafeiyan.glb", hall: "bronze" },
       { id: "shuochangtaoyong", name: "击鼓说唱陶俑", era: "东汉 · 中国国家博物馆", model: "/my_art/shuochangtaoyong.glb", hall: "bronze" },
       { id: "handaiqingtongbianzhong", name: "汉代青铜编钟", era: "汉代 · 湖北省博物馆", model: "/my_art/handaiqingtongbianzhong.glb", hall: "bronze" },
-      { id: "qingtongniu", name: "青铜牛", era: "商周 · 中国国家博物馆", model: "/my_art/qingtongniu.glb", hall: "bronze" },
+      { id: "qingtongniu", name: "青铜牛", era: "商周 · 中国国家博物馆", model: "/my_art/qingtongniu.glb", hall: "bronze", side: true },
       { id: "cn-bronze-gong", name: "青铜兽面纹觥", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/cn-bronze-wine-ewer-gong.bin", hall: "bronze" },
-      { id: "cn-elephant-zun", name: "青铜象尊", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/cn2-bronze-elephant-ewer.bin", hall: "bronze" },
+      { id: "cn-elephant-zun", name: "青铜象尊", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/cn2-bronze-elephant-ewer.bin", hall: "bronze", side: true },
       { id: "cn-bronze-fangyi", name: "青铜方彝", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/cn-bronze-fangyi-vessel.bin", hall: "bronze" },
       { id: "cn-boshanlu", name: "镶嵌博山炉", era: "汉代 · 史密森尼博物馆", model: "/echo/assets/models/cn-bronze-incense-burner.bin", hall: "bronze" },
       { id: "cn-owl-zun", name: "青铜鸮尊", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/cn-owl-zun.bin", hall: "bronze" },
@@ -192,10 +192,10 @@
       { id: "elephant-vessel", name: "商代象形铜觥", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/elephant-vessel.bin", hall: "bronze" },
       // 瓷韵千年馆
       { id: "zhongshitaocijingtailanpinglu", name: "景泰蓝瓶炉", era: "明清 · 故宫博物院", model: "/my_art/zhongshitaocijingtailanpinglu.glb", hall: "porcelain" },
-      { id: "tongzhifenghuangjinjilazhutai", name: "铜朱雀蜡台", era: "明清 · 故宫博物院", model: "/my_art/tongzhifenghuangjinjilazhutai.glb", hall: "porcelain" },
+      { id: "tongzhifenghuangjinjilazhutai", name: "铜朱雀蜡台", era: "明清 · 故宫博物院", model: "/my_art/tongzhifenghuangjinjilazhutai.glb", hall: "porcelain", side: true },
       { id: "cn-porcelain-vase", name: "清康熙青花瓷瓶", era: "清代 · 故宫博物院", model: "/echo/assets/models/cn-porcelain-baluster-vase.bin", hall: "porcelain" },
       { id: "cn-porcelain-beaker", name: "清康熙青花花觚", era: "清代 · 故宫博物院", model: "/echo/assets/models/cn-porcelain-beaker-vase.bin", hall: "porcelain" },
-      { id: "cn-porcelain-censer", name: "清代景德镇青花瓷香炉", era: "清代 · 故宫博物院", model: "/echo/assets/models/cn-porcelain-incense-burner.bin", hall: "porcelain" },
+      { id: "cn-porcelain-censer", name: "清代景德镇青花瓷香炉", era: "清代 · 故宫博物院", model: "/echo/assets/models/cn-porcelain-incense-burner.bin", hall: "porcelain", side: true },
       { id: "cn-dragon-dish", name: "清代青花龙纹盘", era: "清代 · 故宫博物院", model: "/echo/assets/models/cn-dragon-dish.bin", hall: "porcelain" },
       { id: "cn-lion-jar", name: "青花狮钮盖罐", era: "清代 · 故宫博物院", model: "/echo/assets/models/cn-lion-finial-jar.bin", hall: "porcelain" },
       { id: "cn-songbird-vase", name: "清代青花花鸟觚", era: "清代 · 故宫博物院", model: "/echo/assets/models/cn-songbird-vase.bin", hall: "porcelain" },
@@ -267,13 +267,27 @@
         card.href = `/gallerydistract.html?id=${art.id}`;
         card.className = "card";
         card.dataset.model = art.id;
+        card.dataset.hall = hall.id;
+        card.title = art.name;
         card.innerHTML = `
           <div class="img"><canvas style="width:100%;height:100%;"></canvas></div>
-          <div class="info"><div class="name">${art.name}</div><div class="era">${art.era}</div></div>
+          <div class="info"><div class="era">${art.era}</div></div>
         `;
         artGrid.appendChild(card);
       });
     });
+
+    // 支持 ?theme=xxx 定位到对应场馆
+    const themeParam = new URLSearchParams(location.search).get("theme");
+    if (themeParam) {
+      const hallCards = artGrid.querySelectorAll(`.card[data-hall="${themeParam}"]`);
+      if (hallCards.length > 0) {
+        const firstCard = hallCards[0];
+        requestAnimationFrame(() => {
+          firstCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+    }
 
     // 创建共享离屏渲染器
     const scRenderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });
@@ -303,17 +317,28 @@
       const maxDim = Math.max(size.x, size.y, size.z);
       const scale = maxDim > 0 ? 1.8 / maxDim : 1;
       model.scale.setScalar(scale);
-      model.position.copy(center).multiplyScalar(-scale);
-      model.position.y += 0.1;
+      // 统一摆放：水平居中（x/z 归零），底部对齐 y=0
+      model.position.x = -center.x * scale;
+      model.position.z = -center.z * scale;
+      model.position.y = -(center.y - size.y / 2) * scale;
     }
 
     async function renderCardShots() {
       // 缓存机制：从 localStorage 读取已渲染的缩略图
-      const CACHE_KEY = "gallery_thumb_cache_v1";
+      const CACHE_KEY = "gallery_thumb_cache_v5";
       let thumbCache = {};
       try {
         thumbCache = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
       } catch {}
+
+      // 读取后端保存的模型视角配置（模型视角调整工作台）
+      let modelViews = {};
+      try {
+        const resp = await fetch("http://127.0.0.1:8300/api/model-views", { cache: "no-store" });
+        if (resp.ok) modelViews = await resp.json();
+      } catch (e) {
+        console.warn("无法读取模型视角配置，使用默认视角:", e);
+      }
 
       for (const art of ALL_ARTIFACTS) {
         const card = document.querySelector(`.card[data-model="${art.id}"]`);
@@ -332,7 +357,33 @@
             scGltfLoader.load(art.model, resolve, undefined, reject);
           });
           const model = gltf.scene;
-          fitModel(model);
+          const view = modelViews[art.id];
+
+          if (view) {
+            // 应用自定义视角（模型视角调整工作台保存）
+            const box = new THREE.Box3().setFromObject(model);
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const fitScale = maxDim > 0 ? 1.8 / maxDim : 1;
+            model.rotation.y = THREE.MathUtils.degToRad(view.rotationY ?? 0);
+            model.scale.setScalar((view.scale ?? 1) * fitScale);
+            model.position.set(view.posX ?? 0, view.posY ?? 0, view.posZ ?? 0);
+            // 相机按保存的角度（目标点与默认视角一致，保证统一对齐）
+            const az = THREE.MathUtils.degToRad(view.camAzimuth ?? 0);
+            const pol = THREE.MathUtils.degToRad(view.camPolar ?? 75);
+            const dist = view.camDistance ?? 3.5;
+            scCamera.position.setFromSphericalCoords(dist, pol, az);
+            scCamera.lookAt(0, 0.55, 0);
+          } else {
+            // 默认视角：侧面文物先旋转，再适配（底部对齐 y=0）
+            if (art.side) {
+              model.rotation.y = Math.PI / 2;
+            }
+            fitModel(model);
+            scCamera.position.set(0, 0.8, 3.5);
+            scCamera.lookAt(0, 0.55, 0);
+          }
+
           scScene.add(model);
           scRenderer.render(scScene, scCamera);
           const dataUrl = scRenderer.domElement.toDataURL("image/png");

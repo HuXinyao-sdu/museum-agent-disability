@@ -737,16 +737,18 @@ function renderTheaterScript(script: string) {
     ? `<img class="shadow-figure-img" src="${rightImg}" alt="${escapeHtml(charB.title)}" style="height:${rightRatio * 100}%" />`
     : getFigureSvg(charB);
   kidsOutput.innerHTML = `
-    <div class="shadow-stage" id="shadow-stage">
-      <div id="shadow-artifact-slot">${artifactBg}</div>
-      <div class="shadow-figure left" id="shadow-left">${leftFigure}</div>
-      <div class="shadow-figure right" id="shadow-right">${rightFigure}</div>
-      <div class="shadow-subtitle" id="shadow-subtitle">点击播放，观看两位历史人物讲解「${escapeHtml(currentArtifact?.name ?? "")}」</div>
-      <button class="shadow-expand" id="shadow-expand" type="button" title="放大观看">⛶</button>
-    </div>
-    <div class="shadow-controls" id="shadow-controls">
-      <button class="shadow-btn" id="shadow-play" type="button">▶ 播放讲解</button>
-      <button class="shadow-btn" id="shadow-stop" type="button" disabled>⏹ 停止</button>
+    <div class="shadow-box" id="shadow-box">
+      <div class="shadow-stage" id="shadow-stage">
+        <div id="shadow-artifact-slot">${artifactBg}</div>
+        <div class="shadow-figure left" id="shadow-left">${leftFigure}</div>
+        <div class="shadow-figure right" id="shadow-right">${rightFigure}</div>
+        <div class="shadow-subtitle" id="shadow-subtitle">点击播放，观看两位历史人物讲解「${escapeHtml(currentArtifact?.name ?? "")}」</div>
+        <button class="shadow-expand" id="shadow-expand" type="button" title="放大观看">⛶</button>
+      </div>
+      <div class="shadow-controls" id="shadow-controls">
+        <button class="shadow-btn" id="shadow-play" type="button">▶ 播放讲解</button>
+        <button class="shadow-btn" id="shadow-stop" type="button" disabled>⏹ 停止</button>
+      </div>
     </div>
     <p class="agent-hint" style="margin-top:8px;font-size:11.5px;">${escapeHtml(charA.title)} × ${escapeHtml(charB.title)} · 皮影小剧场</p>`;
 
@@ -771,33 +773,31 @@ function renderTheaterScript(script: string) {
     stopBtn.addEventListener("click", stopShadowTheater);
   }
   const expandBtn = kidsOutput.querySelector<HTMLButtonElement>("#shadow-expand");
+  const box = kidsOutput.querySelector<HTMLDivElement>("#shadow-box");
   const stage = kidsOutput.querySelector<HTMLDivElement>("#shadow-stage");
   const controls = kidsOutput.querySelector<HTMLDivElement>("#shadow-controls");
   expandBtn?.addEventListener("click", (e) => {
     e.stopPropagation();
     e.preventDefault();
-    if (!stage) return;
+    if (!box) return;
     let mask = document.getElementById("shadow-modal-mask");
-    if (stage.classList.contains("enlarged")) {
+    if (box.classList.contains("enlarged")) {
       // 关闭：移回原容器
-      if (controls) kidsOutput.appendChild(controls);
-      kidsOutput.appendChild(stage);
-      stage.classList.remove("enlarged");
+      kidsOutput.appendChild(box);
+      box.classList.remove("enlarged");
       expandBtn.textContent = "⛶";
       mask?.remove();
     } else {
-      // 放大：创建独立遮罩，把戏台和控制条一起移到 body 下
+      // 放大：创建独立遮罩，把整个戏台容器（舞台+控制条）一起移到 body 下
       mask = document.createElement("div");
       mask.id = "shadow-modal-mask";
       document.body.appendChild(mask);
-      document.body.appendChild(stage);
-      if (controls) document.body.appendChild(controls);
-      stage.classList.add("enlarged");
+      document.body.appendChild(box);
+      box.classList.add("enlarged");
       expandBtn.textContent = "✕";
       mask.addEventListener("click", () => {
-        if (controls) kidsOutput.appendChild(controls);
-        kidsOutput.appendChild(stage);
-        stage.classList.remove("enlarged");
+        kidsOutput.appendChild(box);
+        box.classList.remove("enlarged");
         expandBtn.textContent = "⛶";
         mask?.remove();
       });

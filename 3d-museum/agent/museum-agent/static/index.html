@@ -41,6 +41,15 @@ header {
   font-size: 26px; border: 2px solid rgba(243,233,210,.5);
   box-shadow: 0 4px 12px rgba(0,0,0,.2);
 }
+.back-to-hall {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; margin-right: 4px;
+  border: 1px solid rgba(243,233,210,.45); border-radius: 999px;
+  color: #f3e9d2; background: rgba(243,233,210,.10);
+  text-decoration: none; font-size: 13px; letter-spacing: 1px;
+  white-space: nowrap; transition: .2s;
+}
+.back-to-hall:hover { background: rgba(243,233,210,.92); color: #4a3a1e; border-color: transparent; }
 header h1 { font-size: 22px; letter-spacing: 3px; font-family: "STZhongsong", "SimSun", serif; }
 header p { font-size: 13px; opacity: .78; margin-top: 4px; letter-spacing: .5px; }
 .tabs { margin-left: auto; display: flex; gap: 10px; align-items: center; }
@@ -319,6 +328,7 @@ footer { text-align: center; font-size: 12px; color: #b3a992; padding: 20px 0 30
 </head>
 <body>
 <header>
+  <a class="back-to-hall" href="http://127.0.0.1:5173/hall.html" title="返回 3D 展厅">← 返回展厅</a>
   <div class="logo">🏛️</div>
   <div>
     <h1>泉城数字博物馆 · 智能问答</h1>
@@ -337,6 +347,46 @@ footer { text-align: center; font-size: 12px; color: #b3a992; padding: 20px 0 30
     <button id="tab-kb" onclick="switchTab('kb')">知识库管理</button>
   </nav>
 </header>
+
+<!-- 音色配置面板 -->
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+  <div style="background: #fff; border-radius: 14px; padding: 16px 20px; box-shadow: 0 4px 16px rgba(80,60,25,.06); margin-bottom: 16px; border: 1px solid #e8e0cf;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+      <h3 style="font-size: 15px; color: #2b2620;">🎙️ 音色配置</h3>
+      <button onclick="refreshVoices()" style="padding: 4px 12px; border-radius: 8px; border: 1px solid #d4c8a8; background: #fff; cursor: pointer; font-size: 12px;">刷新列表</button>
+    </div>
+    <div id="voice-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; max-height: 200px; overflow-y: auto;">
+      <div style="font-size: 12px; color: #999; padding: 8px;">加载中...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function refreshVoices() {
+  const voices = speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().includes('zh'));
+  const container = document.getElementById('voice-list');
+  if (!voices.length) {
+    container.innerHTML = '<div style="font-size:12px;color:#999;padding:8px;">未检测到中文语音，请在浏览器设置中安装中文语音包</div>';
+    return;
+  }
+  container.innerHTML = voices.map((v, i) => `
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:8px; background:#faf7f0; border:1px solid #eee5d0;">
+      <div style="font-size:12px; color:#444; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${v.name}</div>
+      <button onclick="previewVoice(${i})" style="padding:3px 10px; border-radius:6px; border:none; background:#a8842c; color:#fff; cursor:pointer; font-size:11px; flex-shrink:0; margin-left:8px;">试听</button>
+    </div>
+  `).join('');
+  window._voices = voices;
+}
+function previewVoice(idx) {
+  speechSynthesis.cancel();
+  const v = window._voices[idx];
+  const u = new SpeechSynthesisUtterance('大家好，我是' + v.name);
+  u.voice = v;
+  speechSynthesis.speak(u);
+}
+speechSynthesis.onvoiceschanged = refreshVoices;
+setTimeout(refreshVoices, 500);
+</script>
 
 <!-- 模型设置弹窗 -->
 <div class="modal-mask" id="settings-modal">

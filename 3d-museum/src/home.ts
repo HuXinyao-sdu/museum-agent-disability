@@ -54,7 +54,7 @@ let dragRect: DOMRect | null = null;
 let homeSuggestOpen = true;
 
 // 未对话前的推荐问题（点击可直接提问；对话后按后端 suggested_questions 实时更新）
-const HOME_INITIAL_SUGGESTS = [t("q1"), t("q2"), t("q3")];
+const HOME_INITIAL_SUGGESTS = [t("q1"), t("q2"), t("q3"), t("q4"), t("q5")];
 
 // 推荐问题区折叠状态：通过发送框右侧的向上箭头圆形图标展开/收起
 function setHomeSuggestOpen(open: boolean, hasTalked: boolean) {
@@ -73,7 +73,7 @@ function renderHomeSuggests(questions: string[]) {
   guideChip.addEventListener("click", () => void guideTour());
   homeSuggestsList.appendChild(guideChip);
   // 动态推荐问题
-  questions.slice(0, 3).forEach((q) => {
+  questions.slice(0, 4).forEach((q) => {
     const chip = document.createElement("button");
     chip.type = "button";
     chip.className = "home-suggest-chip";
@@ -326,9 +326,10 @@ function fitShowcaseModel(model: THREE.Group) {
   // 模型最大边 2.1 世界单位：相机可视高度约 2.93，四周保留约 14% 留白，保证完整入画
   const scale = maxDim > 0 ? 2.1 / maxDim : 1;
   model.scale.setScalar(scale);
-  model.position.copy(center).multiplyScalar(-scale);
-  // 模型居中（仅微抬 0.12 让底部贴近地面阴影），避免画面中模型偏上
-  model.position.y += 0.12;
+  // 统一摆放：水平居中（x/z 归零），底部对齐到地面阴影上方（阴影在 y=-0.92）
+  model.position.x = -center.x * scale;
+  model.position.z = -center.z * scale;
+  model.position.y = -(center.y - size.y / 2) * scale - 0.82;
 }
 
 function renderShowcaseShot(model: THREE.Group): string {
@@ -358,8 +359,8 @@ function appendShowcaseCell(artifact: WorldArtifact, dataUrl: string | null) {
     </svg><span class="cell-frame" aria-hidden="true"></span>`;
   }
   cell.addEventListener("click", () => {
-    // 跳转图鉴页并定位到该文物（?id=）
-    window.location.href = `/gallery.html?id=${encodeURIComponent(artifact.id)}`;
+    // 跳转到文物详情页（馆藏图鉴点击文物后进入的详情页）
+    window.location.href = `/gallerydistract.html?id=${encodeURIComponent(artifact.id)}`;
   });
   showcaseGrid.appendChild(cell);
 }
@@ -384,6 +385,14 @@ async function initShowcase() {
   const items = SHOWCASE_IDS
     .map((id) => worldArtifacts.find((item) => item.id === id))
     .filter((item): item is WorldArtifact => Boolean(item));
+  // 读取后端保存的模型视角配置（模型视角调整工作台）
+  let modelViews: Record<string, unknown> = {};
+  try {
+    const resp = await fetch(`${AGENT_BASE}/api/model-views`, { cache: "no-store" });
+    if (resp.ok) modelViews = await resp.json();
+  } catch (e) {
+    console.warn("无法读取模型视角配置，使用默认视角:", e);
+  }
   const cache = loadShowcaseCache();
   const cachedCount = items.filter((item) => Boolean(cache?.[item.id])).length;
   // 全部命中缓存：直接展示稳定画面，跳过 3D 渲染
@@ -407,7 +416,30 @@ async function initShowcase() {
       const gltf = await loadWithTimeout<THREE.Group>((resolve, reject) => {
         scGltfLoader.load(artifact.model, (data) => resolve(data.scene), undefined, reject);
       }, 12000);
-      fitShowcaseModel(gltf);
+      // 应用自定义视角（有配置时覆盖默认适配）
+      const view = (modelViews as Record<string, any>)[artifact.id];
+      if (view) {
+        const box = new THREE.Box3().setFromObject(gltf);
+        const size = box.getSize(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const fitScale = maxDim > 0 ? 2.1 / maxDim : 1;
+        gltf.rotation.y = THREE.MathUtils.degToRad(Number(view.rotationY ?? 0));
+        gltf.scale.setScalar((Number(view.scale ?? 1)) * fitScale);
+        gltf.position.set(
+          Number(view.posX ?? 0),
+          Number(view.posY ?? 0),
+          Number(view.posZ ?? 0),
+        );
+        const az = THREE.MathUtils.degToRad(Number(view.camAzimuth ?? 0));
+        const pol = THREE.MathUtils.degToRad(Number(view.camPolar ?? 75));
+        const dist = Number(view.camDistance ?? 4.2);
+        scCamera.position.setFromSphericalCoords(dist, pol, az);
+        scCamera.lookAt(0, 0.45, 0);
+      } else {
+        fitShowcaseModel(gltf);
+        scCamera.position.set(0, 0.9, 4.2);
+        scCamera.lookAt(0, 0.45, 0);
+      }
       const shot = renderShowcaseShot(gltf);
       gltf.traverse((child) => {
         if (child instanceof THREE.Mesh) {
@@ -533,7 +565,7 @@ const VENUE_COVER_IDS: Record<string, string> = {
   tech: "damaged-helmet", // 受损头盔（科技体验）
 };
 
-const VENUE_COVER_CACHE_KEY = "huaxia-venue-covers-v6";
+const VENUE_COVER_CACHE_KEY = "huaxia-venue-covers-v8";
 
 function loadVenueCovers(): Partial<Record<string, string>> | null {
   try {

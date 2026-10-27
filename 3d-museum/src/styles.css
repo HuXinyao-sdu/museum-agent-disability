@@ -1222,22 +1222,31 @@ h1 {
 .shadow-controls {
   display: flex;
   gap: 8px;
-  margin-top: 6px;
+  margin-top: 0;
   justify-content: space-between;
-  padding: 0 4px;
+  padding: 8px 4px 0;
 }
 
-.shadow-stage.enlarged + .shadow-controls {
+/* 放大：舞台 + 控制条整体放大，控制条紧贴舞台底部连为一体 */
+.shadow-box.enlarged {
   position: fixed;
+  top: 50%;
   left: 50%;
-  bottom: 18vh;
-  transform: translateX(-50%);
-  margin: 0;
-  padding: 10px 22px;
-  background: rgba(20, 12, 3, 0.85);
-  border-radius: 8px;
-  z-index: 9999;
+  transform: translate(-50%, -50%);
   width: min(820px, 92vw);
+  z-index: 9999;
+}
+
+.shadow-box.enlarged .shadow-stage {
+  height: 62vh;
+  max-height: 520px;
+  box-shadow: 0 26px 70px rgb(0 0 0 / 44%), inset 0 0 60px rgba(120,80,20,0.35);
+}
+
+.shadow-box.enlarged .shadow-controls {
+  padding: 12px 22px;
+  background: rgba(20, 12, 3, 0.85);
+  border-radius: 0 0 8px 8px;
 }
 
 .shadow-expand {
@@ -1259,18 +1268,6 @@ h1 {
   background: rgba(40, 25, 5, 0.9);
 }
 
-.shadow-stage.enlarged {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(820px, 92vw);
-  height: 62vh;
-  max-height: 520px;
-  z-index: 9999;
-  box-shadow: 0 26px 70px rgb(0 0 0 / 44%), inset 0 0 60px rgba(120,80,20,0.35);
-}
-
 #shadow-modal-mask {
   position: fixed;
   inset: 0;
@@ -1279,11 +1276,11 @@ h1 {
   backdrop-filter: blur(3px);
 }
 
-.shadow-stage.enlarged .shadow-figure {
+.shadow-box.enlarged .shadow-figure {
   height: 88%;
 }
 
-.shadow-stage.enlarged .shadow-artifact-img {
+.shadow-box.enlarged .shadow-artifact-img {
   max-width: 280px;
   max-height: 220px;
 }

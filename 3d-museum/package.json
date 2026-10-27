@@ -13,6 +13,7 @@
   ],
   "scripts": {
     "dev": "vite --host 127.0.0.1",
+    "dev:all": "node scripts/dev-all.mjs",
     "build": "tsc && vite build",
     "generate:artifacts": "node scripts/generate_artifact_list.mjs",
     "predev": "node scripts/generate_artifact_list.mjs",

@@ -92,6 +92,8 @@ const dict: Record<string, Entry> = {
   q1: { zh: "介绍一下这座博物馆", en: "Introduce this museum" },
   q2: { zh: "推荐一条参观路线", en: "Recommend a route" },
   q3: { zh: "馆里有哪些镇馆之宝？", en: "What are the museum's treasures?" },
+  q4: { zh: "馆里有哪些展厅？", en: "What halls does the museum have?" },
+  q5: { zh: "青铜器馆里有什么文物？", en: "What artifacts are in the Bronze Hall?" },
 
   // 关于我们
   ab_kicker: { zh: "关 于 我 们 · ABOUT", en: "A B O U T · U S" },

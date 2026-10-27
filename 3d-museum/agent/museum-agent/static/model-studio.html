@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>模型视角调整工作台 · 华夏珍宝数字博物馆</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: #1a1510;
+    color: #e8dcc3;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap; margin-bottom: 16px;
+  }
+  header h1 { font-size: 20px; letter-spacing: 2px; color: #f1c365; }
+  header .sub { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 4px; }
+  .main { display: flex; gap: 20px; flex-wrap: wrap; }
+  .panel {
+    background: rgba(0,0,0,0.35); border: 1px solid rgba(241,195,101,0.25);
+    border-radius: 10px; padding: 16px; flex: 1; min-width: 320px;
+  }
+  .panel h2 { font-size: 15px; color: #f1c365; margin-bottom: 12px; letter-spacing: 1px; }
+  label { display: block; font-size: 12px; color: rgba(255,255,255,0.6); margin: 10px 0 4px; }
+  select, input[type="range"], input[type="number"] {
+    width: 100%; background: rgba(255,255,255,0.08); color: #e8dcc3;
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px; font-size: 13px;
+  }
+  select option { background: #1a1510; }
+  input[type="range"] { padding: 0; accent-color: #f1c365; }
+  .btn-row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  button {
+    flex: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(241,195,101,0.5);
+    background: rgba(241,195,101,0.12); color: #f1c365; font-size: 13px; cursor: pointer; transition: 0.2s;
+    min-width: 110px;
+  }
+  button:hover { background: rgba(241,195,101,0.28); }
+  button.primary { background: #f1c365; color: #1a1510; border-color: #f1c365; font-weight: bold; }
+  button.primary:hover { background: #ffd87e; }
+  button.danger { border-color: rgba(255,120,100,0.5); color: #ff8a75; background: rgba(255,120,100,0.1); }
+  button.danger:hover { background: rgba(255,120,100,0.25); }
+  #stage-wrap {
+    background: #efe3c4; border-radius: 10px; overflow: hidden; position: relative;
+    width: 100%; aspect-ratio: 1 / 1; box-shadow: inset 0 0 40px rgba(120,80,20,0.35);
+  }
+  #stage { display: block; width: 100%; height: 100%; }
+  #stage-status {
+    position: absolute; left: 10px; top: 10px; font-size: 12px; color: #7a5f33;
+    background: rgba(255,255,255,0.7); padding: 4px 10px; border-radius: 6px;
+  }
+  .readout {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11.5px;
+    color: rgba(255,255,255,0.55); margin-top: 10px; font-family: Consolas, monospace;
+  }
+  .readout b { color: #f1c365; font-weight: normal; }
+  #saved-list { margin-top: 12px; max-height: 220px; overflow-y: auto; }
+  #saved-list .item {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 6px 8px; border-radius: 6px; font-size: 12px; margin-bottom: 4px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  }
+  #saved-list .item .del { color: #ff8a75; cursor: pointer; border: none; background: none; font-size: 14px; flex: 0 0 auto; padding: 0 4px; }
+  #saved-list .item .del:hover { color: #ff5540; }
+  .hint { font-size: 11.5px; color: rgba(255,255,255,0.4); margin-top: 12px; line-height: 1.7; }
+  .tag { display: inline-block; font-size: 11px; color: #f1c365; border: 1px solid rgba(241,195,101,0.4); border-radius: 4px; padding: 1px 6px; margin-left: 6px; }
+  .loading { text-align: center; color: #7a5f33; font-size: 13px; padding: 20px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>模型视角调整工作台</h1>
+    <div class="sub">手动调整文物模型的位置 / 旋转 / 大小 / 相机角度，保存后首页与馆藏图鉴的缩略图将按此视角渲染</div>
+  </div>
+  <div style="text-align:right;font-size:12px;color:rgba(255,255,255,0.45);">
+    服务端口 8300<br/>访问入口：http://127.0.0.1:8300/model-studio.html
+  </div>
+</header>
+
+<div class="main">
+  <!-- 左侧：选择与调整 -->
+  <div class="panel" style="flex:0 0 360px;">
+    <h2>选择文物</h2>
+    <select id="art-select"></select>
+
+    <h2 style="margin-top:18px;">模型调整</h2>
+    <label>旋转模型（度）</label>
+    <input type="range" id="rotY" min="0" max="360" step="1" value="0" />
+    <div class="btn-row" style="margin-top:6px;">
+      <button id="rot-left" type="button">↺ 左转 15°</button>
+      <button id="rot-right" type="button">↻ 右转 15°</button>
+    </div>
+
+    <label>模型缩放（倍数）</label>
+    <input type="range" id="scale" min="0.3" max="2.5" step="0.01" value="1" />
+
+    <label>模型上下位置</label>
+    <input type="range" id="posY" min="-1.5" max="1.5" step="0.01" value="0" />
+
+    <h2 style="margin-top:18px;">相机调整（拖拽画面旋转视角）</h2>
+    <label>相机水平角度（度）</label>
+    <input type="range" id="camAzimuth" min="-180" max="180" step="1" value="0" />
+    <label>相机俯仰角度（度，90=平视）</label>
+    <input type="range" id="camPolar" min="10" max="170" step="1" value="75" />
+    <label>相机距离</label>
+    <input type="range" id="camDist" min="2" max="10" step="0.05" value="3.5" />
+
+    <div class="btn-row">
+      <button id="save" class="primary" type="button">💾 保存此视角</button>
+      <button id="reset" type="button">↺ 恢复默认</button>
+    </div>
+
+    <div class="readout" id="readout"></div>
+    <div class="hint">
+      使用说明：<br/>
+      1. 从上方选择文物，模型自动加载；<br/>
+      2. 拖拽画面旋转相机视角，或拖动下方滑块微调；<br/>
+      3. 点击「保存此视角」，首页藏品概览与馆藏图鉴缩略图将按该视角渲染；<br/>
+      4. 「恢复默认」清除该文物的自定义视角。
+    </div>
+  </div>
+
+  <!-- 右侧：预览与已保存 -->
+  <div class="panel" style="flex:2;">
+    <h2>实时预览（最终输出约 300×300 方形缩略图）</h2>
+    <div id="stage-wrap">
+      <canvas id="stage" width="300" height="300"></canvas>
+      <div id="stage-status">加载中…</div>
+    </div>
+    <div class="readout" id="preview-readout"></div>
+  </div>
+
+  <div class="panel" style="flex:1;min-width:260px;">
+    <h2>已保存的视角</h2>
+    <div id="saved-list"><div class="loading">加载中…</div></div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+const AGENT_BASE = "http://127.0.0.1:8300";
+
+// ---- 前端基地址自动探测（模型文件在 vite 公共目录，需从前端端口加载） ----
+async function detectFrontBase() {
+  for (const port of [5173, 5174]) {
+    try {
+      const resp = await fetch(`http://127.0.0.1:${port}/`, { method: "HEAD" });
+      if (resp.ok) return `http://127.0.0.1:${port}`;
+    } catch (e) { /* 继续探测 */ }
+  }
+  return "http://127.0.0.1:5173";
+}
+const FRONT_BASE = await detectFrontBase();
+
+// ---- 全部文物列表（与 gallerylist.html 一致） ----
+const ARTIFACTS = [
+  { id: "siyangfangzun", name: "四羊方尊", model: "/my_art/siyangfangzun.glb" },
+  { id: "matafeiyan", name: "马踏飞燕", model: "/my_art/matafeiyan.glb" },
+  { id: "shuochangtaoyong", name: "击鼓说唱陶俑", model: "/my_art/shuochangtaoyong.glb" },
+  { id: "handaiqingtongbianzhong", name: "汉代青铜编钟", model: "/my_art/handaiqingtongbianzhong.glb" },
+  { id: "qingtongniu", name: "青铜牛", model: "/my_art/qingtongniu.glb" },
+  { id: "zhongshitaocijingtailanpinglu", name: "景泰蓝瓶炉", model: "/my_art/zhongshitaocijingtailanpinglu.glb" },
+  { id: "tongzhifenghuangjinjilazhutai", name: "铜朱雀蜡台", model: "/my_art/tongzhifenghuangjinjilazhutai.glb" },
+  { id: "cn-bronze-gong", name: "青铜兽面纹觥", model: "/echo/assets/models/cn-bronze-wine-ewer-gong.bin" },
+  { id: "cn-elephant-zun", name: "青铜象尊", model: "/echo/assets/models/cn2-bronze-elephant-ewer.bin" },
+  { id: "cn-bronze-fangyi", name: "青铜方彝", model: "/echo/assets/models/cn-bronze-fangyi-vessel.bin" },
+  { id: "cn-boshanlu", name: "镶嵌博山炉", model: "/echo/assets/models/cn-bronze-incense-burner.bin" },
+  { id: "cn-cosmic-buddha", name: "宇宙佛", model: "/echo/assets/models/cn-cosmic-buddha.bin" },
+  { id: "cn-stele-gathering", name: "响堂山石窟诸佛聚会", model: "/echo/assets/models/cn-buddhist-stele-gathering.bin" },
+  { id: "cn-stele-paradise", name: "响堂山石窟西方净土", model: "/echo/assets/models/cn-buddhist-stele-paradise.bin" },
+  { id: "cn-winged-beast", name: "跪姿带翼神兽", model: "/echo/assets/models/cn-kneeling-winged-monster.bin" },
+  { id: "cn-porcelain-vase", name: "清康熙青花瓷瓶", model: "/echo/assets/models/cn-porcelain-baluster-vase.bin" },
+  { id: "cn-porcelain-beaker", name: "清康熙青花花觚", model: "/echo/assets/models/cn-porcelain-beaker-vase.bin" },
+  { id: "cn-owl-zun", name: "青铜鸮尊", model: "/echo/assets/models/cn-owl-zun.bin" },
+  { id: "cn-winged-dragon", name: "青铜翼龙", model: "/echo/assets/models/cn-winged-dragon.bin" },
+  { id: "cn-water-moon-guanyin", name: "水月观音像", model: "/echo/assets/models/cn-water-moon-guanyin.bin" },
+  { id: "cn-amoghasiddhi-buddha", name: "鎏金不空成就佛", model: "/echo/assets/models/cn-amoghasiddhi-buddha.bin" },
+  { id: "cn-ding-censer", name: "镂空盖鼎式熏炉", model: "/echo/assets/models/cn-ding-censer.bin" },
+  { id: "cn-sanxingdui-mask", name: "三星堆青铜面具", model: "/echo/assets/models/cn-sanxingdui-mask.bin" },
+  { id: "cn-bronze-gu", name: "商代青铜觚", model: "/echo/assets/models/cn-bronze-gu.bin" },
+  { id: "cn-porcelain-censer", name: "清代景德镇青花瓷香炉", model: "/echo/assets/models/cn-porcelain-incense-burner.bin" },
+  { id: "cn-dragon-dish", name: "清代青花龙纹盘", model: "/echo/assets/models/cn-dragon-dish.bin" },
+  { id: "cn-lion-jar", name: "青花狮钮盖罐", model: "/echo/assets/models/cn-lion-finial-jar.bin" },
+  { id: "cn-songbird-vase", name: "清代青花花鸟觚", model: "/echo/assets/models/cn-songbird-vase.bin" },
+  { id: "cn-dragon-vase", name: "青花龙纹瓶", model: "/echo/assets/models/cn-dragon-vase.bin" },
+  { id: "nefertiti", name: "纳芙蒂蒂胸像", model: "/echo/assets/models/nefertiti-bust.bin" },
+  { id: "venetian-mask", name: "威尼斯狂欢面具", model: "/echo/assets/models/venetian-carnival-mask.bin" },
+  { id: "marine-chronometer", name: "航海精密计时器", model: "/echo/assets/models/marine-chronometer.bin" },
+  { id: "spacesuit", name: "阿波罗11号宇航服", model: "/echo/assets/models/neil-armstrong-spacesuit.bin" },
+  { id: "naval-mine", name: "历史海军水雷", model: "/echo/assets/models/naval-river-mine.bin" },
+  { id: "cuneiform-tablet", name: "楔形文字泥板", model: "/echo/assets/models/cuneiform-tablet.bin" },
+  { id: "greek-slave", name: "《希腊奴隶》雕塑", model: "/echo/assets/models/greek-slave.bin" },
+  { id: "key-marco-cat", name: "马尔科角猫神像", model: "/echo/assets/models/key-marco-cat.bin" },
+  { id: "tree-of-life", name: "生命之树", model: "/echo/assets/models/tree-of-life.bin" },
+  { id: "junkanoo-headdress", name: "朱诺卡努狂欢头饰", model: "/echo/assets/models/junkanoo-headdress.bin" },
+  { id: "triceratops", name: "三角龙骨架", model: "/echo/assets/models/triceratops-skeleton.bin" },
+  { id: "woolly-mammoth", name: "猛犸象骨架", model: "/echo/assets/models/woolly-mammoth.bin" },
+  { id: "fossil-whale", name: "史前鲸化石", model: "/echo/assets/models/fossil-whale-skeleton.bin" },
+  { id: "trilobite", name: "泥盆纪三叶虫", model: "/echo/assets/models/devonian-trilobite.bin" },
+  { id: "amber-mosquito", name: "琥珀中的远古蚊", model: "/echo/assets/models/mosquito-in-amber.bin" },
+  { id: "ivory-mammoth", name: "旧石器象牙猛犸象雕", model: "/echo/assets/models/ivory-mammoth-figurine.bin" },
+  { id: "junonia-shell", name: "朱诺尼亚海螺", model: "/echo/assets/models/junonia-shell.bin" },
+  { id: "elephant-vessel", name: "商代象形铜觥", model: "/echo/assets/models/elephant-vessel.bin" },
+  { id: "spiny-oyster", name: "帝王棘蛎", model: "/echo/assets/models/spiny-oyster.bin" },
+  { id: "staghorn-coral", name: "鹿角珊瑚", model: "/echo/assets/models/staghorn-coral.bin" },
+  { id: "butterfly-orchid", name: "蝶翼兰", model: "/echo/assets/models/butterfly-orchid.bin" },
+  { id: "blue-orchid", name: "蓝万代兰", model: "/echo/assets/models/blue-orchid.bin" },
+  { id: "moon-orchid", name: "月亮兰", model: "/echo/assets/models/moon-orchid.bin" },
+  { id: "cassiopeia-a", name: "仙后座A超新星遗迹", model: "/echo/assets/models/cassiopeia-a.bin" },
+  { id: "crab-nebula", name: "蟹状星云", model: "/echo/assets/models/crab-nebula.bin" },
+  { id: "damaged-helmet", name: "受损头盔", model: "/echo/assets/models/DamagedHelmet.bin" },
+  { id: "antique-camera", name: "古董相机", model: "/echo/assets/models/AntiqueCamera.bin" },
+  { id: "chess-set", name: "国际象棋", model: "/echo/assets/models/ABeautifulGame.bin" },
+  { id: "lantern", name: "铸铁提灯", model: "/echo/assets/models/Lantern.bin" },
+  { id: "boombox", name: "便携式录音机", model: "/echo/assets/models/BoomBox.bin" },
+];
+
+// ---- Three.js 场景 ----
+const canvas = document.getElementById("stage");
+const statusEl = document.getElementById("stage-status");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setClearColor(0x000000, 0);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xefe3c4);
+
+const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 200);
+camera.position.set(0, 1, 3.5);
+
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.dampingFactor = 0.1;
+controls.enablePan = false;
+controls.minDistance = 1.5;
+controls.maxDistance = 12;
+
+scene.add(
+  new THREE.HemisphereLight("#ffffff", "#cbb27e", 1.35),
+  (() => { const l = new THREE.DirectionalLight("#fff2d8", 2.4); l.position.set(3, 5, 4); return l; })(),
+  (() => { const l = new THREE.DirectionalLight("#ffe6f0", 1.1); l.position.set(-3, 1, -4); return l; })(),
+);
+
+const gltfLoader = new GLTFLoader();
+const draco = new DRACOLoader();
+draco.setDecoderPath(FRONT_BASE + "/echo/draco/");
+gltfLoader.setDRACOLoader(draco);
+
+let currentModel = null;
+let baseFitScale = 1;
+let currentArt = null;
+let savedViews = {};
+
+const select = document.getElementById("art-select");
+const rotYEl = document.getElementById("rotY");
+const scaleEl = document.getElementById("scale");
+const posYEl = document.getElementById("posY");
+const camAzEl = document.getElementById("camAzimuth");
+const camPolEl = document.getElementById("camPolar");
+const camDistEl = document.getElementById("camDist");
+const readoutEl = document.getElementById("readout");
+const previewReadoutEl = document.getElementById("preview-readout");
+const savedListEl = document.getElementById("saved-list");
+
+// 填充文物下拉框
+ARTIFACTS.forEach((art) => {
+  const opt = document.createElement("option");
+  opt.value = art.id;
+  opt.textContent = art.name;
+  select.appendChild(opt);
+});
+
+// 加载模型
+function loadModel(art) {
+  currentArt = art;
+  statusEl.textContent = `加载 ${art.name} …`;
+  // 清理旧模型
+  if (currentModel) {
+    scene.remove(currentModel);
+    currentModel.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.geometry.dispose();
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        mats.forEach((m) => m.dispose());
+      }
+    });
+    currentModel = null;
+  }
+
+  gltfLoader.load(FRONT_BASE + art.model, (gltf) => {
+    const model = gltf.scene;
+    // 默认适配：与缩略图渲染一致（水平居中、底部对齐 y=0）
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const fitScale = maxDim > 0 ? 1.8 / maxDim : 1;
+    baseFitScale = fitScale;
+    model.scale.setScalar(fitScale);
+    model.position.x = -center.x * fitScale;
+    model.position.z = -center.z * fitScale;
+    model.position.y = -(center.y - size.y / 2) * fitScale;
+    model.rotation.y = 0;
+    scene.add(model);
+    currentModel = model;
+
+    // 应用已保存视角（如果有）
+    const saved = savedViews[art.id];
+    if (saved) {
+      applyView(saved);
+    } else {
+      // 重置滑块为默认值
+      rotYEl.value = 0;
+      scaleEl.value = 1;
+      posYEl.value = 0;
+      camAzEl.value = 0;
+      camPolEl.value = 75;
+      camDistEl.value = 3.5;
+      camera.position.set(0, 1, 3.5);
+      controls.target.set(0, 0.3, 0);
+      controls.update();
+    }
+    statusEl.textContent = `${art.name} · 已加载（拖拽旋转视角）`;
+    updateReadout();
+    animate();
+  }, undefined, (err) => {
+    console.error("模型加载失败:", err);
+    statusEl.textContent = `⚠️ ${art.name} 加载失败，请确认模型路径`;
+  });
+}
+
+// 应用保存的视角到滑块与场景
+function applyView(v) {
+  rotYEl.value = v.rotationY ?? 0;
+  scaleEl.value = v.scale ?? 1;
+  posYEl.value = v.posY ?? 0;
+  camAzEl.value = v.camAzimuth ?? 0;
+  camPolEl.value = v.camPolar ?? 75;
+  camDistEl.value = v.camDistance ?? 3.5;
+  if (currentModel) {
+    currentModel.rotation.y = THREE.MathUtils.degToRad(v.rotationY ?? 0);
+    currentModel.scale.setScalar((v.scale ?? 1) * baseFitScale);
+    currentModel.position.y = (v.posY ?? 0);
+  }
+  setCameraFromSliders();
+  controls.target.set(0, (v.posY ?? 0) * 0.6 + 0.3, 0);
+  controls.update();
+}
+
+function setCameraFromSliders() {
+  const az = THREE.MathUtils.degToRad(parseFloat(camAzEl.value));
+  const pol = THREE.MathUtils.degToRad(parseFloat(camPolEl.value));
+  const dist = parseFloat(camDistEl.value);
+  const x = dist * Math.sin(pol) * Math.sin(az);
+  const y = dist * Math.cos(pol);
+  const z = dist * Math.sin(pol) * Math.cos(az);
+  camera.position.set(x, y, z);
+  camera.lookAt(controls.target);
+  controls.update();
+}
+
+function updateReadout() {
+  const sp = new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));
+  const azDeg = THREE.MathUtils.radToDeg(sp.theta);
+  const polDeg = THREE.MathUtils.radToDeg(sp.phi);
+  readoutEl.innerHTML =
+    `模型旋转 <b>${rotYEl.value}°</b> · 缩放 <b>${scaleEl.value}×</b> · 上下 <b>${posYEl.value}</b><br/>` +
+    `相机方位 <b>${azDeg.toFixed(1)}°</b> · 俯仰 <b>${polDeg.toFixed(1)}°</b> · 距离 <b>${sp.radius.toFixed(2)}</b>`;
+  previewReadoutEl.textContent = `视角读取自保存配置；未保存时显示默认适配视角`;
+}
+
+// ---- 事件 ----
+select.addEventListener("change", () => {
+  const art = ARTIFACTS.find((a) => a.id === select.value);
+  if (art) loadModel(art);
+});
+
+rotYEl.addEventListener("input", () => {
+  if (currentModel) currentModel.rotation.y = THREE.MathUtils.degToRad(parseFloat(rotYEl.value));
+  updateReadout();
+});
+scaleEl.addEventListener("input", () => {
+  if (currentModel) currentModel.scale.setScalar(parseFloat(scaleEl.value) * baseFitScale);
+  updateReadout();
+});
+posYEl.addEventListener("input", () => {
+  if (currentModel) currentModel.position.y = parseFloat(posYEl.value);
+  controls.target.set(0, parseFloat(posYEl.value) * 0.6 + 0.3, 0);
+  updateReadout();
+});
+camAzEl.addEventListener("input", () => { setCameraFromSliders(); updateReadout(); });
+camPolEl.addEventListener("input", () => { setCameraFromSliders(); updateReadout(); });
+camDistEl.addEventListener("input", () => { setCameraFromSliders(); updateReadout(); });
+
+document.getElementById("rot-left").addEventListener("click", () => {
+  rotYEl.value = (parseFloat(rotYEl.value) - 15 + 360) % 360;
+  rotYEl.dispatchEvent(new Event("input"));
+});
+document.getElementById("rot-right").addEventListener("click", () => {
+  rotYEl.value = (parseFloat(rotYEl.value) + 15) % 360;
+  rotYEl.dispatchEvent(new Event("input"));
+});
+
+document.getElementById("save").addEventListener("click", async () => {
+  if (!currentArt) return;
+  const sp = new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));
+  const payload = {
+    id: currentArt.id,
+    rotationY: parseFloat(rotYEl.value),
+    scale: parseFloat(scaleEl.value),
+    posX: 0,
+    posY: parseFloat(posYEl.value),
+    posZ: 0,
+    camAzimuth: parseFloat(THREE.MathUtils.radToDeg(sp.theta).toFixed(2)),
+    camPolar: parseFloat(THREE.MathUtils.radToDeg(sp.phi).toFixed(2)),
+    camDistance: parseFloat(sp.radius.toFixed(2)),
+    updated: new Date().toLocaleString("zh-CN"),
+  };
+  try {
+    const resp = await fetch(`${AGENT_BASE}/api/model-views`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      savedViews = data.views || savedViews;
+      statusEl.textContent = `✅ 已保存「${currentArt.name}」视角`;
+      renderSavedList();
+    } else {
+      statusEl.textContent = `❌ 保存失败: ${data.error || "未知错误"}`;
+    }
+  } catch (e) {
+    statusEl.textContent = `❌ 无法连接后端服务（${AGENT_BASE}）`;
+  }
+});
+
+document.getElementById("reset").addEventListener("click", async () => {
+  if (!currentArt) return;
+  try {
+    const resp = await fetch(`${AGENT_BASE}/api/model-views`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: currentArt.id, action: "delete" }),
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      savedViews = data.views || {};
+      statusEl.textContent = `↺ 已恢复「${currentArt.name}」默认视角`;
+      renderSavedList();
+      // 重置场景
+      rotYEl.value = 0; scaleEl.value = 1; posYEl.value = 0;
+      camAzEl.value = 0; camPolEl.value = 75; camDistEl.value = 3.5;
+      if (currentModel) {
+        currentModel.rotation.y = 0;
+        currentModel.scale.setScalar(baseFitScale);
+        currentModel.position.y = 0.1;
+      }
+      camera.position.set(0, 1, 3.5);
+      controls.target.set(0, 0.3, 0);
+      controls.update();
+      updateReadout();
+    }
+  } catch (e) {
+    statusEl.textContent = `❌ 无法连接后端服务（${AGENT_BASE}）`;
+  }
+});
+
+function renderSavedList() {
+  const ids = Object.keys(savedViews);
+  if (ids.length === 0) {
+    savedListEl.innerHTML = `<div class="loading">暂无已保存的视角</div>`;
+    return;
+  }
+  savedListEl.innerHTML = "";
+  ids.forEach((id) => {
+    const art = ARTIFACTS.find((a) => a.id === id);
+    const name = art ? art.name : id;
+    const v = savedViews[id];
+    const item = document.createElement("div");
+    item.className = "item";
+    item.innerHTML = `
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}<span class="tag">${v.rotationY ?? 0}°</span></span>
+      <button class="del" data-id="${id}" title="删除该视角">✕</button>
+    `;
+    item.querySelector(".del").addEventListener("click", async () => {
+      const resp = await fetch(`${AGENT_BASE}/api/model-views`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action: "delete" }),
+      });
+      const data = await resp.json();
+      if (data.ok) {
+        savedViews = data.views || {};
+        renderSavedList();
+      }
+    });
+    savedListEl.appendChild(item);
+  });
+}
+
+// 渲染循环
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+// 初始化：加载视角配置 + 默认选择第一件文物
+(async () => {
+  try {
+    const resp = await fetch(`${AGENT_BASE}/api/model-views`, { cache: "no-store" });
+    savedViews = await resp.json();
+  } catch (e) {
+    savedViews = {};
+    statusEl.textContent = "⚠️ 无法连接后端，只能预览无法保存";
+  }
+  renderSavedList();
+  loadModel(ARTIFACTS[0]);
+  animate();
+})();
+</script>
+</body>
+</html>

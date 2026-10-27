@@ -20,6 +20,7 @@ from urllib.parse import urlparse, unquote
 BASE = os.path.dirname(os.path.abspath(__file__))
 KB_FILE = os.path.join(BASE, "data", "knowledge.json")
 CONFIG_FILE = os.path.join(BASE, "data", "config.json")
+MODEL_VIEWS_FILE = os.path.join(BASE, "data", "model-views.json")
 STATIC_DIR = os.path.join(BASE, "static")
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8300
 LOCK = threading.Lock()
@@ -133,6 +134,43 @@ def save_kb(kb):
         with open(tmp, "w", encoding="utf-8") as f:
             json.dump(kb, f, ensure_ascii=False, indent=2)
         os.replace(tmp, KB_FILE)
+
+
+# ---------------- 模型视角配置存取（模型位置调整工作台） ----------------
+
+def load_model_views():
+    if not os.path.exists(MODEL_VIEWS_FILE):
+        return {}
+    try:
+        with open(MODEL_VIEWS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def save_model_view(artifact_id, view):
+    views = load_model_views()
+    views[artifact_id] = view
+    with LOCK:
+        os.makedirs(os.path.dirname(MODEL_VIEWS_FILE), exist_ok=True)
+        tmp = MODEL_VIEWS_FILE + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(views, f, ensure_ascii=False, indent=2)
+        os.replace(tmp, MODEL_VIEWS_FILE)
+    return views
+
+
+def delete_model_view(artifact_id):
+    views = load_model_views()
+    if artifact_id in views:
+        del views[artifact_id]
+        with LOCK:
+            tmp = MODEL_VIEWS_FILE + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(views, f, ensure_ascii=False, indent=2)
+            os.replace(tmp, MODEL_VIEWS_FILE)
+    return views
 
 
 # ---------------- 大模型调用（OpenAI 兼容协议，标准库实现） ----------------
@@ -622,24 +660,27 @@ def theater_system_prompt(char_a, char_b, topic, style="classic"):
         )
 
     lang_rule = (
-        "语言要口语化、像讲故事一样生动，适合中小学生理解，避免难懂文言，遇到生僻词要解释。"
+        "语言要口语化、像给小朋友讲故事一样生动有趣，句子短，多用感叹句和问句，"
+        "可以加拟声词和动作描写，适合中小学生理解，避免难懂文言。"
         if style == "kids" else
         "语言要符合各自的时代背景与人物性格，可适当文言化，有古风韵味。"
     )
 
     return (
-        f"你是一位精通历史的编剧。请根据下方两位历史人物的资料，"
-        f"围绕主题「{topic}」创作一场跨越时空的对话小剧场。\n\n"
+        f"你是一位精通历史的儿童剧编剧。请根据下方两位历史人物的资料，"
+        f"围绕主题「{topic}」创作一场适合皮影戏表演的对话小剧场。\n\n"
         f"人物资料：\n{char_desc(char_a)}\n\n{char_desc(char_b)}\n\n"
         "创作要求：\n"
-        "1）对话共 5—7 轮，两人交替发言，每轮一句或一段；\n"
+        "1）对话共 6—8 轮，两人交替发言，每轮一句话，不要太长；\n"
         "2）严格使用第一人称，语言要符合人物的身份、性格与时代背景；\n"
         f"3）{lang_rule}\n"
-        "4）通过对话自然展现两人的不同经历、人格魅力、朝廷谋略与时代课题；\n"
-        "5）对话要有戏剧性，可包含感慨、反问、赞叹、争论，但不得编造严重违背史实的内容；\n"
-        "6）开头用一句简短旁白交代场景；结尾用一句简短旁白收束；\n"
-        "7）严格使用纯文本，不要任何 Markdown 标记；\n"
-        "8）输出格式（必须每句独占一行）：\n"
+        "4）对话必须符合两位人物的历史身份和所处时代，秦始皇不能说后世的事，李白不能聊宋代以后的典故，不能穿越；\n"
+        "5）通过对话自然展现文物的特点、历史故事和人物情感，要有互动感；\n"
+        "6）对话要有戏剧性，可包含好奇、赞叹、惊讶，但不得编造严重违背史实的内容；\n"
+        "7）开头用一句简短旁白交代场景；结尾用一句简短旁白收束；\n"
+        "8）严格使用纯文本，不要任何 Markdown 标记；\n"
+        "9）每句话标点正确，专有名词（人名、地名、文物名）不要断开；\n"
+        "10）输出格式（必须每句独占一行）：\n"
         "旁白：……\n"
         f"{char_a.get('title', 'A')}：……\n"
         f"{char_b.get('title', 'B')}：……\n"
@@ -796,6 +837,10 @@ class Handler(BaseHTTPRequestHandler):
         path = urlparse(self.path).path
         if path in ("/", "/index.html"):
             self.send_file(os.path.join(STATIC_DIR, "index.html"), "text/html; charset=utf-8")
+        elif path == "/model-studio.html":
+            self.send_file(os.path.join(STATIC_DIR, "model-studio.html"), "text/html; charset=utf-8")
+        elif path == "/api/model-views":
+            self.send_json(load_model_views())
         elif path == "/api/knowledge":
             self.send_json(load_kb())
         elif path == "/api/config":
@@ -822,7 +867,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json({"error": "请求体必须是合法 JSON"}, 400)
             return
         if path == "/api/chat":
-            self.send_json(chat_answer(data.get("question", ""),
+            self.send_json(chat_answer(data.get("question") or data.get("message") or "",
                                        history=data.get("history"),
                                        mode=data.get("mode"),
                                        current_hall=data.get("current_hall"),
@@ -855,6 +900,34 @@ class Handler(BaseHTTPRequestHandler):
                     added += 1
             save_kb(kb)
             self.send_json({"ok": True, "added": added})
+        elif path == "/api/model-views":
+            artifact_id = (data.get("id") or "").strip()
+            if not artifact_id:
+                self.send_json({"error": "缺少文物 id"}, 400)
+                return
+            action = data.get("action") or "save"
+            if action == "delete":
+                views = delete_model_view(artifact_id)
+                self.send_json({"ok": True, "views": views})
+                return
+            # 校验视角参数
+            try:
+                view = {
+                    "rotationY": float(data.get("rotationY", 0)),
+                    "scale": float(data.get("scale", 1)),
+                    "posX": float(data.get("posX", 0)),
+                    "posY": float(data.get("posY", 0)),
+                    "posZ": float(data.get("posZ", 0)),
+                    "camAzimuth": float(data.get("camAzimuth", 0)),
+                    "camPolar": float(data.get("camPolar", 75)),
+                    "camDistance": float(data.get("camDistance", 3.5)),
+                    "updated": data.get("updated", ""),
+                }
+            except (TypeError, ValueError):
+                self.send_json({"error": "视角参数必须是数字"}, 400)
+                return
+            views = save_model_view(artifact_id, view)
+            self.send_json({"ok": True, "views": views})
         elif path == "/api/theater":
             try:
                 res = generate_theater(
@@ -866,6 +939,38 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json({"ok": True, **res})
             except RuntimeError as e:
                 self.send_json({"error": str(e)}, 400)
+        elif path == "/api/tts":
+            # Edge TTS 多音色合成（命令行方式，避免线程内 asyncio 问题）
+            import subprocess
+            import tempfile
+            text = data.get("text", "").strip()
+            voice = data.get("voice", "zh-CN-YunxiNeural")
+            rate = data.get("rate", "+0%")
+            if not text:
+                self.send_json({"error": "empty text"}, 400)
+                return
+            try:
+                tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+                tmp.close()
+                cmd = ["python", "-m", "edge_tts", "--voice", voice, "--rate", rate, "--text", text, "--write-media", tmp.name]
+                r = subprocess.run(cmd, capture_output=True, timeout=20)
+                if r.returncode != 0:
+                    self.send_json({"error": f"edge-tts failed: {r.stderr.decode('utf-8', errors='ignore')}"}, 500)
+                    return
+                with open(tmp.name, "rb") as f:
+                    audio = f.read()
+                os.unlink(tmp.name)
+                if not audio:
+                    self.send_json({"error": "no audio generated"}, 500)
+                    return
+                self.send_response(200)
+                self.send_header("Content-Type", "audio/mpeg")
+                self.send_header("Content-Length", str(len(audio)))
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(audio)
+            except Exception as e:
+                self.send_json({"error": f"tts failed: {e}"}, 500)
         elif path == "/api/config":
             cfg = load_config()
             for k in ("base_url", "model", "mode", "temperature"):

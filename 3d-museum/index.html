@@ -1857,22 +1857,40 @@
       <p style="font-size:12px;letter-spacing:8px;color:var(--gold);margin:0 0 20px;text-align:left !important;">华 夏 文 明 · 千 载 重 器</p>
       <h1 data-i18n="hero_title" style="font-size:56px;line-height:1.15;letter-spacing:6px;font-weight:600;color:#fff;margin:0 0 24px;text-align:left !important;">华夏珍宝<br>数字博物馆</h1>
       <div style="width:80px;height:1px;background:var(--gold);margin:0 0 28px;text-align:left !important;"></div>
-      <p data-i18n="hero_intro" style="max-width:560px;font-size:15px;line-height:2;color:var(--ink-soft);margin:0;text-align:left !important;">一件文物，一段文明。以三维技术复现国之重器，将四羊方尊、马踏飞燕、击鼓说唱陶俑与景泰蓝瓶炉等馆藏陈列于数字展厅，足不出户，亦可驻足凝望千年之美。</p>
+      <p data-i18n="hero_intro" style="max-width:560px;font-size:15px;line-height:2;color:#e8e0d0;text-shadow:0 1px 4px rgba(0,0,0,0.6);margin:0;text-align:left !important;">一件文物，一段文明。以三维技术复现国之重器，将四羊方尊、马踏飞燕、击鼓说唱陶俑与景泰蓝瓶炉等馆藏陈列于数字展厅，足不出户，亦可驻足凝望千年之美。</p>
     </section>
 
     <!-- 统计条：左对齐 -->
     <section style="max-width:1180px;margin:0 auto 70px;padding:40px 44px;display:flex;gap:80px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);text-align:left !important;">
       <div>
         <div style="font-size:48px;font-weight:600;color:#fff;" class="venue-num" data-count="52">0</div>
-        <div style="font-size:13px;letter-spacing:2px;color:var(--ink-soft);margin-top:8px;">三维数字化展品</div>
+        <div style="font-size:13px;letter-spacing:2px;color:#d0c8b8;margin-top:8px;">三维数字化展品</div>
       </div>
       <div>
         <div style="font-size:48px;font-weight:600;color:#fff;" class="venue-num" data-count="7">0</div>
-        <div style="font-size:13px;letter-spacing:2px;color:var(--ink-soft);margin-top:8px;">主题展区</div>
+        <div style="font-size:13px;letter-spacing:2px;color:#d0c8b8;margin-top:8px;">主题展区</div>
       </div>
       <div>
         <div style="font-size:48px;font-weight:600;color:#fff;" class="venue-num" data-count="13">0</div>
-        <div style="font-size:13px;letter-spacing:2px;color:var(--ink-soft);margin-top:8px;">可对话历史人物</div>
+        <div style="font-size:13px;letter-spacing:2px;color:#d0c8b8;margin-top:8px;">可对话历史人物</div>
+      </div>
+    </section>
+
+    <!-- 3D 展厅：左文右图，仿皮影戏台板块格式 -->
+    <section style="max-width:1180px;margin:0 auto 70px;padding:0 44px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;" aria-label="3D展厅">
+      <div style="background:rgba(26,20,14,0.6);border:1px solid rgba(201,169,97,0.25);border-radius:12px;padding:34px 38px;backdrop-filter:blur(2px);">
+        <p style="font-size:12px;letter-spacing:6px;color:#e8d9b8;margin:0 0 16px;">3D VIRTUAL HALL</p>
+        <h3 style="font-size:32px;letter-spacing:4px;color:#f0e8d8;margin:0 0 20px;line-height:1.3;font-weight:600;">3D 展厅<br>沉浸式数字漫游</h3>
+        <p style="font-size:15px;line-height:2;color:#e6dcc8;margin:0 0 24px;">走进 3D 数字展厅，自由漫游于青铜礼乐、瓷韵千年等七大主题展区，走近每一件文物，让国宝在指尖流转。</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">
+          <a href="/hall.html" style="padding:10px 26px;border:1px solid var(--gold-deep);border-radius:999px;font-size:14px;color:#f0e8d8;text-decoration:none;background:rgba(201,169,97,0.18);">进入 3D 展厅 →</a>
+          <a href="/gallerylist.html" style="padding:10px 26px;border:1px solid rgba(240,232,216,0.35);border-radius:999px;font-size:14px;color:#f0e8d8;text-decoration:none;background:rgba(240,232,216,0.08);">浏览馆藏图鉴</a>
+        </div>
+      </div>
+      <div style="height:320px;border-radius:12px;overflow:hidden;border:1px solid var(--line);">
+        <a href="/hall.html" style="display:block;width:100%;height:100%;">
+          <img src="/images/hall-preview.png" alt="3D 展厅场景" style="width:100%;height:100%;object-fit:cover;">
+        </a>
       </div>
     </section>
 
@@ -1883,35 +1901,35 @@
     </div>
     <!-- 主题展区卡片 -->
     <div style="max-width:1180px;margin:0 auto 70px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:0 44px;">
-      <a href="/gallery.html?theme=bronze" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
+      <a href="/gallerylist.html?theme=bronze" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
         <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">01</div>
-        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:var(--ink);">青铜礼乐馆</div>
-        <div style="font-size:13px;color:var(--ink-soft);line-height:1.6;">商周青铜重器，礼乐文明的见证</div>
+        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">青铜礼乐馆</div>
+        <div style="font-size:13px;color:#d0c8b8;line-height:1.6;">商周青铜重器，礼乐文明的见证</div>
       </a>
-      <a href="/gallery.html?theme=porcelain" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
+      <a href="/gallerylist.html?theme=porcelain" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
         <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">02</div>
-        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:var(--ink);">瓷韵千年馆</div>
-        <div style="font-size:13px;color:var(--ink-soft);line-height:1.6;">唐宋元明清，千年瓷韵流变</div>
+        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">瓷韵千年馆</div>
+        <div style="font-size:13px;color:#d0c8b8;line-height:1.6;">唐宋元明清，千年瓷韵流变</div>
       </a>
-      <a href="/gallery.html?theme=buddhist" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
+      <a href="/gallerylist.html?theme=buddhist" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
         <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">03</div>
-        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:var(--ink);">佛光庄严馆</div>
-        <div style="font-size:13px;color:var(--ink-soft);line-height:1.6;">佛教造像艺术，庄严净土之美</div>
+        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">佛光庄严馆</div>
+        <div style="font-size:13px;color:#d0c8b8;line-height:1.6;">佛教造像艺术，庄严净土之美</div>
       </a>
-      <a href="/gallery.html?theme=world" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
+      <a href="/gallerylist.html?theme=world" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
         <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">04</div>
-        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:var(--ink);">世界文明馆</div>
-        <div style="font-size:13px;color:var(--ink-soft);line-height:1.6;">中外文明交流互鉴的物证</div>
+        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">世界文明馆</div>
+        <div style="font-size:13px;color:#d0c8b8;line-height:1.6;">中外文明交流互鉴的物证</div>
       </a>
-      <a href="/gallery.html?theme=nature" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
+      <a href="/gallerylist.html?theme=nature" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
         <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">05</div>
-        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:var(--ink);">自然与宇宙馆</div>
-        <div style="font-size:13px;color:var(--ink-soft);line-height:1.6;">自然与人类文明的对话</div>
+        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">自然与宇宙馆</div>
+        <div style="font-size:13px;color:#d0c8b8;line-height:1.6;">自然与人类文明的对话</div>
       </a>
-      <a href="/gallery.html?theme=tech" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
+      <a href="/gallerylist.html?theme=tech" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
         <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">06</div>
-        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:var(--ink);">科技体验馆</div>
-        <div style="font-size:13px;color:var(--ink-soft);line-height:1.6;">互动体验，感受文物背后的科技</div>
+        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">科技体验馆</div>
+        <div style="font-size:13px;color:#d0c8b8;line-height:1.6;">互动体验，感受文物背后的科技</div>
       </a>
     </div>
 
@@ -1920,18 +1938,24 @@
       <div>
         <p style="font-size:12px;letter-spacing:6px;color:var(--gold);margin:0 0 16px;">SHADOW PUPPET THEATER</p>
         <h3 style="font-size:32px;letter-spacing:4px;color:#fff;margin:0 0 20px;line-height:1.3;font-weight:600;">皮影戏台<br>与历史人物对话</h3>
-        <p style="font-size:15px;line-height:2;color:var(--ink-soft);margin:0 0 24px;">走进皮影戏台，在光影之间与千年历史人物面对面。点击任意人物，开启跨时空对话。</p>
+        <p style="font-size:15px;line-height:2;color:#e0d8c8;text-shadow:0 1px 4px rgba(0,0,0,0.6);margin:0 0 24px;">走进皮影戏台，在光影之间与千年历史人物面对面。点击任意人物，开启跨时空对话。</p>
         <div style="display:flex;flex-wrap:wrap;gap:10px;">
           <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">秦始皇</span>
           <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">李白</span>
+          <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">李清照</span>
           <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">苏轼</span>
           <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">武则天</span>
+          <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">妇好</span>
           <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">屈原</span>
           <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">霍去病</span>
+          <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">乾隆</span>
           <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">辛弃疾</span>
+          <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">秦琼</span>
+          <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">张骞</span>
+          <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">玄奘</span>
         </div>
       </div>
-      <div style="height:320px;border-radius:12px;overflow:hidden;border:1px solid var(--line);">
+      <div style="height:320px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:rgba(0,0,0,0.4);">
         <img src="shadow-puppet-stage.jpg" alt="皮影戏戏台" style="width:100%;height:100%;object-fit:cover;">
       </div>
     </section>
@@ -1945,7 +1969,7 @@
     <section class="showcase" id="showcase" style="max-width:1180px;margin:0 auto 70px;padding:0 44px;" aria-label="藏品概览">
       <div class="showcase-grid" id="showcase-grid" style="display:flex;gap:20px;"></div>
       <p class="showcase-loading" id="showcase-loading" hidden style="margin:20px 0 0;text-align:center;font-size:13px;letter-spacing:3px;color:var(--gold-deep);">正在陈列第 0 / 0 件…</p>
-      <p class="showcase-tip" style="margin:16px 0 0;text-align:center;font-size:12px;letter-spacing:2px;color:var(--ink-soft);">点击任一藏品，进入馆藏图鉴继续欣赏</p>
+      <p class="showcase-tip" style="margin:16px 0 0;text-align:center;font-size:12px;letter-spacing:2px;color:#d0c8b8;">点击任一藏品，进入文物详情页欣赏</p>
     </section>
 
 

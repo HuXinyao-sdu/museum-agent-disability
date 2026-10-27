@@ -72,7 +72,7 @@
     .related { max-width: 1180px; margin: 0 auto 60px; padding: 0 44px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
     .rel-card { background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; cursor: pointer; transition: all 0.3s; text-decoration: none; color: inherit; display: block; }
     .rel-card:hover { border-color: rgba(201,169,97,0.4); transform: translateY(-3px); }
-    .rel-card .img { height: 110px; background: rgba(201,169,97,0.08); display: grid; place-items: center; color: var(--gold); font-size: 22px; border-bottom: 1px solid var(--line); }
+    .rel-card .img { height: 145px; background: #efe3c4; display: grid; place-items: center; color: var(--gold); font-size: 22px; border-bottom: 1px solid var(--line); }
     .rel-card .name { padding: 12px; font-size: 14px; letter-spacing: 2px; }
 
     /* 假如文物会说话 对话面板 */
@@ -111,6 +111,28 @@
     .artifact-chat-input { flex: 1; padding: 10px 16px; background: rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 999px; color: var(--ink); font-size: 14px; outline: none; }
     .artifact-chat-input:focus { border-color: var(--gold); }
     .artifact-chat-send { padding: 10px 24px; background: linear-gradient(135deg, #b8913a, #8a6a20); border: none; border-radius: 999px; color: #fff; font-size: 14px; cursor: pointer; }
+    /* 纹饰热点标注 */
+    .pattern-hint { position: absolute; left: 16px; bottom: 14px; z-index: 5; font-size: 12px; letter-spacing: 2px; color: #8a6a20; background: rgba(255,252,244,0.82); padding: 6px 14px; border-radius: 999px; border: 1px solid rgba(201,169,97,0.5); pointer-events: none; }
+    .pattern-panel {
+      position: fixed; top: 0; right: 0; width: 380px; height: 100%;
+      background: rgba(18,14,10,0.96); border-left: 1px solid var(--line);
+      box-shadow: -12px 0 40px rgba(0,0,0,0.5);
+      z-index: 200; transform: translateX(105%); transition: transform 0.35s ease;
+      display: flex; flex-direction: column;
+    }
+    .pattern-panel.open { transform: translateX(0); }
+    .pattern-panel-head { padding: 20px 24px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 12px; }
+    .pattern-panel-head h3 { font-size: 17px; color: var(--gold); letter-spacing: 2px; margin: 0; }
+    .pattern-panel-head p { font-size: 12px; color: var(--ink-soft); margin: 4px 0 0; }
+    .pattern-panel-close { margin-left: auto; background: none; border: none; color: var(--ink-soft); font-size: 22px; cursor: pointer; padding: 4px 8px; }
+    .pattern-panel-close:hover { color: var(--gold); }
+    .pattern-panel-body { flex: 1; overflow-y: auto; padding: 22px 24px; }
+    .pattern-item { padding: 14px 0; border-bottom: 1px solid rgba(201,169,97,0.12); }
+    .pattern-item:last-child { border-bottom: none; }
+    .pattern-item .p-name { font-size: 15px; color: #fff; letter-spacing: 2px; margin: 0 0 6px; }
+    .pattern-item .p-name em { font-style: normal; color: var(--gold); margin-right: 8px; }
+    .pattern-item .p-desc { font-size: 13px; line-height: 1.9; color: var(--ink-soft); margin: 0; }
+    .pattern-tip { position: absolute; left: 16px; bottom: 14px; z-index: 5; font-size: 12px; letter-spacing: 2px; color: #8a6a20; background: rgba(255,252,244,0.82); padding: 6px 14px; border-radius: 999px; border: 1px solid rgba(201,169,97,0.5); pointer-events: none; }
   </style>
 </head>
 <body>
@@ -172,6 +194,18 @@
   <div class="related-title">相关推荐</div>
   <div class="related" id="related-grid" style="grid-template-columns: repeat(7, 1fr); gap: 12px;">
   </div>
+
+  <!-- 纹饰详解面板 -->
+  <aside class="pattern-panel" id="pattern-panel" aria-label="纹饰详解">
+    <div class="pattern-panel-head">
+      <div>
+        <h3 id="pattern-panel-title">纹饰详解</h3>
+        <p id="pattern-panel-sub">点击模型上的金色光标，了解文物纹饰</p>
+      </div>
+      <button class="pattern-panel-close" id="pattern-panel-close" type="button" title="关闭">✕</button>
+    </div>
+    <div class="pattern-panel-body" id="pattern-panel-body"></div>
+  </aside>
 
   <!-- 假如文物会说话 对话面板 -->
   <div class="artifact-chat-mask" id="artifact-chat-mask" hidden>
@@ -669,6 +703,22 @@
         controls.target.set(0, 1.2, 0);
         controls.update();
         loading.style.display = "none";
+        // 纹饰热点
+        patternSprites.forEach((s) => scene.remove(s));
+        patternSprites.length = 0;
+        addPatternSpots(currentModel, id);
+        const hasPatterns = (PATTERN_SPOTS[id] || []).length > 0;
+        let hint = document.querySelector(".pattern-tip");
+        if (hasPatterns) {
+          if (!hint) {
+            hint = document.createElement("div");
+            hint.className = "pattern-tip";
+            hint.textContent = "点击金色光标查看纹饰详解";
+            container.appendChild(hint);
+          }
+        } else if (hint) {
+          hint.remove();
+        }
       } catch (err) {
         loading.textContent = "模型加载失败";
         console.error(err);
@@ -683,6 +733,134 @@
     }
     animate();
 
+    // ===== 纹饰热点标注 =====
+    // 纹饰数据：pos 为模型包围盒归一化比例 [-1,1]（x右+/左-，y上+/下-，z前+/后-）
+    const PATTERN_SPOTS = {
+      siyangfangzun: [
+        { name: "卷角羊首", pos: [0.95, 0.72, -0.1], desc: "尊肩四角各铸一只卷角羊首，羊角粗壮盘曲，双目圆睁，造型写实而威严，将动物形象与礼器器型完美结合，是商代青铜铸造的巅峰之作。" },
+        { name: "云雷纹", pos: [0.2, 0.45, 0.85], desc: "器腹与足部满饰云雷纹，以连续回旋的线条构成，象征天地之间流动的云气，是商周青铜器上最基础也最普遍的装饰母题。" },
+        { name: "夔龙纹", pos: [-0.75, 0.2, 0.2], desc: "夔龙是传说中一种独足神龙，纹样以侧视龙形构成，身躯蜿蜒，是商代青铜礼器上常见的动物纹饰，寄寓吉祥与权力。" },
+      ],
+      "cn-bronze-gong": [
+        { name: "兽面纹", pos: [0, 0.3, 0.9], desc: "觥腹中央以兽面纹为主纹，双目炯炯、獠牙外露，狰狞中透着威严。兽面纹是商代青铜器最具代表性的纹饰，象征先民对天地神灵的敬畏。" },
+        { name: "夔龙纹", pos: [-0.8, 0.1, 0.1], desc: "觥身两侧环绕夔龙纹，龙身细长盘曲，与兽面纹相呼应，构成完整的装饰体系，展现商代工匠范铸工艺的高超水平。" },
+        { name: "云雷纹", pos: [0.7, -0.2, 0.5], desc: "底纹满铺云雷纹，回旋线条连绵不断，既烘托主纹的庄重，又赋予器身繁密华丽的质感。" },
+      ],
+      "cn-elephant-zun": [
+        { name: "兽面纹", pos: [0.1, 0.35, 0.85], desc: "象尊器身覆满兽面纹，双角上卷、怒目圆睁，与象身造型融合，体现商代工匠将动物形态与礼器功能结合的巧思。" },
+        { name: "云雷纹", pos: [-0.6, 0.1, 0.4], desc: "象身其余部位满饰云雷纹，回旋的线条象征流动的气韵，使整器在写实与抽象之间达成平衡。" },
+      ],
+      "cn-bronze-gu": [
+        { name: "饕餮纹", pos: [0, 0.3, 0.9], desc: "觚身中段饰饕餮纹（兽面纹），双目突出、眉角张扬，是商代青铜酒器上最常见的威严纹饰，彰显贵族身份与礼制。" },
+        { name: "云雷纹", pos: [0.5, -0.1, 0.6], desc: "纹饰间隙以云雷纹填底，线条规整细密，衬托主纹，体现商代晚期青铜纹饰繁缛华丽的时代特征。" },
+      ],
+      "cn-dragon-dish": [
+        { name: "五爪龙纹", pos: [0, 0.1, 0.95], desc: "盘心绘五爪龙，龙身矫健、张牙舞爪，五爪龙为皇家专属纹饰，这件青花龙纹盘是清代官窑瓷器的精品，体现皇家的威严气派。" },
+        { name: "云纹", pos: [-0.6, 0.05, 0.6], desc: "龙身周围缭绕如意云纹，以青花料晕染出层次，烘托龙腾云间的动势，是清代青花瓷典型的辅助纹饰。" },
+      ],
+      "cn-dragon-vase": [
+        { name: "龙纹", pos: [0, 0.2, 0.9], desc: "瓶身绘矫健龙纹，龙首昂扬、须发飞动，象征皇权与祥瑞，是清代官窑瓷器的典型装饰题材。" },
+        { name: "云纹", pos: [0.65, 0.0, 0.5], desc: "云纹缠绕龙身，青花浓淡相宜，营造云雾升腾的意境，使画面气势恢宏、层次分明。" },
+      ],
+      "cn-porcelain-censer": [
+        { name: "青花缠枝纹", pos: [0, 0.15, 0.9], desc: "香炉外壁绘缠枝莲纹，枝蔓连绵、花朵饱满，寓意生生不息。青花发色纯正，是清代景德镇民窑青花的代表之作。" },
+      ],
+      "cn-boshanlu": [
+        { name: "镶嵌纹饰", pos: [0, 0.35, 0.8], desc: "博山炉通体镶嵌金银纹饰，炉盖铸成仙山形状，象征海上仙山。点燃后烟雾自山间缭绕而出，宛如仙境，是汉代贵族奢华生活的写照。" },
+      ],
+      zhongshitaocijingtailanpinglu: [
+        { name: "掐丝珐琅纹", pos: [0, 0.3, 0.9], desc: "以铜丝掐出花纹轮廓，再填以各色珐琅釉料，色彩绚丽、永不褪色。景泰蓝工艺在明代景泰年间达到巅峰，是中国传统工艺的瑰宝。" },
+      ],
+      "cn-owl-zun": [
+        { name: "羽纹", pos: [0.1, 0.1, 0.9], desc: "鸮尊器身以细密羽纹表现猫头鹰的羽毛，层层叠叠、井然有序，与双眼圆睁的鸮首相呼应，塑造出威猛而神秘的神鸟形象。" },
+        { name: "兽面纹", pos: [0, -0.2, 0.7], desc: "鸮胸处饰兽面纹，强化神性色彩。商人以鸮为神鸟，象征勇武与胜利。" },
+      ],
+      handaiqingtongbianzhong: [
+        { name: "乳钉纹", pos: [0.5, 0.2, 0.8], desc: "钟体表面饰乳钉状凸点，排列整齐，既是装饰也是声学设计——乳钉能增强钟体的振动，使敲击时音色更加清亮悠远。" },
+        { name: "云雷纹", pos: [-0.4, 0.0, 0.7], desc: "钟体边沿饰云雷纹带，线条流转，体现汉代礼乐文明对秩序与音律的追求。" },
+      ],
+      qingtongniu: [
+        { name: "卷云纹", pos: [0.2, 0.5, 0.7], desc: "牛身饰卷云纹，线条圆转流畅，衬托青铜牛的健硕沉稳，体现商代对牛的崇拜与高超的铸造技艺。" },
+      ],
+    };
+
+    const patternSprites = [];
+    const patternRaycaster = new THREE.Raycaster();
+    const patternPointer = new THREE.Vector2();
+
+    function makeSpotSprite(index) {
+      const c = document.createElement("canvas");
+      c.width = 128; c.height = 128;
+      const g = c.getContext("2d");
+      g.clearRect(0, 0, 128, 128);
+      g.beginPath(); g.arc(64, 64, 58, 0, Math.PI * 2);
+      g.fillStyle = "#c9a961"; g.fill();
+      g.lineWidth = 5; g.strokeStyle = "#fff6e0"; g.stroke();
+      g.fillStyle = "#fff"; g.font = "bold 46px Georgia, serif"; g.textAlign = "center"; g.textBaseline = "middle";
+      g.fillText(String(index), 64, 66);
+      const tex = new THREE.CanvasTexture(c);
+      const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false });
+      const sprite = new THREE.Sprite(mat);
+      sprite.scale.set(0.26, 0.26, 1);
+      return sprite;
+    }
+
+    function addPatternSpots(model, artId) {
+      const spots = PATTERN_SPOTS[artId];
+      if (!spots || !spots.length) return;
+      const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      spots.forEach((s, i) => {
+        const sprite = makeSpotSprite(i + 1);
+        sprite.position.set(
+          center.x + size.x * s.pos[0] / 2,
+          center.y + size.y * s.pos[1] / 2,
+          center.z + size.z * s.pos[2] / 2
+        );
+        sprite.userData = { name: s.name, desc: s.desc };
+        scene.add(sprite);
+        patternSprites.push(sprite);
+      });
+    }
+
+    const patternPanel = document.getElementById("pattern-panel");
+    const patternPanelBody = document.getElementById("pattern-panel-body");
+    const patternPanelSub = document.getElementById("pattern-panel-sub");
+
+    function openPatternPanel(spots, artName) {
+      patternPanelBody.innerHTML = "";
+      spots.forEach((s, i) => {
+        const item = document.createElement("div");
+        item.className = "pattern-item";
+        item.innerHTML = `<p class="p-name"><em>${i + 1}</em>${s.name}</p><p class="p-desc">${s.desc}</p>`;
+        patternPanelBody.appendChild(item);
+      });
+      patternPanelSub.textContent = artName + " · 点击金色光标查看纹饰";
+      patternPanel.classList.add("open");
+    }
+    function closePatternPanel() {
+      patternPanel.classList.remove("open");
+    }
+
+    renderer.domElement.addEventListener("pointerdown", (e) => {
+      if (!patternSprites.length) return;
+      const rect = renderer.domElement.getBoundingClientRect();
+      patternPointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      patternPointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      patternRaycaster.setFromCamera(patternPointer, camera);
+      const hits = patternRaycaster.intersectObjects(patternSprites, false);
+      if (hits.length) {
+        e.stopPropagation();
+        const spots = PATTERN_SPOTS[id] || [];
+        openPatternPanel(spots, art.name);
+      }
+    });
+    document.getElementById("pattern-panel-close").addEventListener("click", closePatternPanel);
+    // 调试钩子（便于功能验证，正式使用不受影响）
+    window.__openPattern = openPatternPanel;
+    window.__closePattern = closePatternPanel;
+
     // ===== 假如文物会说话 对话功能 =====
     const talkMask = document.getElementById("artifact-chat-mask");
     const talkBody = document.getElementById("artifact-chat-body");
@@ -696,7 +874,7 @@
     let talkHistory = [];
     let talkBusy = false;
 
-    const SUGGESTIONS = ["这件文物是做什么用的？", "它背后有什么故事？", "它是怎么被发现的？"];
+    const SUGGESTIONS = ["这件文物是做什么用的？", "它背后有什么故事？", "它的纹饰有什么含义？", "它出土于哪里？"];
 
     function renderSuggests() {
       talkSuggestsList.innerHTML = "";
@@ -731,8 +909,9 @@
       talkBody.innerHTML = "";
       talkMask.hidden = false;
       renderSuggests();
-      // 自动打招呼
-      addChatRow("bot", "你好，我是" + art.name + "。很高兴见到你，有什么想了解的吗？");
+      // 自动打招呼（基于文物年代与类别，避免与后端欢迎语重复）
+      const intro = [art.period, art.category].filter(Boolean).join("·");
+      addChatRow("bot", "你好，我是" + art.name + (intro ? "，" + intro + "。" : "。") + "沉睡千年，如今与你相逢，有什么想听听的吗？");
     }
 
     function closeTalk() {
@@ -754,6 +933,7 @@
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            question: trimmed,
             message: trimmed,
             current_hall: art.name,
             history: talkHistory
@@ -780,20 +960,22 @@
       ask(talkInput.value);
     });
 
-    // ===== 相关推荐：动态生成，排除当前文物 =====
-    const ALL_REL_ARTIFACTS = [
-      { id: "siyangfangzun", name: "四羊方尊", model: "/my_art/siyangfangzun.glb" },
-      { id: "matafeiyan", name: "马踏飞燕", model: "/my_art/matafeiyan.glb" },
-      { id: "shuochangtaoyong", name: "说唱陶俑", model: "/my_art/shuochangtaoyong.glb" },
-      { id: "handaiqingtongbianzhong", name: "汉代编钟", model: "/my_art/handaiqingtongbianzhong.glb" },
-      { id: "qingtongniu", name: "青铜牛", model: "/my_art/qingtongniu.glb" },
-      { id: "zhongshitaocijingtailanpinglu", name: "景泰蓝瓶炉", model: "/my_art/zhongshitaocijingtailanpinglu.glb" },
-      { id: "tongzhifenghuangjinjilazhutai", name: "铜朱雀蜡台", model: "/my_art/tongzhifenghuangjinjilazhutai" },
-    ];
-
+    // ===== 相关推荐：按类别/朝代/馆藏关联度推荐，排除当前文物 =====
     const currentId = new URLSearchParams(location.search).get("id");
     const relGrid = document.getElementById("related-grid");
-    const relList = ALL_REL_ARTIFACTS.filter((a) => a.id !== currentId);
+    // 从全部文物中按关联度打分：同类别 +3，同朝代 +2，同馆藏 +1
+    const relList = Object.entries(ARTIFACTS)
+      .filter(([aid]) => aid !== currentId)
+      .map(([aid, a]) => ({
+        id: aid,
+        ...a,
+        score: (a.category === art.category ? 3 : 0) +
+               (a.period === art.period ? 2 : 0) +
+               (a.museum === art.museum ? 1 : 0)
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 6)
+      .map(({ score, ...a }) => a);
 
     // 动态生成卡片
     relList.forEach((art) => {
@@ -801,6 +983,7 @@
       card.href = `/gallerydistract.html?id=${art.id}`;
       card.className = "rel-card";
       card.dataset.model = art.id;
+      card.title = art.name;
       card.innerHTML = `
         <div class="img"><canvas style="width:100%;height:100%;"></canvas></div>
         <div class="name">${art.name}</div>
@@ -811,7 +994,7 @@
     // ===== 相关推荐缩略图渲染（共享离屏渲染器 + 缓存） =====
     const relRenderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });
     relRenderer.setPixelRatio(1);
-    relRenderer.setSize(200, 110, false);
+    relRenderer.setSize(220, 150, false);
     const relScene = new THREE.Scene();
     relScene.background = new THREE.Color(0xefe3c4);
     const relCamera = new THREE.PerspectiveCamera(38, 1, 0.1, 200);
@@ -829,11 +1012,20 @@
 
     async function renderRelShots() {
       // 缓存机制
-      const CACHE_KEY = "rel_thumb_cache_v1";
+      const CACHE_KEY = "rel_thumb_cache_v6";
       let thumbCache = {};
       try {
         thumbCache = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
       } catch {}
+
+      // 读取后端保存的模型视角配置
+      let modelViews = {};
+      try {
+        const resp = await fetch("http://127.0.0.1:8300/api/model-views", { cache: "no-store" });
+        if (resp.ok) modelViews = await resp.json();
+      } catch (e) {
+        console.warn("无法读取模型视角配置:", e);
+      }
 
       for (const art of relList) {
         const card = document.querySelector(`.rel-card[data-model="${art.id}"]`);
@@ -852,13 +1044,40 @@
             relLoader.load(art.model, resolve, undefined, reject);
           });
           const model = gltf.scene;
-          const box = new THREE.Box3().setFromObject(model);
-          const size = box.getSize(new THREE.Vector3());
-          const center = box.getCenter(new THREE.Vector3());
-          const maxDim = Math.max(size.x, size.y, size.z);
-          const scale = maxDim > 0 ? 1.2 / maxDim : 1;
-          model.scale.setScalar(scale);
-          model.position.copy(center).multiplyScalar(-scale);
+          const view = modelViews[art.id];
+
+          if (view) {
+            // 应用自定义视角
+            const box = new THREE.Box3().setFromObject(model);
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const fitScale = maxDim > 0 ? 1.6 / maxDim : 1;
+            model.rotation.y = THREE.MathUtils.degToRad(view.rotationY ?? 0);
+            model.scale.setScalar((view.scale ?? 1) * fitScale);
+            model.position.set(view.posX ?? 0, view.posY ?? 0, view.posZ ?? 0);
+            // 相机按保存的角度（目标点与默认视角一致，保证统一对齐）
+            const az = THREE.MathUtils.degToRad(view.camAzimuth ?? 0);
+            const pol = THREE.MathUtils.degToRad(view.camPolar ?? 75);
+            const dist = view.camDistance ?? 3.5;
+            relCamera.position.setFromSphericalCoords(dist, pol, az);
+            relCamera.lookAt(0, 0.55, 0);
+          } else {
+            // 默认视角：侧面文物先旋转，再适配（底部对齐 y=0）
+            if (art.side) {
+              model.rotation.y = Math.PI / 2;
+            }
+            const box = new THREE.Box3().setFromObject(model);
+            const size = box.getSize(new THREE.Vector3());
+            const center = box.getCenter(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = maxDim > 0 ? 1.6 / maxDim : 1;
+            model.scale.setScalar(scale);
+            model.position.x = -center.x * scale;
+            model.position.z = -center.z * scale;
+            model.position.y = -(center.y - size.y / 2) * scale;
+            relCamera.position.set(0, 0.8, 3.5);
+            relCamera.lookAt(0, 0.55, 0);
+          }
           relScene.add(model);
           relRenderer.render(relScene, relCamera);
           const dataUrl = relRenderer.domElement.toDataURL("image/png");
