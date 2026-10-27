@@ -1177,11 +1177,13 @@
          点击后在悬浮球上方弹出独立对话窗口 —— */
       .home-agent {
         position: fixed;
-        right: 20px;
-        bottom: 20px;
-        z-index: 7;
-        width: 60px;
-        height: 60px;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 80;
+        width: 56px;
+        height: 56px;
+        border-radius: 12px 0 0 12px;
         display: grid;
         place-items: center;
         border: 1px solid var(--gold-deep);
@@ -1214,21 +1216,22 @@
         filter: drop-shadow(0 2px 4px rgb(138 106 32 / 30%));
       }
 
-      /* 独立对话窗口：点击悬浮球后弹出，位于悬浮球上方；✕ 关闭后回到悬浮球 */
+      /* 右侧贴边满高侧边栏对话窗 */
       .home-agent-panel {
         position: fixed;
-        right: 20px;
-        bottom: 122px;
-        z-index: 7;
-        width: min(320px, calc(100vw - 40px));
-        max-height: 70vh;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 90;
+        width: 340px;
+        height: 100vh;
         display: flex;
         flex-direction: column;
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        background: rgba(20,16,12,0.95);
+        border-left: 1px solid var(--line);
+        border-radius: 0;
+        background: rgba(20,16,12,0.97);
         color: var(--ink);
-        box-shadow: 0 18px 50px rgba(0,0,0,0.5);
+        box-shadow: -8px 0 30px rgba(0,0,0,0.5);
         overflow: hidden;
       }
 
@@ -1455,6 +1458,284 @@
 
       .home-msg.user .home-bubble {
         background: rgba(100,90,75,0.4);
+      }
+
+      /* —— 内嵌智能讲解员（参考 DeepSeek 对话产品交互） —— */
+      .agent-embed {
+        max-width: 1180px;
+        margin: 0 auto 70px;
+        padding: 0 44px;
+      }
+      .agent-embed > div {
+        background: rgba(20,16,12,0.72);
+        border: 1px solid rgba(201,169,97,0.25);
+        backdrop-filter: blur(10px);
+      }
+      .agent-embed-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 24px;
+        background: rgba(201,169,97,0.08) !important;
+        border-bottom: 1px solid rgba(201,169,97,0.15);
+        border-radius: 16px 16px 0 0;
+      }
+      .agent-embed-ai {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .agent-embed-logo {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        color: #1a140d;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 1px;
+        background: linear-gradient(135deg, #e0bd6a, #a8842c);
+        box-shadow: 0 4px 14px rgba(201,169,97,0.35);
+      }
+      .agent-embed-title {
+        display: block;
+        color: #e8dcc4;
+        font-size: 15px;
+        letter-spacing: 2px;
+      }
+      .agent-embed-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 3px;
+        font-size: 11px;
+        color: #9fb08a;
+        letter-spacing: 1px;
+      }
+      .agent-embed-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #6fae5a;
+        box-shadow: 0 0 6px rgba(111,174,90,0.7);
+      }
+      .agent-embed-status.offline .agent-embed-dot {
+        background: #c07b4a;
+        box-shadow: 0 0 6px rgba(192,123,74,0.7);
+      }
+      .agent-embed-status.offline {
+        color: #c9a185;
+      }
+      .agent-embed-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .agent-embed-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 1px solid rgba(201,169,97,0.35);
+        background: rgba(201,169,97,0.1);
+        color: #d9c59a;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+        display: grid;
+        place-items: center;
+        transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+      }
+      .agent-embed-btn:hover {
+        background: var(--gold);
+        color: #1a140d;
+        transform: rotate(-180deg);
+      }
+      .agent-embed-chat {
+        height: 320px;
+        padding: 20px 24px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        scroll-behavior: smooth;
+      }
+      .agent-embed-chat .home-msg {
+        gap: 10px;
+      }
+      .agent-embed-chat .home-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+        border-radius: 10px;
+        flex: none;
+      }
+      .agent-embed-chat .home-bubble {
+        max-width: 80%;
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-size: 13.5px;
+        line-height: 1.7;
+        position: relative;
+      }
+      .agent-embed-chat .home-msg.bot .home-bubble {
+        background: rgba(201,169,97,0.12);
+        border: 1px solid rgba(201,169,97,0.18);
+        border-top-left-radius: 4px;
+      }
+      .agent-embed-chat .home-msg.user .home-bubble {
+        background: linear-gradient(135deg, rgba(201,169,97,0.35), rgba(168,132,44,0.25));
+        border: 1px solid rgba(201,169,97,0.35);
+        border-top-right-radius: 4px;
+      }
+      .home-copy-btn {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        border: none;
+        background: rgba(0,0,0,0.35);
+        color: #cbb988;
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 999px;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 160ms ease;
+        font-family: inherit;
+      }
+      .home-msg.bot:hover .home-copy-btn {
+        opacity: 1;
+      }
+      .agent-embed-dot-anim {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #c9a961;
+        animation: embedTyping 1.2s infinite ease-in-out;
+      }
+      .agent-embed-dot-anim:nth-child(2) { animation-delay: 0.15s; }
+      .agent-embed-dot-anim:nth-child(3) { animation-delay: 0.3s; }
+      @keyframes embedTyping {
+        0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+        30% { transform: translateY(-5px); opacity: 1; }
+      }
+      .agent-typing-bubble {
+        display: inline-flex;
+        gap: 5px;
+        align-items: center;
+        min-width: 54px;
+        padding: 10px 14px !important;
+      }
+      .agent-embed-suggests {
+        padding: 2px 24px 12px;
+      }
+      .agent-embed-suggests .home-suggests-title {
+        font-size: 12px;
+        color: #b89a5e;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+      }
+      .agent-embed-suggests .home-suggests-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .agent-embed-suggests .home-suggest-chip {
+        padding: 7px 14px;
+        border: 1px solid rgba(201,169,97,0.3);
+        border-radius: 999px;
+        background: rgba(201,169,97,0.08);
+        color: #e6dcc4;
+        font-size: 12.5px;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 160ms ease;
+      }
+      .agent-embed-suggests .home-suggest-chip:hover {
+        background: rgba(201,169,97,0.22);
+        border-color: rgba(201,169,97,0.6);
+        color: #fff;
+      }
+      .agent-embed-suggests .home-suggest-chip.home-suggest-guide {
+        border-color: var(--gold-deep);
+        color: #f0e6c8;
+        background: linear-gradient(135deg, rgba(184,145,58,0.35), rgba(138,106,32,0.3));
+      }
+      .agent-embed-input {
+        padding: 14px 24px 12px;
+        border-top: 1px solid rgba(201,169,97,0.15);
+        border-radius: 0 0 16px 16px;
+      }
+      .home-agent-form {
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+      }
+      #home-agent-question {
+        flex: 1;
+        resize: none;
+        max-height: 120px;
+        background: rgba(0,0,0,0.35);
+        border: 1px solid rgba(201,169,97,0.25);
+        border-radius: 12px;
+        padding: 10px 14px;
+        color: #e8e0d0;
+        outline: none;
+        font-size: 14px;
+        font-family: inherit;
+        line-height: 1.6;
+        transition: border-color 160ms ease;
+      }
+      #home-agent-question:focus {
+        border-color: rgba(201,169,97,0.6);
+        box-shadow: 0 0 0 2px rgba(201,169,97,0.12);
+      }
+      /* 输入框细滚动条（隐藏系统上下箭头） */
+      #home-agent-question::-webkit-scrollbar {
+        width: 6px;
+      }
+      #home-agent-question::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      #home-agent-question::-webkit-scrollbar-thumb {
+        background: rgba(201,169,97,0.3);
+        border-radius: 3px;
+      }
+      #home-agent-question::-webkit-scrollbar-thumb:hover {
+        background: rgba(201,169,97,0.5);
+      }
+      #home-agent-question::-webkit-scrollbar-button {
+        display: none;
+      }
+      #home-agent-question::-webkit-scrollbar-corner {
+        background: transparent;
+      }
+      .agent-embed-send {
+        flex: none;
+        border: none;
+        border-radius: 12px;
+        padding: 11px 22px;
+        cursor: pointer;
+        font-size: 14px;
+        font-family: inherit;
+        letter-spacing: 2px;
+        color: #1a140d;
+        background: linear-gradient(135deg, #d9b25e, #a8842c);
+        box-shadow: 0 4px 12px rgba(168,132,44,0.35);
+        transition: filter 160ms ease, opacity 160ms ease;
+      }
+      .agent-embed-send:hover {
+        filter: brightness(1.08);
+      }
+      .agent-embed-send:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+      .agent-embed-tip {
+        margin: 8px 2px 0;
+        font-size: 10.5px;
+        color: rgba(224,216,200,0.4);
+        letter-spacing: 1px;
       }
 
       .home-agent-actions {
@@ -1879,12 +2160,12 @@
     <!-- 3D 展厅：左文右图，仿皮影戏台板块格式 -->
     <section style="max-width:1180px;margin:0 auto 70px;padding:0 44px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;" aria-label="3D展厅">
       <div style="background:rgba(26,20,14,0.6);border:1px solid rgba(201,169,97,0.25);border-radius:12px;padding:34px 38px;backdrop-filter:blur(2px);">
-        <p style="font-size:12px;letter-spacing:6px;color:#e8d9b8;margin:0 0 16px;">3D VIRTUAL HALL</p>
-        <h3 style="font-size:32px;letter-spacing:4px;color:#f0e8d8;margin:0 0 20px;line-height:1.3;font-weight:600;">3D 展厅<br>沉浸式数字漫游</h3>
-        <p style="font-size:15px;line-height:2;color:#e6dcc8;margin:0 0 24px;">走进 3D 数字展厅，自由漫游于青铜礼乐、瓷韵千年等七大主题展区，走近每一件文物，让国宝在指尖流转。</p>
+        <p style="font-size:12px;letter-spacing:6px;color:#e8d9b8;margin:0 0 16px;" data-i18n="hall3_kicker">3D VIRTUAL HALL</p>
+        <h3 data-i18n-html="hall3_title" style="font-size:32px;letter-spacing:4px;color:#f0e8d8;margin:0 0 20px;line-height:1.3;font-weight:600;">3D 展厅<br>沉浸式数字漫游</h3>
+        <p data-i18n="hall3_desc" style="font-size:15px;line-height:2;color:#e6dcc8;margin:0 0 24px;">走进 3D 数字展厅，自由漫游于青铜礼乐、瓷韵千年等七大主题展区，走近每一件文物，让国宝在指尖流转。</p>
         <div style="display:flex;flex-wrap:wrap;gap:10px;">
-          <a href="/hall.html" style="padding:10px 26px;border:1px solid var(--gold-deep);border-radius:999px;font-size:14px;color:#f0e8d8;text-decoration:none;background:rgba(201,169,97,0.18);">进入 3D 展厅 →</a>
-          <a href="/gallerylist.html" style="padding:10px 26px;border:1px solid rgba(240,232,216,0.35);border-radius:999px;font-size:14px;color:#f0e8d8;text-decoration:none;background:rgba(240,232,216,0.08);">浏览馆藏图鉴</a>
+          <a href="/hall.html" style="padding:10px 26px;border:1px solid var(--gold-deep);border-radius:999px;font-size:14px;color:#f0e8d8;text-decoration:none;background:rgba(201,169,97,0.18);" data-i18n="hall3_enter">进入 3D 展厅 →</a>
+          <a href="/gallerylist.html" style="padding:10px 26px;border:1px solid rgba(240,232,216,0.35);border-radius:999px;font-size:14px;color:#f0e8d8;text-decoration:none;background:rgba(240,232,216,0.08);" data-i18n="hall3_browse">浏览馆藏图鉴</a>
         </div>
       </div>
       <div style="height:320px;border-radius:12px;overflow:hidden;border:1px solid var(--line);">
@@ -1893,6 +2174,42 @@
         </a>
       </div>
     </section>
+
+    <!-- 内嵌智能导览对话窗 -->
+    <section class="agent-embed" aria-label="智能讲解员">
+      <div class="agent-embed-head">
+        <div class="agent-embed-ai">
+          <span class="agent-embed-logo">AI</span>
+          <div>
+            <b class="agent-embed-title">千载文博 · AI 导览</b>
+            <span class="agent-embed-status"><i class="agent-embed-dot"></i><span id="home-agent-status-text">在线 · 可开始提问</span></span>
+          </div>
+        </div>
+        <div class="agent-embed-actions">
+          <button class="agent-embed-btn" id="home-agent-new" type="button" title="新对话" aria-label="新对话">↻</button>
+        </div>
+      </div>
+      <div class="agent-embed-chat" id="home-agent-chat"></div>
+      <div class="home-suggests agent-embed-suggests" id="home-suggests" hidden>
+        <p class="home-suggests-title" data-i18n="suggest_title">可以这样问我</p>
+        <div class="home-suggests-list" id="home-suggests-list"></div>
+      </div>
+      <div class="agent-embed-input">
+        <form class="home-agent-form" id="home-agent-form">
+          <textarea id="home-agent-question" rows="1" data-i18n-placeholder="agent_placeholder" placeholder="向讲解员提问…" autocomplete="off"></textarea>
+          <button type="submit" class="agent-embed-send" id="home-send-btn" data-i18n="send">发送</button>
+        </form>
+        <p class="agent-embed-tip">内容由 AI 生成，仅供参考 · Enter 发送，Shift + Enter 换行</p>
+      </div>
+    </section>
+
+    <!-- 隐藏的兼容元素，供home.ts JS使用 -->
+    <div id="home-agent" style="display:none;"></div>
+    <div id="home-agent-panel" style="display:none;">
+      <p id="home-agent-status"></p>
+      <button id="home-agent-close"></button>
+      <button id="home-suggest-btn"></button>
+    </div>
 
     <!-- 主题展区标题 -->
     <div style="max-width:1180px;margin:0 auto 30px;padding:0 44px;">
@@ -1903,42 +2220,42 @@
     <div style="max-width:1180px;margin:0 auto 70px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:0 44px;">
       <a href="/gallerylist.html?theme=bronze" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
         <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">01</div>
-        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">青铜礼乐馆</div>
-        <div style="font-size:13px;color:#d0c8b8;line-height:1.6;">商周青铜重器，礼乐文明的见证</div>
+        <div data-i18n="v_c1" style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">青铜礼乐馆</div>
+        <div data-i18n="v_p1" style="font-size:13px;color:#d0c8b8;line-height:1.6;">商周青铜重器，礼乐文明的见证</div>
       </a>
       <a href="/gallerylist.html?theme=porcelain" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
         <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">02</div>
-        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">瓷韵千年馆</div>
-        <div style="font-size:13px;color:#d0c8b8;line-height:1.6;">唐宋元明清，千年瓷韵流变</div>
+        <div data-i18n="v_c2" style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">瓷韵千年馆</div>
+        <div data-i18n="v_p2" style="font-size:13px;color:#d0c8b8;line-height:1.6;">唐宋元明清，千年瓷韵流变</div>
       </a>
       <a href="/gallerylist.html?theme=buddhist" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
         <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">03</div>
-        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">佛光庄严馆</div>
-        <div style="font-size:13px;color:#d0c8b8;line-height:1.6;">佛教造像艺术，庄严净土之美</div>
+        <div data-i18n="v_c3" style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">佛光庄严馆</div>
+        <div data-i18n="v_p3" style="font-size:13px;color:#d0c8b8;line-height:1.6;">佛教造像艺术，庄严净土之美</div>
       </a>
       <a href="/gallerylist.html?theme=world" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
         <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">04</div>
-        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">世界文明馆</div>
-        <div style="font-size:13px;color:#d0c8b8;line-height:1.6;">中外文明交流互鉴的物证</div>
+        <div data-i18n="v_c4" style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">世界文明馆</div>
+        <div data-i18n="v_p4" style="font-size:13px;color:#d0c8b8;line-height:1.6;">中外文明交流互鉴的物证</div>
       </a>
       <a href="/gallerylist.html?theme=nature" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
         <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">05</div>
-        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">自然与宇宙馆</div>
-        <div style="font-size:13px;color:#d0c8b8;line-height:1.6;">自然与人类文明的对话</div>
+        <div data-i18n="v_c5" style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">自然与宇宙馆</div>
+        <div data-i18n="v_p5" style="font-size:13px;color:#d0c8b8;line-height:1.6;">自然与人类文明的对话</div>
       </a>
       <a href="/gallerylist.html?theme=tech" style="background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:30px;text-decoration:none;color:inherit;transition:all 0.3s;display:block;">
         <div style="font-size:12px;color:var(--gold);margin-bottom:16px;">06</div>
-        <div style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">科技体验馆</div>
-        <div style="font-size:13px;color:#d0c8b8;line-height:1.6;">互动体验，感受文物背后的科技</div>
+        <div data-i18n="v_c6" style="font-size:18px;letter-spacing:2px;margin-bottom:8px;color:#fff;">科技体验馆</div>
+        <div data-i18n="v_p6" style="font-size:13px;color:#d0c8b8;line-height:1.6;">互动体验，感受文物背后的科技</div>
       </a>
     </div>
 
     <!-- 皮影戏台左文右图 -->
     <section style="max-width:1180px;margin:0 auto 70px;padding:0 44px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;" aria-label="皮影戏台">
       <div>
-        <p style="font-size:12px;letter-spacing:6px;color:var(--gold);margin:0 0 16px;">SHADOW PUPPET THEATER</p>
-        <h3 style="font-size:32px;letter-spacing:4px;color:#fff;margin:0 0 20px;line-height:1.3;font-weight:600;">皮影戏台<br>与历史人物对话</h3>
-        <p style="font-size:15px;line-height:2;color:#e0d8c8;text-shadow:0 1px 4px rgba(0,0,0,0.6);margin:0 0 24px;">走进皮影戏台，在光影之间与千年历史人物面对面。点击任意人物，开启跨时空对话。</p>
+        <p style="font-size:12px;letter-spacing:6px;color:var(--gold);margin:0 0 16px;" data-i18n="puppet_kicker">SHADOW PUPPET THEATER</p>
+        <h3 data-i18n-html="puppet_title" style="font-size:32px;letter-spacing:4px;color:#fff;margin:0 0 20px;line-height:1.3;font-weight:600;">皮影戏台<br>与历史人物对话</h3>
+        <p data-i18n="puppet_desc" style="font-size:15px;line-height:2;color:#e0d8c8;text-shadow:0 1px 4px rgba(0,0,0,0.6);margin:0 0 24px;">走进皮影戏台，在光影之间与千年历史人物面对面。点击任意人物，开启跨时空对话。</p>
         <div style="display:flex;flex-wrap:wrap;gap:10px;">
           <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">秦始皇</span>
           <span style="padding:8px 16px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink);cursor:pointer;">李白</span>
@@ -1977,41 +2294,25 @@
       华夏珍宝数字博物馆 · 三维馆藏展示 · 让文物活起来
     </footer>
 
-    <div class="home-agent" id="home-agent" role="button" aria-label="智能导航讲解">
-      <span class="fab-glyph" aria-hidden="true"></span>
-    </div>
 
-    <!-- 点击悬浮球弹出的独立对话窗口 -->
-    <div class="home-agent-panel" id="home-agent-panel" hidden>
-      <div class="home-agent-head">
-        <span class="home-agent-mark" aria-hidden="true">AI</span>
-        <div>
-          <h2 data-i18n="agent_title">智能导航讲解</h2>
-          <p id="home-agent-status">正在连接讲解 Agent…</p>
-        </div>
-        <div class="home-agent-head-actions">
-          <button class="home-agent-new" id="home-agent-new" type="button" title="开始新对话">↻</button>
-          <button class="home-agent-close" id="home-agent-close" type="button" title="收起提问窗口">✕</button>
-        </div>
-      </div>
-      <div class="home-agent-chat" id="home-agent-chat"></div>
-      <div class="home-suggests" id="home-suggests" hidden>
-        <p class="home-suggests-title" data-i18n="suggest_title">可以这样问我</p>
-        <div class="home-suggests-list" id="home-suggests-list"></div>
-      </div>
-      <div class="home-agent-actions">
-        <form class="home-agent-form" id="home-agent-form">
-          <input id="home-agent-question" type="text" data-i18n-placeholder="agent_placeholder" placeholder="向讲解员提问…" autocomplete="off" />
-          <button type="submit" data-i18n="send">发送</button>
-          <button type="button" class="home-suggest-btn" id="home-suggest-btn" title="推荐问题" aria-expanded="false" aria-label="推荐问题">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 5 L19.5 17 H4.5 Z" />
-            </svg>
-          </button>
-        </form>
-      </div>
-    </div>
-
+    <script>
+      // 动态数字计数动画
+      function animateCount(el) {
+        const target = parseInt(el.dataset.count, 10);
+        const duration = 1500;
+        const start = performance.now();
+        function tick(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.round(eased * target);
+          if (progress < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.venue-num').forEach(animateCount);
+      });
+    </script>
     <script type="module" src="/src/home.ts"></script>
     <script type="module" src="/src/lang.ts"></script>
   </body>

@@ -37,12 +37,14 @@ const homePanel = mustQuery<HTMLDivElement>("#home-agent-panel");
 const homeStatus = mustQuery<HTMLParagraphElement>("#home-agent-status");
 const homeChat = mustQuery<HTMLDivElement>("#home-agent-chat");
 const homeForm = mustQuery<HTMLFormElement>("#home-agent-form");
-const homeQuestion = mustQuery<HTMLInputElement>("#home-agent-question");
+const homeQuestion = mustQuery<HTMLTextAreaElement>("#home-agent-question");
 const homeClose = mustQuery<HTMLButtonElement>("#home-agent-close");
 const homeNew = mustQuery<HTMLButtonElement>("#home-agent-new");
 const homeSuggests = mustQuery<HTMLDivElement>("#home-suggests");
 const homeSuggestBtn = mustQuery<HTMLButtonElement>("#home-suggest-btn");
 const homeSuggestsList = mustQuery<HTMLDivElement>("#home-suggests-list");
+const homeSendBtn = mustQuery<HTMLButtonElement>("#home-send-btn");
+const homeStatusText = mustQuery<HTMLSpanElement>("#home-agent-status-text");
 
 let agentReady = false;
 let agentOpen = false;
@@ -90,9 +92,13 @@ function resetHomeChat() {
   if (first) {
     homeChat.appendChild(first);
   }
+  setHomeSendDisabled(false);
   renderHomeSuggests(HOME_INITIAL_SUGGESTS);
   // 回到首次未提问状态：直接展开推荐问题
   setHomeSuggestOpen(true, false);
+  homeQuestion.value = "";
+  autoResizeHomeInput();
+  homeQuestion.focus();
 }
 
 function setAgentOpen(open: boolean) {
@@ -168,10 +174,81 @@ function bindAgentDrag() {
 function appendHomeBubble(role: "bot" | "user", text: string) {
   const bubble = document.createElement("div");
   bubble.className = `home-msg ${role}`;
-  bubble.innerHTML = `<span class="home-avatar">${role === "bot" ? t("agent_role") : t("me")}</span>
-    <span class="home-bubble">${escapeHtml(text)}</span>`;
+  const avatar = document.createElement("span");
+  avatar.className = "home-avatar";
+  avatar.textContent = role === "bot" ? t("agent_role") : t("me");
+  const body = document.createElement("span");
+  body.className = "home-bubble";
+  body.textContent = text;
+  bubble.appendChild(avatar);
+  bubble.appendChild(body);
+  if (role === "bot") {
+    // 复制按钮：hover 气泡时显示
+    const copyBtn = document.createElement("button");
+    copyBtn.type = "button";
+    copyBtn.className = "home-copy-btn";
+    copyBtn.textContent = "复制";
+    copyBtn.addEventListener("click", () => {
+      navigator.clipboard?.writeText(text).catch(() => {});
+      copyBtn.textContent = "已复制";
+      setTimeout(() => { copyBtn.textContent = "复制"; }, 1400);
+    });
+    body.appendChild(copyBtn);
+  }
   homeChat.appendChild(bubble);
   homeChat.scrollTop = homeChat.scrollHeight;
+}
+
+// 逐字打字输出（参考聊天产品的流畅感）：标点处稍作停顿
+function typeHomeBubble(bubble: HTMLElement, text: string): Promise<void> {
+  return new Promise((resolve) => {
+    let i = 0;
+    function step() {
+      i++;
+      bubble.textContent = text.slice(0, i);
+      homeChat.scrollTop = homeChat.scrollHeight;
+      if (i >= text.length) {
+        bubble.textContent = text;
+        resolve();
+        return;
+      }
+      const ch = text[i - 1];
+      const pause = /[。！？；，、：…\n]/.test(ch) ? 150 : 38;
+      setTimeout(step, pause);
+    }
+    step();
+  });
+}
+
+function setHomeSendDisabled(disabled: boolean) {
+  homeSendBtn.disabled = disabled;
+  homeSendBtn.style.opacity = disabled ? "0.55" : "";
+}
+
+// 回复时在讲解员头像右侧显示加载（三点跳动），等待回答到达
+function appendHomeTyping() {
+  const msg = document.createElement("div");
+  msg.className = "home-msg bot";
+  const avatar = document.createElement("span");
+  avatar.className = "home-avatar";
+  avatar.textContent = t("agent_role");
+  const body = document.createElement("span");
+  body.className = "home-bubble agent-typing-bubble";
+  for (let k = 0; k < 3; k++) {
+    const dot = document.createElement("span");
+    dot.className = "agent-embed-dot-anim";
+    body.appendChild(dot);
+  }
+  msg.appendChild(avatar);
+  msg.appendChild(body);
+  homeChat.appendChild(msg);
+  homeChat.scrollTop = homeChat.scrollHeight;
+  return { msg, body };
+}
+
+function autoResizeHomeInput() {
+  homeQuestion.style.height = "auto";
+  homeQuestion.style.height = `${Math.min(homeQuestion.scrollHeight, 120)}px`;
 }
 
 function appendHomeHint(text: string) {
@@ -201,17 +278,36 @@ async function askHomeAgent(question: string) {
   }
   appendHomeBubble("user", question);
   homeQuestion.value = "";
+  autoResizeHomeInput();
+  setHomeSendDisabled(true);
+  const typingMsg = appendHomeTyping();
   try {
     const reply = await homeApi<{ answer: string; suggested_questions?: string[] }>(question);
-    appendHomeBubble("bot", reply.answer);
+    // 回答到达：移除三点加载，在同一气泡内逐字输出
+    typingMsg.body.innerHTML = "";
+    await typeHomeBubble(typingMsg.body, reply.answer);
+    // 复制按钮
+    const copyBtn = document.createElement("button");
+    copyBtn.type = "button";
+    copyBtn.className = "home-copy-btn";
+    copyBtn.textContent = "复制";
+    copyBtn.addEventListener("click", () => {
+      navigator.clipboard?.writeText(reply.answer).catch(() => {});
+      copyBtn.textContent = "已复制";
+      setTimeout(() => { copyBtn.textContent = "复制"; }, 1400);
+    });
+    typingMsg.body.appendChild(copyBtn);
     // 按对话内容实时更新推荐问题（更新后折叠为上拉箭头，不占用聊天空间）
     if (Array.isArray(reply.suggested_questions) && reply.suggested_questions.length > 0) {
       renderHomeSuggests(reply.suggested_questions);
     }
     setHomeSuggestOpen(false, true);
   } catch (error) {
+    typingMsg.msg.remove();
     appendHomeHint(`⚠️ ${error instanceof Error ? error.message : String(error)}`);
   }
+  setHomeSendDisabled(false);
+  homeQuestion.focus();
 }
 
 async function guideTour() {
@@ -231,17 +327,34 @@ async function initHomeAgent() {
     }
     agentReady = true;
     homeStatus.textContent = t("agent_status_ok");
+    homeStatusText.textContent = "在线 · 可开始提问";
+    document.querySelector(".agent-embed-status")?.classList.remove("offline");
     appendHomeBubble("bot", t("agent_welcome"));
   } catch {
     agentReady = false;
     homeStatus.textContent = t("agent_status_fail");
+    homeStatusText.textContent = "讲解服务未连接";
+    document.querySelector(".agent-embed-status")?.classList.add("offline");
     appendHomeHint(`⚠️ ${t("agent_status_fail")}（${AGENT_BASE}）。请先在 agent_bi/agent/museum-agent 目录运行 python server.py。`);
   }
+  // 内嵌对话窗默认展开
+  setAgentOpen(true);
 }
 
 homeForm.addEventListener("submit", (event) => {
   event.preventDefault();
   void askHomeAgent(homeQuestion.value);
+});
+
+// textarea 自适应高度 + Enter 发送 / Shift+Enter 换行
+homeQuestion.addEventListener("input", autoResizeHomeInput);
+homeQuestion.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    if (!homeSendBtn.disabled) {
+      void askHomeAgent(homeQuestion.value);
+    }
+  }
 });
 
 // ---------- 首页藏品概览：文物图片拼接墙（无文字说明，点击进入完整图鉴） ----------

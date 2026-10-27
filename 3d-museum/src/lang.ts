@@ -180,6 +180,72 @@ const dict: Record<string, Entry> = {
   // 通用
   send: { zh: "发送", en: "Send" },
 
+  // 首页 3D 展厅板块
+  hall3_kicker: { zh: "3D VIRTUAL HALL", en: "3D VIRTUAL HALL" },
+  hall3_title: { zh: "3D 展厅<br>沉浸式数字漫游", en: "3D Hall<br>Immersive Digital Tour" },
+  hall3_desc: {
+    zh: "走进 3D 数字展厅，自由漫游于青铜礼乐、瓷韵千年等七大主题展区，走近每一件文物，让国宝在指尖流转。",
+    en: "Step into the 3D digital hall and wander through seven themed areas—Bronze & Ritual, Porcelain and more—getting up close with national treasures at your fingertips.",
+  },
+  hall3_enter: { zh: "进入 3D 展厅 →", en: "Enter the 3D Hall →" },
+  hall3_browse: { zh: "浏览馆藏图鉴", en: "Browse the Collection" },
+
+  // 首页皮影戏台板块
+  puppet_kicker: { zh: "SHADOW PUPPET THEATER", en: "SHADOW PUPPET THEATER" },
+  puppet_title: { zh: "皮影戏台<br>与历史人物对话", en: "Shadow Puppet Stage<br>Dialogue with History" },
+  puppet_desc: {
+    zh: "走进皮影戏台，在光影之间与千年历史人物面对面。点击任意人物，开启跨时空对话。",
+    en: "Step onto the shadow-puppet stage and come face to face with figures of history. Click any figure to start a conversation across time.",
+  },
+
+  // 图鉴页（列表/详情共用）
+  g_back_home: { zh: "返回首页", en: "Back to Home" },
+  g_related: { zh: "相关推荐", en: "Related Artifacts" },
+  g_view_model: { zh: "三维模型 · 可拖动旋转、滚动缩放", en: "3D model · Drag to rotate, scroll to zoom" },
+  g_loading_failed: { zh: "模型加载失败", en: "Model failed to load" },
+  g_speak_btn: { zh: "🗣 假如文物会说话 · 和文物对话 →", en: "🗣 If Artifacts Could Speak · Talk to it →" },
+  g_speak_title: { zh: "假如文物会说话", en: "If Artifacts Could Speak" },
+  g_speak_sub: { zh: "文物第一人称 · 与游客对话", en: "Speaking as the artifact · Chat with visitors" },
+  g_speak_tip: { zh: "点击金色光标查看纹饰详解", en: "Tap a golden marker to view pattern details" },
+  g_pattern_title: { zh: "纹饰详解", en: "Pattern Details" },
+  g_pattern_sub: { zh: "点击模型上的金色光标，了解文物纹饰", en: "Tap the golden markers on the model to learn its patterns" },
+  g_think_title: { zh: "文物会说话", en: "Artifact Speaks" },
+  g_suggest_1: { zh: "这件文物是做什么用的？", en: "What was this artifact used for?" },
+  g_suggest_2: { zh: "它背后有什么故事？", en: "What story is behind it?" },
+  g_suggest_3: { zh: "它的纹饰有什么含义？", en: "What do its patterns mean?" },
+  g_suggest_4: { zh: "它出土于哪里？", en: "Where was it unearthed?" },
+  g_speak_greet: {
+    zh: "你好，我是{name}{intro}沉睡千年，如今与你相逢，有什么想听听的吗？",
+    en: "Hello, I am {name}{intro}I have slept for a thousand years. Now we meet—what would you like to hear?",
+  },
+  g_offline: { zh: "（网络连接不上，稍后再试吧）", en: "(Connection lost. Please try again later.)" },
+  g_no_answer: { zh: "我暂时说不出话了…", en: "I seem to be at a loss for words…" },
+
+  // 图鉴列表页
+  g_badge: { zh: "镇馆之宝", en: "Treasure of the Hall" },
+  g_banner_desc: {
+    zh: "商代晚期青铜礼器，现存商代青铜方尊之中体型最大，造型雄奇，肩部四角卷角羊首栩栩如生。",
+    en: "A late-Shang bronze ritual vessel, the largest surviving square zun of its age—majestic in form, with four coiled-horn ram heads adorning its shoulders.",
+  },
+  g_title_all: { zh: "全部展品", en: "All Collections" },
+  g_count: { zh: "共 {n} 件", en: "{n} pieces" },
+  hall_center: { zh: "中央大厅", en: "Central Hall" },
+  hall_sub_center: { zh: "镇馆之宝", en: "Hall Treasures" },
+  hall_sub_bronze: { zh: "青铜重器", en: "Bronze Ritual Vessels" },
+  hall_sub_porcelain: { zh: "珐琅瓷器", en: "Porcelain & Enamel" },
+  hall_sub_buddhist: { zh: "石窟造像", en: "Grotto Sculptures" },
+  hall_sub_world: { zh: "丝路文明", en: "Silk Road Civilizations" },
+  hall_sub_nature: { zh: "自然标本", en: "Natural Specimens" },
+  hall_sub_tech: { zh: "数字体验", en: "Digital Experiences" },
+  g_thumb_failed: { zh: "预览加载失败", en: "Preview failed" },
+
+  // 图鉴详情页
+  g_back_list: { zh: "← 返回图鉴列表", en: "← Back to Gallery" },
+  m_period: { zh: "年代", en: "Period" },
+  m_category: { zh: "类别", en: "Category" },
+  m_origin: { zh: "出土地", en: "Origin" },
+  m_museum: { zh: "馆藏", en: "Collection" },
+
   // 趣味游戏（游戏中心 / 游戏壳）
   gm_kicker: { zh: "趣 味 游 戏 · P L A Y & L E A R N", en: "F U N · G A M E S" },
   gm_title: { zh: "趣味游戏", en: "Fun Games" },
@@ -241,6 +307,12 @@ function applyLang(lang: Lang) {
       el.textContent = t(key);
     }
   });
+  document.querySelectorAll<HTMLElement>("[data-i18n-html]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-html");
+    if (key) {
+      el.innerHTML = t(key);
+    }
+  });
   document.querySelectorAll<HTMLInputElement>("[data-i18n-placeholder]").forEach((el) => {
     const key = el.getAttribute("data-i18n-placeholder");
     if (key) {
@@ -252,6 +324,7 @@ function applyLang(lang: Lang) {
     button.setAttribute("data-lang", lang);
     button.setAttribute("aria-label", lang === "zh" ? "切换到英文 / Switch to English" : "切换到中文 / Switch to Chinese");
   }
+  document.dispatchEvent(new CustomEvent("langchange", { detail: lang }));
 }
 
 function initLang() {

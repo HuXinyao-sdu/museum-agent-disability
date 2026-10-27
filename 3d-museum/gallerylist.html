@@ -45,10 +45,11 @@
     .section-title h3 { font-size: 24px; letter-spacing: 3px; color: #fff; }
     .section-title .count { font-size: 12px; color: var(--ink-soft); }
 
-    .grid { max-width: 1180px; margin: 0 auto 60px; padding: 0 44px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+    .grid { max-width: 1180px; margin: 0 auto 60px; padding: 0 44px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
     .card { background: rgba(0,0,0,0.4); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; transition: all 0.3s; cursor: pointer; text-decoration: none; color: inherit; display: block; }
     .card:hover { border-color: rgba(201,169,97,0.4); transform: translateY(-4px); }
-    .card .img { height: 150px; background: linear-gradient(135deg, #3a2f20, #2a2115); display: grid; place-items: center; color: var(--gold); font-size: 32px; border-bottom: 1px solid var(--line); }
+    .card .img { height: 200px; background: linear-gradient(135deg, #3a2f20, #2a2115); display: grid; place-items: center; color: var(--gold); font-size: 32px; border-bottom: 1px solid var(--line); overflow: hidden; }
+    .card .img canvas { max-width: 90%; max-height: 90%; display: block; margin: 0 auto; object-fit: contain; }
     .card .info { padding: 12px 14px; background: rgba(18,14,10,0.9); }
     .card .era { font-size: 11px; color: #d9c59a; letter-spacing: 1px; }
   </style>
@@ -72,19 +73,20 @@
       </div>
     </div>
     <nav class="nav">
-      <a href="/">首页</a>
-      <a href="/gallerylist.html" class="active">馆藏图鉴</a>
-      <a href="/games.html">趣味游戏</a>
-      <a href="/about.html">关于我们</a>
-      <a href="/hall.html" class="btn">进入展厅 →</a>
+      <a href="/" data-i18n="nav_home">首页</a>
+      <a href="/gallerylist.html" class="active" data-i18n="nav_gallery">馆藏图鉴</a>
+      <a href="/games.html" data-i18n="nav_games">趣味游戏</a>
+      <a href="/about.html" data-i18n="nav_about">关于我们</a>
+      <a href="/hall.html" class="btn" data-i18n="nav_enter">进入展厅 →</a>
+      <button class="lang-toggle" id="lang-toggle" type="button" aria-label="切换语言 / Switch Language" style="background:none;border:1px solid var(--gold-deep);color:var(--gold);font-size:13px;padding:6px 12px;border-radius:999px;cursor:pointer;letter-spacing:1px;">中 / EN</button>
     </nav>
   </header>
 
   <div class="feature">
     <a href="/gallerydistract.html?id=siyangfangzun" class="feature-banner" style="text-decoration:none;color:inherit;">
-      <span class="badge">镇馆之宝</span>
+      <span class="badge" data-i18n="g_badge">镇馆之宝</span>
       <h2>四羊方尊</h2>
-      <p>商代晚期青铜礼器，现存商代青铜方尊之中体型最大，造型雄奇，肩部四角卷角羊首栩栩如生。</p>
+      <p data-i18n="g_banner_desc">商代晚期青铜礼器，现存商代青铜方尊之中体型最大，造型雄奇，肩部四角卷角羊首栩栩如生。</p>
       <canvas id="banner-canvas" style="position:absolute;right:40px;top:50%;transform:translateY(-50%);width:280px;height:280px;pointer-events:none;"></canvas>
     </a>
   </div>
@@ -92,7 +94,7 @@
   <div class="section-title">
     <div>
       <p class="kicker">ALL COLLECTION</p>
-      <h3>全部展品</h3>
+      <h3 data-i18n="g_title_all">全部展品</h3>
     </div>
     <span class="count" id="art-count">共 59 件</span>
   </div>
@@ -112,6 +114,11 @@
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { t, getLang } from "/src/lang.ts";
+
+    // 场馆名称/副标题语言映射
+    const HALL_KEY = { center: "hall_center", bronze: "v_c1", porcelain: "v_c2", buddhist: "v_c3", world: "v_c4", nature: "v_c5", tech: "v_c6" };
+    const HALL_SUB_KEY = { center: "hall_sub_center", bronze: "hall_sub_bronze", porcelain: "hall_sub_porcelain", buddhist: "hall_sub_buddhist", world: "hall_sub_world", nature: "hall_sub_nature", tech: "hall_sub_tech" };
 
     // banner 3D模型
     const canvas = document.getElementById("banner-canvas");
@@ -174,12 +181,12 @@
 
     const ALL_ARTIFACTS = [
       // 中央大厅（镇馆之宝）
-      { id: "siyangfangzun", name: "四羊方尊", era: "商代 · 中国国家博物馆", model: "/my_art/siyangfangzun.glb", hall: "center" },
+      { id: "siyangfangzun", name: "四羊方尊", era: "商代 · 中国国家博物馆", model: "/my_art/siyangfangzun.glb", hall: "center", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Four_Goats_Square_Zun.jpg/640px-Four_Goats_Square_Zun.jpg" },
       // 青铜礼乐馆
-      { id: "matafeiyan", name: "马踏飞燕", era: "东汉 · 甘肃省博物馆", model: "/my_art/matafeiyan.glb", hall: "bronze" },
-      { id: "shuochangtaoyong", name: "击鼓说唱陶俑", era: "东汉 · 中国国家博物馆", model: "/my_art/shuochangtaoyong.glb", hall: "bronze" },
-      { id: "handaiqingtongbianzhong", name: "汉代青铜编钟", era: "汉代 · 湖北省博物馆", model: "/my_art/handaiqingtongbianzhong.glb", hall: "bronze" },
-      { id: "qingtongniu", name: "青铜牛", era: "商周 · 中国国家博物馆", model: "/my_art/qingtongniu.glb", hall: "bronze", side: true },
+      { id: "matafeiyan", name: "马踏飞燕", era: "东汉 · 甘肃省博物馆", model: "/my_art/matafeiyan.glb", hall: "bronze", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Gansu_Museum_-_Flying_Horse.jpg/640px-Gansu_Museum_-_Flying_Horse.jpg" },
+      { id: "shuochangtaoyong", name: "击鼓说唱陶俑", era: "东汉 · 中国国家博物馆", model: "/my_art/shuochangtaoyong.glb", hall: "bronze", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Pottery_storyteller_Han_dynasty.jpg/640px-Pottery_storyteller_Han_dynasty.jpg" },
+      { id: "handaiqingtongbianzhong", name: "汉代青铜编钟", era: "汉代 · 湖北省博物馆", model: "/my_art/handaiqingtongbianzhong.glb", hall: "bronze", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Bianzhong_of_Marquis_Yi_of_Zeng.jpg/640px-Bianzhong_of_Marquis_Yi_of_Zeng.jpg" },
+      { id: "qingtongniu", name: "青铜牛", era: "商周 · 中国国家博物馆", model: "/my_art/qingtongniu.glb", hall: "bronze", side: true, img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Shang_dynasty_bronze_ox.jpg/640px-Shang_dynasty_bronze_ox.jpg" },
       { id: "cn-bronze-gong", name: "青铜兽面纹觥", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/cn-bronze-wine-ewer-gong.bin", hall: "bronze" },
       { id: "cn-elephant-zun", name: "青铜象尊", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/cn2-bronze-elephant-ewer.bin", hall: "bronze", side: true },
       { id: "cn-bronze-fangyi", name: "青铜方彝", era: "商代 · 史密森尼博物馆", model: "/echo/assets/models/cn-bronze-fangyi-vessel.bin", hall: "bronze" },
@@ -243,51 +250,59 @@
 
     // 动态生成卡片（按场馆分组）
     const artGrid = document.getElementById("art-grid");
-    document.getElementById("art-count").textContent = `共 ${ALL_ARTIFACTS.length} 件`;
+    const countEl = document.getElementById("art-count");
 
-    HALLS.forEach((hall) => {
-      const hallArts = ALL_ARTIFACTS.filter((a) => a.hall === hall.id);
-      if (hallArts.length === 0) return;
+    function renderGallery() {
+      artGrid.innerHTML = "";
+      countEl.textContent = t("g_count", { n: ALL_ARTIFACTS.length });
+      const isEn = getLang() === "en";
+      HALLS.forEach((hall) => {
+        const hallArts = ALL_ARTIFACTS.filter((a) => a.hall === hall.id);
+        if (hallArts.length === 0) return;
 
-      // 场馆标题
-      const hallTitle = document.createElement("div");
-      hallTitle.style.cssText = "grid-column: 1 / -1; margin: 24px 0 12px; padding: 0 4px; display: flex; align-items: center; gap: 12px;";
-      hallTitle.innerHTML = `
-        <span style="width:40px;height:40px;border-radius:50%;background:rgba(201,169,97,0.15);display:grid;place-items:center;color:#c9a961;font-size:18px;">${hall.glyph}</span>
-        <div>
-          <div style="font-size:18px;color:#fff;letter-spacing:2px;">${hall.name}</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.4);letter-spacing:1px;">${hall.sub} · ${hallArts.length} 件展品</div>
-        </div>
-      `;
-      artGrid.appendChild(hallTitle);
-
-      // 该场馆的文物卡片
-      hallArts.forEach((art) => {
-        const card = document.createElement("a");
-        card.href = `/gallerydistract.html?id=${art.id}`;
-        card.className = "card";
-        card.dataset.model = art.id;
-        card.dataset.hall = hall.id;
-        card.title = art.name;
-        card.innerHTML = `
-          <div class="img"><canvas style="width:100%;height:100%;"></canvas></div>
-          <div class="info"><div class="era">${art.era}</div></div>
+        // 场馆标题
+        const hallTitle = document.createElement("div");
+        hallTitle.style.cssText = "grid-column: 1 / -1; margin: 24px 0 12px; padding: 0 4px; display: flex; align-items: center; gap: 12px;";
+        hallTitle.innerHTML = `
+          <span style="width:40px;height:40px;border-radius:50%;background:rgba(201,169,97,0.15);display:grid;place-items:center;color:#c9a961;font-size:18px;">${hall.glyph}</span>
+          <div>
+            <div style="font-size:18px;color:#fff;letter-spacing:2px;">${t(HALL_KEY[hall.id] || "hall_center")}</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.4);letter-spacing:1px;">${t(HALL_SUB_KEY[hall.id] || "hall_sub_center")} · ${hallArts.length} ${isEn ? "exhibits" : "件展品"}</div>
+          </div>
         `;
-        artGrid.appendChild(card);
-      });
-    });
+        artGrid.appendChild(hallTitle);
 
-    // 支持 ?theme=xxx 定位到对应场馆
-    const themeParam = new URLSearchParams(location.search).get("theme");
-    if (themeParam) {
-      const hallCards = artGrid.querySelectorAll(`.card[data-hall="${themeParam}"]`);
-      if (hallCards.length > 0) {
-        const firstCard = hallCards[0];
-        requestAnimationFrame(() => {
-          firstCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        // 该场馆的文物卡片
+        hallArts.forEach((art) => {
+          const card = document.createElement("a");
+          card.href = `/gallerydistract.html?id=${art.id}`;
+          card.className = "card";
+          card.dataset.model = art.id;
+          card.dataset.hall = hall.id;
+          card.title = art.name;
+          card.innerHTML = `
+            <div class="img"><canvas style="width:100%;height:100%;"></canvas></div>
+            <div class="info"><div class="era">${art.era}</div></div>
+          `;
+          artGrid.appendChild(card);
         });
+      });
+
+      // 支持 ?theme=xxx 定位到对应场馆
+      const themeParam = new URLSearchParams(location.search).get("theme");
+      if (themeParam) {
+        const hallCards = artGrid.querySelectorAll(`.card[data-hall="${themeParam}"]`);
+        if (hallCards.length > 0) {
+          const firstCard = hallCards[0];
+          requestAnimationFrame(() => {
+            firstCard.scrollIntoView({ behavior: "smooth", block: "start" });
+          });
+        }
       }
     }
+
+    renderGallery();
+    document.addEventListener("langchange", renderGallery);
 
     // 创建共享离屏渲染器
     const scRenderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });
